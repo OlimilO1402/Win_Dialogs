@@ -183,17 +183,20 @@ Begin VB.Form Form1
    End
    Begin VB.Menu mnuEdit 
       Caption         =   "&Edit"
-      Begin VB.Menu mnuEditFolderChoose 
-         Caption         =   "Select Fol&der..."
-      End
       Begin VB.Menu mnuEditColorChoose 
          Caption         =   "Select &Color..."
       End
       Begin VB.Menu mnuEditFontChoose 
          Caption         =   "Select &Font..."
       End
+      Begin VB.Menu mnuEditFolderChoose 
+         Caption         =   "Select Folder (prefered)"
+      End
+      Begin VB.Menu mnuEditFolderSelectOFD 
+         Caption         =   "Select Folder (simple OpenFiledialog)"
+      End
       Begin VB.Menu mnuEditPathChoose 
-         Caption         =   "Select &Path (old,deprecated) "
+         Caption         =   "Select Folder (old FolderBrowser)"
       End
    End
 End
@@ -207,6 +210,26 @@ Private CD  As New ColorDialog
 
 Private Sub Form_Load()
     PrepareSpecialFolder
+End Sub
+
+Private Sub mnuEditFolderSelectOFD_Click()
+    With New OpenFileDialog
+        'Dim sfs As String: sfs = "Folder Selection"
+        .Title = "Select a Folder"
+        .InitialDirectory = LblFBD.Caption
+        .FileName = "Folder Selection"
+        .ValidateNames = False
+        .CheckFileExists = False
+        .CheckPathExists = True
+        If .ShowDialog(Me) = vbOK Then
+            Dim FNm As String: FNm = .FileName
+            Dim pos As Long: pos = InStrRev(FNm, "\")
+            If pos > 3 Then
+                FNm = Left(FNm, pos)
+                LblFBD.Caption = FNm
+            End If
+        End If
+    End With
 End Sub
 
 Private Sub mnuFileOpen_Click()
@@ -237,8 +260,8 @@ End Sub
 '==================================================
 Private Sub mnuEditFolderChoose_Click()
     With New OpenFolderDialog
-        .Title = "Please select a folder:"
-        '.Folder = LblFBD.Caption
+        .Title = "Select a folder"
+        .Folder = LblFBD.Caption
         If .ShowDialog(Me.hwnd) = vbOK Then
             LblFBD.Caption = .Folder
         End If

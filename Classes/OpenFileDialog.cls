@@ -461,76 +461,70 @@ Public Property Let ValidateNames(BolVal As Boolean) 'OFN_NOVALIDATE
 End Property
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
-Dim OFN As OPENFILENAME
-Dim mMaxLenFN As Long
-Dim Buffer As String
-Dim Result As Long
-Dim myFrm As Form
-Dim myOwnerHwnd As Long
-Dim myOwnerhInst As Long
-Dim FN As String
 
-TryE: On Error GoTo FinallyE
+Try: On Error GoTo Catch
   
-  If Not IsMissing(Frm) Then
-    myOwnerHwnd = Frm.hwnd
-  Else
-    myOwnerHwnd = GetActiveWindow
-    'myOwnerHwnd = GetCenteredHwnd 'see below 'scheiﬂe das bringt nix!!!
-    'myOwnerHwnd = GetDesktopWindow 'GetActiveWindow
-  End If
-  myOwnerhInst = App.hInstance
-  
-  mMaxLenFN = 32767 - Len(mFileName)
-  Buffer = mFileName & String$(mMaxLenFN, vbNullChar)
-  
-  With OFN
-    .lStructSize = Len(OFN)
-    .hwndOwner = myOwnerHwnd
-    .hInstance = myOwnerhInst
-    .lpstrFilter = mFilter
-    '.lpstrCustomFilter = mDefaultExt
-    'nMaxCustFilter
-    .nFilterIndex = mFilterIndex '(FilterIndex)
-    .lpstrFile = Buffer
-    .nMaxFile = Len(Buffer) '32767
-    'lpstrFileTitle 'der NurDateiName ohne Extension
-    'nMaxFileTitle
-    .lpstrInitialDir = mInitialDirectory
-    .lpstrTitle = mTitle
-    .flags = mFlags
-    'nFileOffset
-    'nFileExtension
-    .lpstrDefExt = mDefaultExt
-    'lCustData
-    'lpfnHook
-    'lpTemplateName
-  End With
-  Result = GetOpenFileName(OFN)
-  'Result = GetOpenFileNamePreview(OFN)
-  If Result <> 0 Then
-    'man muﬂ am String erkennen, ob nur eine oder mehrere Dateien ausgew‰hlt wurden
-    Call GetFNsinCol(OFN.lpstrFile)
-    ShowDialog = vbOK
-  Else
-    If mFlags And OFN_ALLOWMULTISELECT Then
-      Call GetFNsinCol(OFN.lpstrFile)
+    Dim myOwnerHwnd As Long
+    If Not IsMissing(Frm) Then
+        myOwnerHwnd = Frm.hwnd
+    Else
+        myOwnerHwnd = GetActiveWindow
+        'myOwnerHwnd = GetCenteredHwnd 'see below 'scheiﬂe das bringt nix!!!
+        'myOwnerHwnd = GetDesktopWindow 'GetActiveWindow
     End If
-    ShowDialog = vbCancel
-    'oder zuviele Dateien
-  End If
-FinallyE:
-  'Call DestroyWindow(myOwnerHwnd)
-  'Debug.Print "DestroyWindow " & myOwnerHwnd
-  On Error GoTo CatchE
-  Exit Function
-CatchE:
-  If Err.Number = 32755 Then
-    ShowDialog = vbCancel
-  Else
-    ShowDialog = vbAbort
-    MsgBox CStr(Err.Number) + " " + Err.Description
-  End If
+    Dim myOwnerhInst As Long: myOwnerhInst = App.hInstance
+    
+    Dim mMaxLen As Long:  mMaxLen = 32767 - Len(mFileName)
+    Dim Buffer  As String: Buffer = mFileName & String$(mMaxLen, vbNullChar)
+    
+    Dim OFN As OPENFILENAME
+    With OFN
+        .lStructSize = LenB(OFN)
+        .hwndOwner = myOwnerHwnd
+        .hInstance = myOwnerhInst
+        .lpstrFilter = mFilter
+        '.lpstrCustomFilter = mDefaultExt
+        'nMaxCustFilter
+        .nFilterIndex = mFilterIndex '(FilterIndex)
+        .lpstrFile = Buffer
+        .nMaxFile = Len(Buffer) '32767
+        'lpstrFileTitle 'der NurDateiName ohne Extension
+        'nMaxFileTitle
+        .lpstrInitialDir = mInitialDirectory
+        .lpstrTitle = mTitle
+        .flags = mFlags
+        'nFileOffset
+        'nFileExtension
+        .lpstrDefExt = mDefaultExt
+        'lCustData
+        'lpfnHook
+        'lpTemplateName
+    End With
+    Dim Result As Long: Result = GetOpenFileName(OFN)
+    'Result = GetOpenFileNamePreview(OFN)
+    If Result <> 0 Then
+        'man muﬂ am String erkennen, ob nur eine oder mehrere Dateien ausgew‰hlt wurden
+        Call GetFNsinCol(OFN.lpstrFile)
+        ShowDialog = vbOK
+    Else
+        If mFlags And OFN_ALLOWMULTISELECT Then
+            Call GetFNsinCol(OFN.lpstrFile)
+        End If
+        ShowDialog = vbCancel
+        'oder zuviele Dateien
+    End If
+Finally:
+    'Call DestroyWindow(myOwnerHwnd)
+    'Debug.Print "DestroyWindow " & myOwnerHwnd
+    On Error GoTo Catch
+    Exit Function
+Catch:
+    If Err.Number = 32755 Then
+        ShowDialog = vbCancel
+    Else
+        ShowDialog = vbAbort
+        MsgBox CStr(Err.Number) + " " + Err.Description
+    End If
 End Function
 
 'Private Function GetCenteredHwnd() As Long
