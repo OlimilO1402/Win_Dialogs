@@ -155,11 +155,11 @@ Public Property Let SolidColorOnly(BolVal As Boolean)
 End Property
 
 'Public Overrides Function ToString() As String
-Public Function ToString() As String
-  ToString = "MBO.Windows.Forms.ColorDialog"
+Public Function ToStr() As String
+  ToStr = "MBO.Windows.Forms.ColorDialog"
 End Function
 
-Public Function ShowDialog(Optional Frm As Variant) As DialogResult
+Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
 Dim ChCl As ChooseColor
 Dim hhwndOwner As Long
 Dim CancelColors(MaxCustomColors - 1) As Long, i As Long
@@ -186,13 +186,13 @@ TryE: On Error GoTo CatchE
   End With
   ShowDialog = ChooseColorA(ChCl)
   mColor = ChCl.rgbResult
-  If ShowDialog = DialogResult_Cancel Then
+  If ShowDialog = vbCancel Then
     For i = 0 To MaxCustomColors - 1
       mCustomColors(i) = CancelColors(i)
     Next
   End If
   Exit Function
 CatchE:
-  ShowDialog = DialogResult.DialogResult_Abort
+  ShowDialog = vbAbort
 End Function
 

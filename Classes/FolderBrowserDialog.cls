@@ -279,7 +279,7 @@ Public Function ToString() As String
     ToString = "Windows.Forms.FolderBrowserDialog"
 End Function
 
-Public Function ShowDialog(Optional Frm As Variant) As DialogResult
+Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
     Dim BI         As BrowseInfo
     Dim hhwndOwner As Long
     Dim IDList     As Long
@@ -321,16 +321,16 @@ TryE: On Error GoTo CatchE
         Buffer = String$(1024, vbNullChar)
         Call SHGetPathFromIDList(IDList, Buffer)
         mSelectedPath = Left$(Buffer, lstrlenA(Buffer))
-        ShowDialog = DialogResult_OK
+        ShowDialog = vbOK
         'Free the IDList Memory !
         Call CoTaskMemFree(IDList)
     Else
-        ShowDialog = DialogResult_Cancel
+        ShowDialog = vbCancel
     End If
     Exit Function
 CatchE:
     If Err.Number > 0 Then MsgBox Err.Description
-    ShowDialog = DialogResult_Abort
+    ShowDialog = vbAbort
 End Function
 
 Private Function FncPtr(p As Long) As Long

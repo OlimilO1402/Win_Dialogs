@@ -34,38 +34,27 @@ Private Declare Function DestroyWindow Lib "user32.dll" (ByVal hwnd As Long) As 
 '  Bottom As Long
 'End Type
 
-Public Enum DialogResult
-    DialogResult_None = 0
-    DialogResult_OK = VbMsgBoxResult.vbOK
-    DialogResult_Cancel = VbMsgBoxResult.vbCancel
-    DialogResult_Abort = VbMsgBoxResult.vbAbort
-    DialogResult_Retry = VbMsgBoxResult.vbRetry
-    DialogResult_Ignore = VbMsgBoxResult.vbIgnore
-    DialogResult_Yes = VbMsgBoxResult.vbYes
-    DialogResult_No = VbMsgBoxResult.vbNo
-End Enum
-
 Private Type OPENFILENAME
-  lStructSize As Long
-  hwndOwner As Long
-  hInstance As Long
-  lpstrFilter As String
+  lStructSize       As Long
+  hwndOwner         As Long
+  hInstance         As Long
+  lpstrFilter       As String
   lpstrCustomFilter As String
-  nMaxCustFilter As Long
-  nFilterIndex As Long
-  lpstrFile As String
-  nMaxFile As Long
-  lpstrFileTitle As String
-  nMaxFileTitle As Long
-  lpstrInitialDir As String
-  lpstrTitle As String
-  flags As Long
-  nFileOffset As Integer
-  nFileExtension As Integer
-  lpstrDefExt As String
-  lCustData As Long
-  lpfnHook As Long
-  lpTemplateName As String
+  nMaxCustFilter    As Long
+  nFilterIndex      As Long
+  lpstrFile         As String
+  nMaxFile          As Long
+  lpstrFileTitle    As String
+  nMaxFileTitle     As Long
+  lpstrInitialDir   As String
+  lpstrTitle        As String
+  flags             As Long
+  nFileOffset       As Integer
+  nFileExtension    As Integer
+  lpstrDefExt       As String
+  lCustData         As Long
+  lpfnHook          As Long
+  lpTemplateName    As String
 End Type
 
 Private Const OFN_SHAREWARN             As Long = 0&
@@ -144,119 +133,119 @@ Private mFlags As Long
 Private mTag As Variant
 
 Private Sub Class_Initialize()
-  Call Reset
+    Call Reset
 End Sub
 Public Sub Reset()
-  'Call InitFlags
-  mFlags = mFlags Or OFN_EXPLORER
-  mFlags = mFlags Or OFN_FILEMUSTEXIST
-  mFlags = mFlags Or OFN_HIDEREADONLY
-  mFlags = mFlags Or OFN_PATHMUSTEXIST
-
-  mAddExtension = True
-  'Set mFileNames = New Collection  'ReadOnly nur Get
-  Call FNsColInitClear
-  mFilterIndex = 1           'nFilterIndex
-  'mTitle = "Open"                '
-  mValidateNames = True      'OFN_NOVALIDATE
+    'Call InitFlags
+    mFlags = mFlags Or OFN_EXPLORER
+    mFlags = mFlags Or OFN_FILEMUSTEXIST
+    mFlags = mFlags Or OFN_HIDEREADONLY
+    mFlags = mFlags Or OFN_PATHMUSTEXIST
+    
+    mAddExtension = True
+    'Set mFileNames = New Collection  'ReadOnly nur Get
+    Call FNsColInitClear
+    mFilterIndex = 1           'nFilterIndex
+    'mTitle = "Open"                '
+    mValidateNames = True      'OFN_NOVALIDATE
 End Sub
 Private Sub FNsColInitClear()
-  Set mFileNames = New Collection
+    Set mFileNames = New Collection
 End Sub
 
 Private Sub InitFlags() 'in Modul ModCommonDialogs.bas
-  'mFlags = mFlags Or OFN_ALLOWMULTISELECT
-  'mFlags = mFlags Or OFN_CREATEPROMPT
-  'mFlags = mFlags Or OFN_DONTADDTORECENT
-  'mFlags = mFlags Or OFN_ENABLEHOOK
-  'mFlags = mFlags Or OFN_ENABLEINCLUDENOTIFY
-  'mFlags = mFlags Or OFN_ENABLESIZING
-  'mFlags = mFlags Or OFN_ENABLETEMPLATE
-  'mFlags = mFlags Or OFN_ENABLETEMPLATEHANDLE
-  'mFlags = mFlags Or OFN_EX_NOPLACESBAR
-  mFlags = mFlags Or OFN_EXPLORER
-  'mFlags = mFlags Or OFN_EXTENSIONDIFFERENT
-  mFlags = mFlags Or OFN_FILEMUSTEXIST
-  'mFlags = mFlags Or OFN_FORCESHOWHIDDEN
-  mFlags = mFlags Or OFN_HIDEREADONLY
-  'mFlags = mFlags Or OFN_LONGNAMES
-  'mFlags = mFlags Or OFN_NOCHANGEDIR
-  'mFlags = mFlags Or OFN_NODEREFERENCELINKS
-  'mFlags = mFlags Or OFN_NOLONGNAMES
-  'mFlags = mFlags Or OFN_NONETWORKBUTTON
-  'mFlags = mFlags Or OFN_NOREADONLYRETURN
-  'mFlags = mFlags Or OFN_NOTESTFILECREATE
-  'mFlags = mFlags Or OFN_NOVALIDATE
-  'mFlags = mFlags Or OFN_OVERWRITEPROMPT
-  mFlags = mFlags Or OFN_PATHMUSTEXIST
-  'mFlags = mFlags Or OFN_READONLY
-  'mFlags = mFlags Or OFN_SHAREAWARE
-  'mFlags = mFlags Or OFN_SHAREFALLTHROUGH
-  'mFlags = mFlags Or OFN_SHARENOWARN
-  'mFlags = mFlags Or OFN_SHAREWARN
-  'mFlags = mFlags Or OFN_SHOWHELP
-  'mFlags = mFlags Or OFN_USEMONIKERS
+    'mFlags = mFlags Or OFN_ALLOWMULTISELECT
+    'mFlags = mFlags Or OFN_CREATEPROMPT
+    'mFlags = mFlags Or OFN_DONTADDTORECENT
+    'mFlags = mFlags Or OFN_ENABLEHOOK
+    'mFlags = mFlags Or OFN_ENABLEINCLUDENOTIFY
+    'mFlags = mFlags Or OFN_ENABLESIZING
+    'mFlags = mFlags Or OFN_ENABLETEMPLATE
+    'mFlags = mFlags Or OFN_ENABLETEMPLATEHANDLE
+    'mFlags = mFlags Or OFN_EX_NOPLACESBAR
+    mFlags = mFlags Or OFN_EXPLORER
+    'mFlags = mFlags Or OFN_EXTENSIONDIFFERENT
+    mFlags = mFlags Or OFN_FILEMUSTEXIST
+    'mFlags = mFlags Or OFN_FORCESHOWHIDDEN
+    mFlags = mFlags Or OFN_HIDEREADONLY
+    'mFlags = mFlags Or OFN_LONGNAMES
+    'mFlags = mFlags Or OFN_NOCHANGEDIR
+    'mFlags = mFlags Or OFN_NODEREFERENCELINKS
+    'mFlags = mFlags Or OFN_NOLONGNAMES
+    'mFlags = mFlags Or OFN_NONETWORKBUTTON
+    'mFlags = mFlags Or OFN_NOREADONLYRETURN
+    'mFlags = mFlags Or OFN_NOTESTFILECREATE
+    'mFlags = mFlags Or OFN_NOVALIDATE
+    'mFlags = mFlags Or OFN_OVERWRITEPROMPT
+    mFlags = mFlags Or OFN_PATHMUSTEXIST
+    'mFlags = mFlags Or OFN_READONLY
+    'mFlags = mFlags Or OFN_SHAREAWARE
+    'mFlags = mFlags Or OFN_SHAREFALLTHROUGH
+    'mFlags = mFlags Or OFN_SHARENOWARN
+    'mFlags = mFlags Or OFN_SHAREWARN
+    'mFlags = mFlags Or OFN_SHOWHELP
+    'mFlags = mFlags Or OFN_USEMONIKERS
 End Sub
 Friend Property Get flags() As Long
-  flags = mFlags
+    flags = mFlags
 End Property
 Friend Property Let flags(FlgVal As Long)
-  mFlags = FlgVal
+    mFlags = FlgVal
 End Property
 
 'Ruft einen Wert ab, oder legt diesen fest, der angibt,
 'ob einem Dateinamen im Dialogfeld automatisch eine Erweiterung
 'hinzugefügt wird wenn der Benutzer keine Erweiterung angibt
 Public Property Get AddExtension() As Boolean
-  AddExtension = mAddExtension
+    AddExtension = mAddExtension
 End Property
 Public Property Let AddExtension(BolVal As Boolean)
-  mAddExtension = BolVal
+    mAddExtension = BolVal
 End Property
 
 'Public Overrides Property CheckFileExists() As Boolean
 Public Property Get CheckFileExists() As Boolean       'OFN_FILEMUSTEXIST
-  'CheckFileExists = mCheckFileExists
-  CheckFileExists = mFlags And OFN_FILEMUSTEXIST
+    'CheckFileExists = mCheckFileExists
+    CheckFileExists = mFlags And OFN_FILEMUSTEXIST
 End Property
 Public Property Let CheckFileExists(BolVal As Boolean)       'OFN_FILEMUSTEXIST
-  'mCheckFileExists = BolVal
-  mFlags = mFlags Or OFN_FILEMUSTEXIST
-  If Not BolVal Then
-    mFlags = mFlags Xor OFN_FILEMUSTEXIST
-  End If
+    'mCheckFileExists = BolVal
+    mFlags = mFlags Or OFN_FILEMUSTEXIST
+    If Not BolVal Then
+        mFlags = mFlags Xor OFN_FILEMUSTEXIST
+    End If
 End Property
 
 Public Property Get CheckPathExists() As Boolean         'OFN_PATHMUSTEXIST
-   'CheckPathExists = mCheckPathExists
-  CheckPathExists = mFlags And OFN_PATHMUSTEXIST
+     'CheckPathExists = mCheckPathExists
+    CheckPathExists = mFlags And OFN_PATHMUSTEXIST
 End Property
 Public Property Let CheckPathExists(BolVal As Boolean)         'OFN_PATHMUSTEXIST
-  'mCheckPathExists = BolVal
-  mFlags = mFlags Or OFN_PATHMUSTEXIST
-  If Not BolVal Then
-    mFlags = mFlags Xor OFN_PATHMUSTEXIST
-  End If
+    'mCheckPathExists = BolVal
+    mFlags = mFlags Or OFN_PATHMUSTEXIST
+    If Not BolVal Then
+        mFlags = mFlags Xor OFN_PATHMUSTEXIST
+    End If
 End Property
 
 'Public Property DefaultExt() As String
 Public Property Get DefaultExt() As String
-  DefaultExt = mDefaultExt
+    DefaultExt = mDefaultExt
 End Property
 Public Property Let DefaultExt(StrExt As String)
-  mDefaultExt = StrExt
+    mDefaultExt = StrExt
 End Property
 
 'Public Property DereferenceLinks() As Boolean
 Public Property Get DereferenceLinks() As Boolean       'OFN_NODEREFERENCELINKS
-  'DereferenceLinks = mDereferenceLinks
-  DereferenceLinks = mFlags And OFN_NODEREFERENCELINKS
+    'DereferenceLinks = mDereferenceLinks
+    DereferenceLinks = mFlags And OFN_NODEREFERENCELINKS
 End Property
 Public Property Let DereferenceLinks(BolVal As Boolean) 'OFN_NODEREFERENCELINKS
-  mFlags = mFlags Or OFN_NODEREFERENCELINKS
-  If BolVal Then
-    mFlags = mFlags Xor OFN_NODEREFERENCELINKS
-  End If
+    mFlags = mFlags Or OFN_NODEREFERENCELINKS
+    If BolVal Then
+        mFlags = mFlags Xor OFN_NODEREFERENCELINKS
+    End If
 End Property
 
 'Public Property Let DereferenceLinks(BolVal As Boolean) 'OFN_NODEREFERENCELINKS
@@ -268,15 +257,15 @@ End Property
 
 'Public Property FileName() As String
 Public Property Get FileName() As String
-  FileName = mFileName
+    FileName = mFileName
 End Property
 Public Property Let FileName(StrFN As String)
-  mFileName = StrFN
+    mFileName = StrFN
 End Property
 
 'Public ReadOnly Property FileNames() As String()
 Public Property Get FileNames() As Collection 'ReadOnly nur Get
-  Set FileNames = mFileNames
+    Set FileNames = mFileNames
 End Property
 
 Private Sub GetFNsinCol(FNs As String)
@@ -471,7 +460,7 @@ Public Property Let ValidateNames(BolVal As Boolean) 'OFN_NOVALIDATE
   End If
 End Property
 
-Public Function ShowDialog(Optional Frm As Variant) As DialogResult
+Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
 Dim OFN As OPENFILENAME
 Dim mMaxLenFN As Long
 Dim Buffer As String
@@ -522,12 +511,12 @@ TryE: On Error GoTo FinallyE
   If Result <> 0 Then
     'man muß am String erkennen, ob nur eine oder mehrere Dateien ausgewählt wurden
     Call GetFNsinCol(OFN.lpstrFile)
-    ShowDialog = DialogResult.DialogResult_OK
+    ShowDialog = vbOK
   Else
     If mFlags And OFN_ALLOWMULTISELECT Then
       Call GetFNsinCol(OFN.lpstrFile)
     End If
-    ShowDialog = DialogResult.DialogResult_Cancel
+    ShowDialog = vbCancel
     'oder zuviele Dateien
   End If
 FinallyE:
@@ -537,9 +526,9 @@ FinallyE:
   Exit Function
 CatchE:
   If Err.Number = 32755 Then
-    ShowDialog = DialogResult.DialogResult_Cancel
+    ShowDialog = vbCancel
   Else
-    ShowDialog = DialogResult.DialogResult_Abort
+    ShowDialog = vbAbort
     MsgBox CStr(Err.Number) + " " + Err.Description
   End If
 End Function

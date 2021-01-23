@@ -469,7 +469,7 @@ Public Property Let ValidateNames(BolVal As Boolean) 'OFN_NOVALIDATE
   End If
 End Property
 
-Public Function ShowDialog(Optional Frm As Variant) As DialogResult
+Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
 Dim OFN As OPENFILENAME
 Dim hhwndOwner As Long
 Dim mMaxLenFN As Long
@@ -482,7 +482,7 @@ TryE: On Error GoTo Catch
   If IsMissing(Frm) Then
     hhwndOwner = GetActiveWindow
   Else
-    hhwndOwner = Frm.hWnd
+    hhwndOwner = Frm.hwnd
   End If
   
   mMaxLenFN = 32767 - Len(mFileName)
@@ -531,7 +531,7 @@ TryE: On Error GoTo Catch
   Exit Function
 Catch:
   If Err.Number = 32755 Then
-    ShowDialog = DialogResult.DialogResult_Abort
+    ShowDialog = vbAbort
   Else
     MsgBox CStr(Err.Number) + " " + Err.Description
   End If

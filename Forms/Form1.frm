@@ -1,29 +1,29 @@
 VERSION 5.00
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   5055
+   ClientHeight    =   6930
    ClientLeft      =   225
    ClientTop       =   870
-   ClientWidth     =   5295
+   ClientWidth     =   7650
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   5055
-   ScaleWidth      =   5295
+   ScaleHeight     =   6930
+   ScaleWidth      =   7650
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command4 
-      Caption         =   "lokaler Ordner"
+      Caption         =   "locale Folders"
       Height          =   375
       Left            =   3840
       TabIndex        =   5
-      Top             =   4560
+      Top             =   4920
       Width           =   1335
    End
    Begin VB.CommandButton Command3 
-      Caption         =   "Drucker"
+      Caption         =   "Printer"
       Height          =   375
       Left            =   2520
       TabIndex        =   6
-      Top             =   4560
+      Top             =   4920
       Width           =   1335
    End
    Begin VB.CommandButton Command2 
@@ -31,15 +31,15 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   1320
       TabIndex        =   7
-      Top             =   4560
+      Top             =   4920
       Width           =   1215
    End
    Begin VB.CommandButton Command1 
-      Caption         =   "Ordner"
+      Caption         =   "Folders"
       Height          =   375
       Left            =   120
       TabIndex        =   8
-      Top             =   4560
+      Top             =   4920
       Width           =   1215
    End
    Begin VB.CommandButton BtnFolderBrowser 
@@ -47,7 +47,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   120
       TabIndex        =   14
-      Top             =   3720
+      Top             =   4080
       Width           =   5055
    End
    Begin VB.ComboBox CmbSpecialFolder 
@@ -55,7 +55,7 @@ Begin VB.Form Form1
       Left            =   120
       TabIndex        =   13
       Text            =   "Combo1"
-      Top             =   3360
+      Top             =   3720
       Width           =   5055
    End
    Begin VB.CheckBox ChkShowEditBox 
@@ -63,7 +63,7 @@ Begin VB.Form Form1
       Height          =   255
       Left            =   120
       TabIndex        =   12
-      Top             =   2880
+      Top             =   3240
       Value           =   1  'Aktiviert
       Width           =   2175
    End
@@ -72,7 +72,7 @@ Begin VB.Form Form1
       Height          =   255
       Left            =   3000
       TabIndex        =   11
-      Top             =   2880
+      Top             =   3240
       Value           =   1  'Aktiviert
       Width           =   2175
    End
@@ -80,24 +80,32 @@ Begin VB.Form Form1
       Height          =   285
       Left            =   120
       TabIndex        =   10
-      Top             =   2160
+      Top             =   2520
       Width           =   5055
    End
    Begin VB.CheckBox ChkSelectedPath 
-      Caption         =   "Verwende falls möglich obige TextBox als voreingestellten Pfad"
+      Caption         =   "Use the path above as the starting folder if possible"
       Height          =   255
       Left            =   120
       TabIndex        =   9
-      Top             =   2520
+      Top             =   2880
       Value           =   1  'Aktiviert
       Width           =   5055
    End
+   Begin VB.Label Label2 
+      Caption         =   $"Form1.frx":1782
+      Height          =   615
+      Left            =   120
+      TabIndex        =   16
+      Top             =   1920
+      Width           =   5055
+   End
    Begin VB.Label Label1 
-      Caption         =   "Der FolderBrowserDialog als spezieller Dialog für das Suchen von ..."
+      Caption         =   "Use FolderBrowserDialog as special dialog fo searching ..."
       Height          =   255
       Left            =   120
       TabIndex        =   15
-      Top             =   4320
+      Top             =   4680
       Width           =   5055
    End
    Begin VB.Label LblFBD 
@@ -167,30 +175,33 @@ Begin VB.Form Form1
       Width           =   75
    End
    Begin VB.Menu mnuFile 
-      Caption         =   "&Datei"
+      Caption         =   "&File"
       Begin VB.Menu mnuFileOpen 
-         Caption         =   "&Öffnen..."
+         Caption         =   "&Open..."
       End
       Begin VB.Menu mnuFileSaveAs 
-         Caption         =   "Speichern &unter..."
+         Caption         =   "Save &As..."
       End
       Begin VB.Menu mnuFileSep1 
          Caption         =   "-"
       End
       Begin VB.Menu mnuFileExit 
-         Caption         =   "Be&enden"
+         Caption         =   "E&xit"
       End
    End
    Begin VB.Menu mnuEdit 
-      Caption         =   "&Bearbeiten"
+      Caption         =   "&Edit"
+      Begin VB.Menu mnuEditFolderChoose 
+         Caption         =   "Select Fol&der..."
+      End
       Begin VB.Menu mnuEditColorChoose 
-         Caption         =   "&Farbe auswählen..."
+         Caption         =   "Select &Color..."
       End
       Begin VB.Menu mnuEditFontChoose 
-         Caption         =   "Schrift &auswählen..."
+         Caption         =   "Select &Font..."
       End
       Begin VB.Menu mnuEditPathChoose 
-         Caption         =   "&Pfad auswählen..."
+         Caption         =   "Select &Path (old,deprecated) "
       End
    End
 End
@@ -200,62 +211,79 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private OFD As New OpenFileDialog
-Private SFD As New SaveFileDialog
-Private FBD As New FolderBrowserDialog
 Private CD  As New ColorDialog
-Private FD  As New FontDialog
 
 Private Sub Form_Load()
     PrepareSpecialFolder
 End Sub
 
 Private Sub mnuFileOpen_Click()
-    OFD.Filter = "TextDatei (*.txt)|*.txt|html-Datei (*.htm, *.html)|*.htm*|Alle Dateien (*.*)|*.*"
-    OFD.CheckFileExists = False
-    OFD.CheckPathExists = False
-    OFD.DefaultExt = ".htm"
-    OFD.ShowReadOnly = True
-    OFD.AddExtension = False
-    If OFD.ShowDialog() = DialogResult.DialogResult_OK Then
-        LblOFD.Caption = OFD.FileName
-    End If
+    With New OpenFileDialog
+        .Filter = "TextDatei (*.txt)|*.txt|html-Datei (*.htm, *.html)|*.htm*|Alle Dateien (*.*)|*.*"
+        .CheckFileExists = False
+        .CheckPathExists = False
+        .DefaultExt = ".htm"
+        .ShowReadOnly = True
+        .AddExtension = False
+        If .ShowDialog = vbOK Then
+            LblOFD.Caption = .FileName
+        End If
+    End With
 End Sub
 Private Sub mnuFileSaveAs_Click()
-    SFD.Filter = "TextDatei (*.txt)|*.txt|html-Datei (*.htm, *.html)|*.htm*|Alle Dateien (*.*)|*.*"
-    If SFD.ShowDialog = DialogResult.DialogResult_OK Then
-        LblSFD.Caption = SFD.FileName
-    End If
+    With New SaveFileDialog
+        .Filter = "TextDatei (*.txt)|*.txt|html-Datei (*.htm, *.html)|*.htm*|Alle Dateien (*.*)|*.*"
+        If .ShowDialog = vbOK Then
+            LblSFD.Caption = .FileName
+        End If
+    End With
 End Sub
 '--------------------------------------------------
 Private Sub mnuFileExit_Click()
     Unload Me
 End Sub
 '==================================================
+Private Sub mnuEditFolderChoose_Click()
+    With New OpenFolderDialog
+        .Title = "Please select a folder:"
+        '.Folder = LblFBD.Caption
+        If .ShowDialog(Me.hwnd) = vbOK Then
+            LblFBD.Caption = .Folder
+        End If
+    End With
+End Sub
+
 Private Sub mnuEditPathChoose_Click()
-    FBD.Description = "Wählen Sie bitte einen Ordner aus:"
-    FBD.ShowNewFolderButton = True
-    If FBD.ShowDialog = DialogResult_OK Then
-        LblFBD.Caption = FBD.SelectedPath
-    End If
+    With New FolderBrowserDialog
+        .Description = "Please select a folder:"
+        .ShowNewFolderButton = True
+        If .ShowDialog = vbOK Then
+            LblFBD.Caption = .SelectedPath
+        End If
+    End With
 End Sub
 
 Private Sub mnuEditColorChoose_Click()
-    CD.Color = LblCD.BackColor
-    CD.SolidColorOnly = True
-    If CD.ShowDialog = DialogResult_OK Then
-        LblCD.BackColor = CD.Color
-    End If
+    With CD
+        .Color = LblCD.BackColor
+        .SolidColorOnly = True
+        If .ShowDialog = vbOK Then
+            LblCD.BackColor = .Color
+        End If
+    End With
 End Sub
 
 Private Sub mnuEditFontChoose_Click()
-    Set FD.Font = LblFD.Font
-    If FD.ShowDialog = DialogResult_OK Then
-        Set LblFD.Font = FD.Font
-    End If
+    With New FontDialog
+        .Font = LblFD.Font
+        If .ShowDialog = vbOK Then
+            Set LblFD.Font = .Font
+        End If
+    End With
 End Sub
 
 
+' v ############################## v ' based on SHBrowseForFolder deprecated ' v ############################## v '
 Private Sub PrepareSpecialFolder()
     TxtSelectedPath.Text = App.Path
     With CmbSpecialFolder
@@ -328,6 +356,7 @@ Private Sub PrepareSpecialFolder()
     End With
     
 End Sub
+
 Private Sub BtnFolderBrowser_Click()
     Call ShowFBD(CmbSpecialFolder.ItemData(CmbSpecialFolder.ListIndex))
 End Sub
@@ -355,13 +384,13 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         Case SpecialFolder_MyComputer
                               .flags = .flags Or BIF_RETURNONLYFSDIRS
         Case CSIDL_NETWORK
-                              .flags = 0 'vorher zu null setzen!
+                              .flags = 0 'set to 0 before!
                               .flags = .flags Or BIF_BROWSEFORCOMPUTER
         Case CSIDL_PRINTERS
                               .flags = .flags Or BIF_BROWSEFORPRINTER
         Case SpecialFolder_Personal
                               '.Flags = .Flags Or BIF_DONTGOBELOWDOMAIN
-                              .flags = 0
+                              .flags = 0 'set to 0 before!
                               .flags = .flags Or BIF_RETURNFSANCESTORS
         End Select
         
@@ -378,7 +407,7 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         If (ChkSelectedPath.Value = vbChecked) And (Len(TxtSelectedPath.Text) > 0) Then
             .SelectedPath = TxtSelectedPath.Text
         End If
-        If .ShowDialog = DialogResult_OK Then
+        If .ShowDialog = vbOK Then
             TxtSelectedPath.Text = .SelectedPath
         End If
     End With

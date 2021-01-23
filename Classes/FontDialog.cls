@@ -14,7 +14,7 @@ Attribute VB_Exposed = False
 Option Explicit
 Private Declare Function ChooseFontA Lib "comdlg32.dll" (ByRef pChoosefont As ChooseFont) As Long
 Private Declare Function GetActiveWindow Lib "user32.dll" () As Long
-Private Declare Function MulDiv Lib "kernel32.dll" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
+Private Declare Function MulDiv Lib "Kernel32.dll" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
 Private Declare Function GetDeviceCaps Lib "gdi32.dll" (ByVal hdc As Long, ByVal nIndex As Long) As Long
 Private Declare Function GetDC Lib "user32.dll" (ByVal hwnd As Long) As Long
 
@@ -413,7 +413,7 @@ Public Function ToString() As String
   ToString = "System.Windows.Forms.FolderBrowserDialog"
 End Function
 
-Public Function ShowDialog(Optional Frm As Variant) As DialogResult
+Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
 Dim CF As ChooseFont
 Dim hhwndOwner As Long
 
@@ -442,6 +442,6 @@ TryE: On Error GoTo Catch
   mMaxSize = CF.nSizeMax
   Exit Function
 Catch:
-  ShowDialog = DialogResult_Abort
+  ShowDialog = vbAbort
 End Function
 
