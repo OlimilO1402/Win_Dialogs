@@ -302,7 +302,7 @@ TryE: On Error GoTo CatchE
             Exit Function
         End If
     End If
-  
+    
     With BI
         .hwndOwner = hhwndOwner
         .pidlRoot = pRoot

@@ -1,14 +1,14 @@
 VERSION 5.00
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   6930
+   ClientHeight    =   5415
    ClientLeft      =   225
    ClientTop       =   870
-   ClientWidth     =   7650
+   ClientWidth     =   5295
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6930
-   ScaleWidth      =   7650
+   ScaleHeight     =   5415
+   ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command4 
       Caption         =   "locale Folders"
@@ -90,14 +90,6 @@ Begin VB.Form Form1
       TabIndex        =   9
       Top             =   2880
       Value           =   1  'Aktiviert
-      Width           =   5055
-   End
-   Begin VB.Label Label2 
-      Caption         =   $"Form1.frx":1782
-      Height          =   615
-      Left            =   120
-      TabIndex        =   16
-      Top             =   1920
       Width           =   5055
    End
    Begin VB.Label Label1 
@@ -257,7 +249,7 @@ Private Sub mnuEditPathChoose_Click()
     With New FolderBrowserDialog
         .Description = "Please select a folder:"
         .ShowNewFolderButton = True
-        If .ShowDialog = vbOK Then
+        If .ShowDialog(Me) = vbOK Then
             LblFBD.Caption = .SelectedPath
         End If
     End With
@@ -407,7 +399,7 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         If (ChkSelectedPath.Value = vbChecked) And (Len(TxtSelectedPath.Text) > 0) Then
             .SelectedPath = TxtSelectedPath.Text
         End If
-        If .ShowDialog = vbOK Then
+        If .ShowDialog(Me) = vbOK Then
             TxtSelectedPath.Text = .SelectedPath
         End If
     End With
