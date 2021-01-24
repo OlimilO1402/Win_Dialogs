@@ -92,6 +92,14 @@ Begin VB.Form Form1
       Value           =   1  'Aktiviert
       Width           =   5055
    End
+   Begin VB.Label Label2 
+      Caption         =   $"Form1.frx":1782
+      Height          =   375
+      Left            =   120
+      TabIndex        =   16
+      Top             =   2040
+      Width           =   4935
+   End
    Begin VB.Label Label1 
       Caption         =   "Use FolderBrowserDialog as special dialog fo searching ..."
       Height          =   255
@@ -223,9 +231,9 @@ Private Sub mnuEditFolderSelectOFD_Click()
         .CheckPathExists = True
         If .ShowDialog(Me) = vbOK Then
             Dim FNm As String: FNm = .FileName
-            Dim pos As Long: pos = InStrRev(FNm, "\")
-            If pos > 3 Then
-                FNm = Left(FNm, pos)
+            Dim Pos As Long: Pos = InStrRev(FNm, "\")
+            If Pos > 3 Then
+                FNm = Left(FNm, Pos)
                 LblFBD.Caption = FNm
             End If
         End If
@@ -260,10 +268,23 @@ End Sub
 '==================================================
 Private Sub mnuEditFolderChoose_Click()
     With New OpenFolderDialog
-        .Title = "Select a folder"
-        .Folder = LblFBD.Caption
+        '.Title = "Select a folder"
+        
+        'it is not needed to set the last folder
+        'the dialog already knows it
+        '.Folder = LblFBD.Caption
+        
+        ' If you do not set the property Folder, the default Folder is "Dieser PC"
+        ' you may also try "C:", "C:\" (=drive C:), "C:\Downloads", "C:\Downloads\" (= Ordner Downloads auf Laufwerk C:)
+        ' "::{645FF040-5081-101B-9F08-00AA002F954E}" = Paperbin  Papierkorb
+        ' "::{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" = Network   Netzwerk
+        ' "::{031E4825-7B94-4DC3-B131-E946B44C8DD5}" = Libraries Bibliotheken
+        '.Folder =
+        
         If .ShowDialog(Me.hwnd) = vbOK Then
             LblFBD.Caption = .Folder
+        Else
+            
         End If
     End With
 End Sub

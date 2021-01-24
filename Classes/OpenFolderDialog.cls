@@ -23,7 +23,7 @@ Private Const IID_Release As Long = &H8&
 Private Const CLSCTX_INPROC As Long = &H1&
 Private Const CLSID_FileOpenDialog As String = "{DC1C5A9C-E88A-4DDE-A5A1-60F82A20AEF7}"
 Private Const IID_IFileDialog As String = "{42F85136-DB7E-439C-85F1-E4075D135FC8}"
-Private Const IID_IShellItem As String = "{43826d1e-e718-42ee-bc55-a1e261c37bfe}"
+Private Const IID_IShellItem As String = "{43826D1E-E718-42EE-BC55-A1E261C37BFE}"
 
 ' ----==== Enums ====----
 Private Enum vtb_Interfaces
@@ -52,60 +52,48 @@ Private Type GUID
 End Type
 
 ' ----==== Kernel32.dll Deklarationen ====----
-Private Declare Sub CopyMemory Lib "Kernel32.dll" Alias "RtlMoveMemory" (ByRef pDst As Any, ByRef pSrc As Any, ByVal ByteLen As Long)
-Private Declare Function lstrlenW Lib "Kernel32.dll" (ByVal lpString As Long) As Long
+Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal ByteLen As Long)
+Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Long) As Long
 
 ' ----==== Shell32.dll Deklarationen ====----
-Private Declare Function SHCreateItemFromParsingName Lib "Shell32.dll" (ByVal pszPath As Long, ByVal pbc As Long, ByVal riid As Long, ByRef ppv As Long) As Long
+Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As Long, ByVal pbc As Long, ByVal riid As Long, ByRef ppv As Long) As Long
 
 ' ----==== Ole32.dll Deklarationen ====----
-Private Declare Function CLSIDFromString Lib "Ole32.dll" (ByVal pString As Long, ByRef pCLSID As GUID) As Long
-Private Declare Function CoCreateInstance Lib "Ole32.dll" (ByVal rclsid As Long, ByVal pUnkOuter As Long, ByVal dwClsContext As Long, ByVal riid As Long, ByRef ppv As Long) As Long
-Private Declare Sub CoTaskMemFree Lib "Ole32.dll" (ByVal hMem As Long)
+Private Declare Function CLSIDFromString Lib "Ole32" (ByVal pString As Long, ByRef pCLSID As GUID) As Long
+Private Declare Function CoCreateInstance Lib "Ole32" (ByVal rclsid As Long, ByVal pUnkOuter As Long, ByVal dwClsContext As Long, ByVal riid As Long, ByRef ppv As Long) As Long
+Private Declare Sub CoTaskMemFree Lib "Ole32" (ByVal hMem As Long)
 
 ' ----==== Oleaut32.dll Deklarationen ====----
-Private Declare Function DispCallFunc Lib "Oleaut32.dll" (ByVal pvInstance As Long, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
+Private Declare Function DispCallFunc Lib "Oleaut32" (ByVal pvInstance As Long, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
 
 ' ----==== Variablen ====----
 Private m_pIPickFolderDialog As Long
 
 Private Sub Class_Initialize()
-    'Dim bolRet As Boolean
     Dim lngOptions As Long
-    'Dim Fod_Guid As GUID: CLSIDFromString CLSID_FileOpenDialog, Fod_Guid
-    'bolRet = False
     If CoCreateInstance(VarPtr(Str2Guid(CLSID_FileOpenDialog)), 0&, CLSCTX_INPROC, VarPtr(Str2Guid(IID_IFileDialog)), m_pIPickFolderDialog) = S_OK Then
         lngOptions = Me.Options
-        'If GetDialogOptions(lngOptions) = True Then
-            lngOptions = lngOptions Or FOS_PICKFOLDERS
-            'If SetDialogOptions(lngOptions) = True Then
-            Me.Options = lngOptions
-                'bolRet = True
-            'End If
-        'End If
+        lngOptions = lngOptions Or FOS_PICKFOLDERS
+        Me.Options = lngOptions
     End If
-    'CreatePickFolderDialog = bolRet
 End Sub
 
 Private Sub Class_Terminate()
     Release m_pIPickFolderDialog
 End Sub
 
-Private Sub Release(ByRef pInterface As Long) 'As Boolean
+Private Sub Release(ByRef pInterface As Long)
     Dim vRet As Variant
-    If pInterface <> 0& Then
-        If DispCallFunc(pInterface, IID_Release, CC_STDCALL, vbLong, 0&, 0&, 0&, vRet) = S_OK Then
-            pInterface = 0&
-            'bolRet = True
-        End If
+    If pInterface = 0& Then Exit Sub
+    If DispCallFunc(pInterface, IID_Release, CC_STDCALL, vbLong, 0&, 0&, 0&, vRet) = S_OK Then
+        pInterface = 0&
     End If
 End Sub
 
 Public Property Let Title(ByVal sTitle As String)
-    If sTitle = vbNullString Then Exit Property
+    If Len(sTitle) = 0 Then Exit Property
     If Invoke(m_pIPickFolderDialog, SetTitle_, StrPtr(sTitle)) = S_OK Then
         'bolRet = True
-        'if it does not succeed so what?
     End If
 End Property
 
@@ -118,7 +106,8 @@ Public Function ShowDialog(Optional ByVal hwndOwner As Long) As VbMsgBoxResult
     End If
 End Function
 
-Public Property Let Folder(ByVal sStartFolder As String)  'As Boolean
+Public Property Let Folder(ByVal sStartFolder As String)
+    'Create an IShellItem-object and destroy it afterwards
     Dim pIShellItem As Long
     If SHCreateItemFromParsingName(StrPtr(sStartFolder), 0&, VarPtr(Str2Guid(IID_IShellItem)), pIShellItem) = S_OK Then
         If Invoke(m_pIPickFolderDialog, SetFolder_, pIShellItem) = S_OK Then
@@ -175,7 +164,7 @@ Private Function OleInvoke(ByVal pInterface As Long, ByVal lCmd As Long, ParamAr
     End If
     Dim vRet As Variant
     If DispCallFunc(pInterface, lCmd * 4, CC_STDCALL, vbLong, lItem, VarPtr(oleTyp(0)), VarPtr(olePtr(0)), vRet) <> S_OK Then
-        Debug.Print "Fehler beim Aufrufen der Interface-Funktion!"
+        Debug.Print "Error calling the Interface-function: " & Vtb2FunctionName(lCmd)
     End If
     OleInvoke = vRet
 End Function
@@ -191,8 +180,25 @@ Private Function Ptr2String(ByVal lpStrPointer As Long) As String
     lLen = lstrlenW(lpStrPointer) * 2& - 1&
     If lLen > 0& Then
         ReDim bBuffer(lLen)
-        Call CopyMemory(bBuffer(0), ByVal lpStrPointer, lLen)
+        RtlMoveMemory bBuffer(0), ByVal lpStrPointer, lLen
         Call CoTaskMemFree(lpStrPointer)
         Ptr2String = bBuffer
     End If
+End Function
+
+Private Function Vtb2FunctionName(f As vtb_Interfaces) As String
+    Dim s As String
+    Select Case f
+    ' IModalWindow
+    Case Show_:            s = "Show_"           ' "ShowDialog"
+    'IShellItem 'lean
+    Case GetDisplayName_:  s = "GetDisplayName_" ' "Property Get DisplayName"
+    ' IFileDialog
+    Case SetOptions_ = 9:  s = "SetOptions_"     ' "Property Let Options"
+    Case GetOptions_ = 10: s = "GetOptions_"     ' "Property Get Options"
+    Case SetFolder_ = 12:  s = "SetFolder_"      ' "Property Let Folder"
+    Case SetTitle_ = 17:   s = "SetTitle_"       ' "Property Let Title"
+    Case GetResult_ = 20:  s = "GetResult_"      ' "Property Get Folder"
+    End Select
+    Vtb2FunctionName = s
 End Function
