@@ -1,0 +1,46 @@
+Type=Exe
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\Windows\SysWOW64\stdole2.tlb#OLE Automation
+Form=Forms\Form1.frm
+Module=MCallBack; Modules\MCallBack.bas
+Class=ColorDialog; Classes\ColorDialog.cls
+Class=FolderBrowserDialog; Classes\FolderBrowserDialog.cls
+Class=FontDialog; Classes\FontDialog.cls
+Class=ICallBack; Classes\ICallBack.cls
+Class=OpenFileDialog; Classes\OpenFileDialog.cls
+Class=SaveFileDialog; Classes\SaveFileDialog.cls
+Class=OpenFolderDialog; Classes\OpenFolderDialog.cls
+Module=MObjPtr; Modules\MObjPtr.bas
+ResFile32="Resources\MyRes.RES"
+IconForm="Form1"
+Startup="Form1"
+ExeName32="CommonDialogs.exe"
+Command32=""
+Name="PCommonDialogs"
+HelpContextID="0"
+CompatibleMode="0"
+MajorVer=1
+MinorVer=0
+RevisionVer=0
+AutoIncrementVer=0
+ServerSupportFiles=0
+VersionCompanyName="MBO-Ing.com"
+CompilationType=0
+OptimizationType=0
+FavorPentiumPro(tm)=0
+CodeViewDebugInfo=0
+NoAliasing=0
+BoundsCheck=0
+OverflowCheck=0
+FlPointCheck=0
+FDIVCheck=0
+UnroundedFP=0
+StartMode=0
+Unattended=0
+Retained=0
+ThreadPerObject=0
+MaxNumberOfThreads=1
+
+[MS Transaction Server]
+AutoRefresh=1
+
+[RVB]
