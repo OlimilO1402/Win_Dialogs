@@ -1,0 +1,12 @@
+#include "MyRes.h"
+/////////////////////////////////////////////////////////////////////////////
+// Program Icons 
+// first  Icon with Index 0 for the program itself
+// second Icon with Index 1 for a registered filetype 
+0                       ICON                    "Icons\\AppIcon.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// 24
+//Public Declare Sub InitCommonControls Lib "comctl32.dll" ()
+1                       RT_MANIFEST             "Manifest\\manifest.exe.manifest"
