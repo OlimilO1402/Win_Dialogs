@@ -1,4 +1,5 @@
 VERSION 5.00
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form Form1 
    Caption         =   "Form1"
    ClientHeight    =   5415
@@ -10,6 +11,21 @@ Begin VB.Form Form1
    ScaleHeight     =   5415
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command5 
+      Caption         =   "Command5"
+      Height          =   495
+      Left            =   3720
+      TabIndex        =   17
+      Top             =   840
+      Width           =   1215
+   End
+   Begin MSComDlg.CommonDialog FileDialog 
+      Left            =   4800
+      Top             =   0
+      _ExtentX        =   847
+      _ExtentY        =   847
+      _Version        =   393216
+   End
    Begin VB.CommandButton Command4 
       Caption         =   "locale Folders"
       Height          =   375
@@ -207,6 +223,18 @@ Begin VB.Form Form1
          Caption         =   "Select Folder (old FolderBrowser)"
       End
    End
+   Begin VB.Menu mnuOption 
+      Caption         =   "&Option"
+      Begin VB.Menu mnuUseOldComDlg 
+         Caption         =   "Use old CommonDialog-control"
+      End
+   End
+   Begin VB.Menu mnuHelp 
+      Caption         =   "?"
+      Begin VB.Menu mnuHelpInfo 
+         Caption         =   "Info"
+      End
+   End
 End
 Attribute VB_Name = "Form1"
 Attribute VB_GlobalNameSpace = False
@@ -215,6 +243,15 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 Private CD  As New ColorDialog
+
+Private Sub Command5_Click()
+    Me.FileDialog.ShowColor
+    Me.FileDialog.ShowFont
+    Me.FileDialog.ShowHelp
+    Me.FileDialog.ShowOpen
+    Me.FileDialog.ShowPrinter
+    Me.FileDialog.ShowSave
+End Sub
 
 Private Sub Form_Load()
     PrepareSpecialFolder
@@ -241,26 +278,69 @@ Private Sub mnuEditFolderSelectOFD_Click()
 End Sub
 
 Private Sub mnuFileOpen_Click()
+    Dim FNm As String
+    If mnuUseOldComDlg.Checked Then FNm = FileOpenOld Else FNm = FileOpenNew
+    If Len(FNm) Then LblOFD.Caption = FNm
+End Sub
+Private Function FileOpenNew() As String
     With New OpenFileDialog
-        .Filter = "TextDatei (*.txt)|*.txt|html-Datei (*.htm, *.html)|*.htm*|Alle Dateien (*.*)|*.*"
+        .Filter = MApp.FileExtFilter
         .CheckFileExists = False
         .CheckPathExists = False
         .DefaultExt = ".htm"
         .ShowReadOnly = True
         .AddExtension = False
         If .ShowDialog = vbOK Then
-            LblOFD.Caption = .FileName
+            FileOpenNew = .FileName
         End If
     End With
-End Sub
+End Function
+Private Function FileOpenOld() As String
+Try: On Error GoTo Catch
+    With Me.FileDialog
+        .Filter = MApp.FileExtFilter
+        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
+        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
+        .DefaultExt = ".htm"
+        .CancelError = True
+        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
+        .ShowOpen
+        FileOpenOld = .FileName
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
+End Function
+
 Private Sub mnuFileSaveAs_Click()
+    Dim FNm As String
+    If mnuUseOldComDlg.Checked Then FNm = FileSaveOld Else FNm = FileSaveNew
+    If Len(FNm) Then LblSFD.Caption = FNm
+End Sub
+Private Function FileSaveNew() As String
     With New SaveFileDialog
-        .Filter = "TextDatei (*.txt)|*.txt|html-Datei (*.htm, *.html)|*.htm*|Alle Dateien (*.*)|*.*"
+        .Filter = MApp.FileExtFilter
         If .ShowDialog = vbOK Then
-            LblSFD.Caption = .FileName
+            FileSaveNew = .FileName
         End If
     End With
-End Sub
+End Function
+Private Function FileSaveOld() As String
+Try: On Error GoTo Catch
+    With Me.FileDialog
+        .Filter = MApp.FileExtFilter
+        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
+        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
+        .DefaultExt = ".htm"
+        .CancelError = True
+        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
+        .ShowOpen
+        FileOpenOld = .FileName
+    End With
+Catch:
+End Function
+
 '--------------------------------------------------
 Private Sub mnuFileExit_Click()
     Unload Me
@@ -452,3 +532,16 @@ End Sub
 
 
 
+Private Sub mnuHelpInfo_Click()
+    Dim s As String
+    With App
+        s = s & .CompanyName & " " & .ProductName & vbCrLf
+        s = s & .FileDescription & vbCrLf
+        s = s & "Version: " & MApp.Version
+    End With
+    MsgBox s
+End Sub
+
+Private Sub mnuUseOldComDlg_Click()
+    mnuUseOldComDlg.Checked = Not mnuUseOldComDlg.Checked
+End Sub
