@@ -2,22 +2,30 @@ VERSION 5.00
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   5415
+   ClientHeight    =   6540
    ClientLeft      =   225
    ClientTop       =   870
    ClientWidth     =   5295
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   5415
+   ScaleHeight     =   6540
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
-   Begin VB.CommandButton Command5 
-      Caption         =   "Command5"
-      Height          =   495
-      Left            =   3720
+   Begin VB.CommandButton BtnTestMessageBox 
+      Caption         =   "Test MessageBox"
+      Height          =   375
+      Left            =   2760
+      TabIndex        =   18
+      Top             =   1920
+      Width           =   2415
+   End
+   Begin VB.CommandButton BtnAllDialogs 
+      Caption         =   "All Dialogs"
+      Height          =   375
+      Left            =   120
       TabIndex        =   17
-      Top             =   840
-      Width           =   1215
+      Top             =   1920
+      Width           =   2655
    End
    Begin MSComDlg.CommonDialog FileDialog 
       Left            =   4800
@@ -31,7 +39,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   3840
       TabIndex        =   5
-      Top             =   4920
+      Top             =   5520
       Width           =   1335
    End
    Begin VB.CommandButton Command3 
@@ -39,7 +47,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   2520
       TabIndex        =   6
-      Top             =   4920
+      Top             =   5520
       Width           =   1335
    End
    Begin VB.CommandButton Command2 
@@ -47,7 +55,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   1320
       TabIndex        =   7
-      Top             =   4920
+      Top             =   5520
       Width           =   1215
    End
    Begin VB.CommandButton Command1 
@@ -55,7 +63,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   120
       TabIndex        =   8
-      Top             =   4920
+      Top             =   5520
       Width           =   1215
    End
    Begin VB.CommandButton BtnFolderBrowser 
@@ -63,7 +71,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   120
       TabIndex        =   14
-      Top             =   4080
+      Top             =   4680
       Width           =   5055
    End
    Begin VB.ComboBox CmbSpecialFolder 
@@ -71,7 +79,7 @@ Begin VB.Form Form1
       Left            =   120
       TabIndex        =   13
       Text            =   "Combo1"
-      Top             =   3720
+      Top             =   4320
       Width           =   5055
    End
    Begin VB.CheckBox ChkShowEditBox 
@@ -79,7 +87,7 @@ Begin VB.Form Form1
       Height          =   255
       Left            =   120
       TabIndex        =   12
-      Top             =   3240
+      Top             =   3840
       Value           =   1  'Aktiviert
       Width           =   2175
    End
@@ -88,7 +96,7 @@ Begin VB.Form Form1
       Height          =   255
       Left            =   3000
       TabIndex        =   11
-      Top             =   3240
+      Top             =   3840
       Value           =   1  'Aktiviert
       Width           =   2175
    End
@@ -96,7 +104,7 @@ Begin VB.Form Form1
       Height          =   285
       Left            =   120
       TabIndex        =   10
-      Top             =   2520
+      Top             =   3120
       Width           =   5055
    End
    Begin VB.CheckBox ChkSelectedPath 
@@ -104,7 +112,7 @@ Begin VB.Form Form1
       Height          =   255
       Left            =   120
       TabIndex        =   9
-      Top             =   2880
+      Top             =   3480
       Value           =   1  'Aktiviert
       Width           =   5055
    End
@@ -113,7 +121,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   120
       TabIndex        =   16
-      Top             =   2040
+      Top             =   2640
       Width           =   4935
    End
    Begin VB.Label Label1 
@@ -121,7 +129,7 @@ Begin VB.Form Form1
       Height          =   255
       Left            =   120
       TabIndex        =   15
-      Top             =   4680
+      Top             =   5280
       Width           =   5055
    End
    Begin VB.Label LblFBD 
@@ -244,7 +252,11 @@ Attribute VB_Exposed = False
 Option Explicit
 Private CD  As New ColorDialog
 
-Private Sub Command5_Click()
+Private Sub Form_Load()
+    PrepareSpecialFolder
+End Sub
+
+Private Sub BtnAllDialogs_Click()
     Me.FileDialog.ShowColor
     Me.FileDialog.ShowFont
     Me.FileDialog.ShowHelp
@@ -253,8 +265,51 @@ Private Sub Command5_Click()
     Me.FileDialog.ShowSave
 End Sub
 
-Private Sub Form_Load()
-    PrepareSpecialFolder
+Private Sub BtnTestMessageBox_Click()
+    Dim hr As Long
+    'hr = MessageBox(Me.hwnd, "Test", "Test", 1)
+    'hr = MessageBox(Me.hwnd, ByVal "Test", ByVal "Test", 1)
+    'hr = MessageBox(Me.hwnd, ByVal StrPtr("Test"), ByVal StrPtr("Test"), 1)
+    
+    Dim sTxt As String
+    Dim sCap As String
+    Dim i As Long
+    Dim sStr As Long
+    Dim sEnd As Long
+    
+    sTxt = "": sCap = ""
+    sStr = 65: sEnd = sStr + 25
+    For i = sStr To sEnd
+        sTxt = sTxt & ChrW(i)
+        sCap = sCap & ChrW(i + 32)
+    Next
+    
+    'hr = MessageBox(Me.hwnd, ByVal StrPtr(sTxt), ByVal StrPtr(sCap), 1)
+    hr = MsgBox(sTxt, , sCap)
+    MsgBox MWin.LastMsgBoxResult
+    
+    sTxt = "": sCap = ""
+    sStr = 913: sEnd = sStr + 25
+    For i = sStr To sEnd
+        sTxt = sTxt & ChrW(i)
+        sCap = sCap & ChrW(i + 32)
+    Next
+    hr = MsgBox(sTxt, , sCap)
+    MsgBox MWin.LastMsgBoxResult
+    
+    hr = MsgBox(sTxt, vbCritical Or vbMsgBoxHelpButton Or vbMsgBoxRight Or vbMsgBoxRtlReading Or vbYesNoCancel Or vbDefaultButton4, sCap)
+    MsgBox MWin.LastMsgBoxResult
+    
+    With New MessageBox
+        .Caption = sCap
+        .Text = sTxt
+        '.LanguageID =
+        .MsgBoxFncType = vbIndirect
+        .Style = vbCancelTryContinue Or vbInformation Or vbMsgBoxHelpButton Or vbDefaultButton4
+        hr = .Show
+        MsgBox .Result_ToStr(hr)
+    End With
+    MsgBox MWin.HelpInfo_ToStr
 End Sub
 
 Private Sub mnuEditFolderSelectOFD_Click()
@@ -336,7 +391,7 @@ Try: On Error GoTo Catch
         .CancelError = True
         .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
         .ShowOpen
-        FileOpenOld = .FileName
+        FileSaveOld = .FileName
     End With
 Catch:
 End Function

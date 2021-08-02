@@ -135,8 +135,8 @@ End Enum
 Private Type BrowseInfo
     hwndOwner      As Long
     pidlRoot       As Long
-    pszDisplayName As String
-    lpszTitle      As String
+    pszDisplayName As Long 'String
+    lpszTitle      As Long 'String
     ulFlags        As Long
     lpfn           As Long
     lParam         As Long
@@ -176,22 +176,20 @@ Private Const BFFM_SELCHANGED      As Long = 2
 'Private Const BFFM_VALIDATEFAILEDA As Long = 3
 'Private Const BFFM_VALIDATEFAILEDW As Long = 4
 '
-Private Declare Function SHGetSpecialFolderLocation Lib "shell32" ( _
-    ByVal hwnd As Long, ByVal csidl As Long, ByRef ppidl As Long) As Long 'HRESULT
-Private Declare Function SHBrowseForFolder Lib "shell32" ( _
-    pBrowseInfo As BrowseInfo) As Long
-Private Declare Function SHGetPathFromIDList Lib "shell32" ( _
-    ByVal pidList As Long, ByVal lpBuffer As String) As Long
-Private Declare Function SendMessageA Lib "user32" ( _
-    ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
+Private Declare Function SHGetSpecialFolderLocation Lib "Shell32" ( _
+    ByVal hwnd As Long, ByVal csidl As Long, ByRef ppidl_out As Long) As Long 'HRESULT
+
+Private Declare Function SHBrowseForFolder Lib "Shell32" (pBrowseInfo As BrowseInfo) As Long
+
+Private Declare Function SHGetPathFromIDList Lib "Shell32" (ByVal pidList As Long, ByRef lpBuffer As Any) As Long
+
+Private Declare Function SendMessageA Lib "user32" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
 
 Private Declare Function GetActiveWindow Lib "user32" () As Long
 
-Private Declare Function lstrlenA Lib "kernel32" ( _
-    ByVal lpString As String) As Long
+Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Any) As Long
 
-Private Declare Sub CoTaskMemFree Lib "ole32" ( _
-    ByRef pv As Any)
+Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
 
 Public Event HelpRequest(ByVal sender As FolderBrowserDialog)
 
@@ -271,8 +269,8 @@ End Property
 Public Property Get Tag() As Variant
     Tag = mTag
 End Property
-Public Property Let Tag(VarVal As Variant)
-    mTag = VarVal
+Public Property Let Tag(Value As Variant)
+    mTag = Value
 End Property
 
 Public Function ToString() As String
@@ -280,12 +278,8 @@ Public Function ToString() As String
 End Function
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
-    Dim BI         As BrowseInfo
-    Dim hhwndOwner As Long
-    Dim IDList     As Long
-    Dim Buffer     As String
-    Dim pRoot      As Long
   
+    Dim hhwndOwner As Long
     If IsMissing(Frm) Then
         hhwndOwner = GetActiveWindow
     Else
@@ -293,6 +287,7 @@ Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
     End If
     
 TryE: On Error GoTo CatchE
+    Dim pRoot      As Long
     Call SHGetSpecialFolderLocation(hhwndOwner, mRootFolder, pRoot)
     If (pRoot = 0&) Then
         Call SHGetSpecialFolderLocation(hhwndOwner, 0, pRoot)
@@ -303,6 +298,7 @@ TryE: On Error GoTo CatchE
         End If
     End If
     
+    Dim BI As BrowseInfo
     With BI
         .hwndOwner = hhwndOwner
         .pidlRoot = pRoot
@@ -316,11 +312,12 @@ TryE: On Error GoTo CatchE
     End With
     
     'Anzeigen des Dialogs und Übergabe an eine IID-Liste
-    IDList = SHBrowseForFolder(BI)
+    Dim IDList As Long:  IDList = SHBrowseForFolder(BI)
+    Dim Buffer As String
     If IDList <> 0 Then
         Buffer = String$(1024, vbNullChar)
-        Call SHGetPathFromIDList(IDList, Buffer)
-        mSelectedPath = Left$(Buffer, lstrlenA(Buffer))
+        Call SHGetPathFromIDList(IDList, ByVal StrPtr(Buffer))
+        mSelectedPath = Left$(Buffer, lstrlenW(Buffer))
         ShowDialog = vbOK
         'Free the IDList Memory !
         Call CoTaskMemFree(IDList)

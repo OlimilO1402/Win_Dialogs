@@ -16,8 +16,8 @@ Option Explicit
 ' Many thanks to Frank Schüler for the great efforts he makes every day for ActiveVB
 
 Private Const S_OK As Long = &H0&
-Private Const FOS_PICKFOLDERS = &H20
-Private Const SIGDN_FILESYSPATH = &H80058000
+Private Const FOS_PICKFOLDERS  As Long = &H20&
+Private Const SIGDN_FILESYSPATH  As Long = &H80058000
 Private Const CC_STDCALL As Long = &H4&
 Private Const IID_Release As Long = &H8&
 Private Const CLSCTX_INPROC As Long = &H1&
