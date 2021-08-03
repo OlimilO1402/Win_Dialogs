@@ -120,7 +120,25 @@ Private Const FF_DECORATIVE  As Long = 80 ' Dekoriert
 
 
 Private Const LF_FACESIZE As Long = 32
-Private Type LOGFONT
+
+'typedef struct tagLOGFONTW {
+'  LONG  lfHeight;
+'  LONG  lfWidth;
+'  LONG  lfEscapement;
+'  LONG  lfOrientation;
+'  LONG  lfWeight;
+'  BYTE  lfItalic;
+'  BYTE  lfUnderline;
+'  BYTE  lfStrikeOut;
+'  BYTE  lfCharSet;
+'  BYTE  lfOutPrecision;
+'  BYTE  lfClipPrecision;
+'  BYTE  lfQuality;
+'  BYTE  lfPitchAndFamily;
+'  WCHAR lfFaceName[LF_FACESIZE];
+'} LOGFONTW, *PLOGFONTW, *NPLOGFONTW, *LPLOGFONTW;
+
+Private Type LOGFONTW
     lfHeight         As Long
     lfWidth          As Long
     lfEscapement     As Long
@@ -134,12 +152,33 @@ Private Type LOGFONT
     lfClipPrecision  As Byte
     lfQuality        As Byte
     lfPitchAndFamily As Byte
-    lfFaceName(0 To LF_FACESIZE) As Integer 'String * LF_FACESIZE '(1 To LF_FACESIZE) As Byte
+    lfFaceName(0 To LF_FACESIZE - 1) As Integer 'String * LF_FACESIZE '(1 To LF_FACESIZE) As Byte
 End Type
-Private Type ChooseFont
+
+
+'typedef struct tagCHOOSEFONTW {
+'  DWORD        lStructSize;
+'  HWND         hwndOwner;
+'  HDC          hDC;
+'  LPLOGFONTW   lpLogFont;
+'  INT          iPointSize;
+'  DWORD        Flags;
+'  COLORREF     rgbColors;
+'  LPARAM       lCustData;
+'  LPCFHOOKPROC lpfnHook;
+'  LPCWSTR      lpTemplateName;
+'  HINSTANCE    hInstance;
+'  LPWSTR       lpszStyle;
+'  WORD         nFontType;
+'  WORD         ___MISSING_ALIGNMENT__;
+'  INT          nSizeMin;
+'  INT          nSizeMax;
+'} CHOOSEFONTW;
+
+Private Type ChooseFontW
     lStructSize    As Long
     hwndOwner      As Long ' caller's window handle
-    hdc            As Long ' printer DC/IC or NULL
+    hDC            As Long ' printer DC/IC or NULL
     lpLogFont      As Long ' LOGFONT  ' ptr. to a LOGFONT struct
     iPointSize     As Long ' 10 size points of selected font
     flags          As Long ' enum. type flags
@@ -160,11 +199,12 @@ Private Type ChooseFont
     ' CF_LIMITSIZE is used
 End Type
 
+Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal BytLen As Long)
 Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal BytLen As Long)
-Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFont) As Long
+Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
 Private Declare Function GetActiveWindow Lib "user32" () As Long
 Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
-Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hdc As Long, ByVal nIndex As Long) As Long
+Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As Long, ByVal nIndex As Long) As Long
 Private Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Long) As Long
 
@@ -173,11 +213,14 @@ Private mDPI      As Long
 Private mPT2Px    As Long
 Private mFlags    As Long
 Private mColor    As Long
-Private mFont     As LOGFONT
+Private mFont     As LOGFONTW
 Private mMinSize  As Long
 Private mMaxSize  As Long
 Private mTag      As Variant
 'Private mFontName As String
+
+'TODO OM: ChooseFont hier als Variable
+'Die Farbe von Choosefont hier als Property
 
 Private Sub Class_Initialize()
     mDPI = GetDeviceCaps(GetDC(0), LOGPIXELSY)
@@ -192,7 +235,7 @@ End Function
 'Public Overrides Sub Reset()
 Public Sub Reset()
     Dim StdName As String: StdName = "Ms Sans Serif"
-    RtlMoveMemory ByVal VarPtr(mFont.lfFaceName(0)), ByVal StrPtr(StdName) '"Ms Sans Serif"
+    Me.FontName = StdName
     'mFontName = "Ms Sans Serif"
     'Dim StdF As New StdFont:
     'StdF.Name = StdName
@@ -203,7 +246,9 @@ Public Sub Reset()
     mFont.lfHeight = S2H(8) '10 + 2 / 3
     'mFont.lfFaceName = StrPtr(mFontName) ', vbFromUnicode) & vbNullChar '& Space$(LF_FACESIZE - 2 - Len(StdName)) & vbNullChar
 End Sub
-
+Private Function Min(V1, V2)
+    If V1 < V2 Then Min = V1 Else Min = V2
+End Function
 Private Function S2H(aSize As Long) As Long
     S2H = -MulDiv(aSize, mDPI, mPT2Px)
 End Function
@@ -286,6 +331,16 @@ Public Property Let FixedPitchOnly(BolVal As Boolean)
     End If
 End Property
 
+Public Property Get FontName() As String
+    FontName = String(LF_FACESIZE, vbNullChar)
+    RtlMoveMemory ByVal StrPtr(FontName), ByVal VarPtr(mFont.lfFaceName(0)), LF_FACESIZE * 2
+    FontName = Trim(FontName)
+End Property
+Public Property Let FontName(ByVal Value As String)
+    Dim lb As Long: lb = 2 * Min(LF_FACESIZE, Len(Value))
+    RtlZeroMemory ByVal VarPtr(mFont.lfFaceName(0)), lb
+    RtlMoveMemory ByVal VarPtr(mFont.lfFaceName(0)), ByVal StrPtr(Value), lb
+End Property
 'Public Property Font() As System.Drawing.Font
 Public Property Get Font() As Font 'Boolean
     Set Font = New StdFont
@@ -293,7 +348,8 @@ Public Property Get Font() As Font 'Boolean
         .Bold = mFont.lfWidth
         .Charset = mFont.lfCharSet
         .Italic = mFont.lfItalic
-        .Name = StrConv(mFont.lfFaceName, vbUnicode)
+        '.Name = StrConv(mFont.lfFaceName, vbUnicode)
+        .Name = Me.FontName
         .Size = H2S(mFont.lfHeight)
         .Strikethrough = mFont.lfStrikeOut
         .Underline = mFont.lfUnderline
@@ -305,12 +361,15 @@ Public Property Set Font(FntVal As Font)
         .lfWidth = FntVal.Bold
         .lfCharSet = FntVal.Charset
         .lfItalic = FntVal.Italic
-        .lfFaceName = StrConv(FntVal.Name, vbFromUnicode) & vbNullChar
+        'Dim StdName As String: StdName = "Ms Sans Serif"
+        '.lfFaceName = StrConv(FntVal.Name, vbFromUnicode) & vbNullChar
+        
         .lfHeight = S2H(FntVal.Size)
         .lfStrikeOut = FntVal.Strikethrough
         .lfUnderline = FntVal.Underline
         .lfWeight = FntVal.Weight
     End With
+    Me.FontName = FntVal.Name
 End Property
 
 'Public Property FontMustExist() As Boolean
@@ -436,12 +495,12 @@ Try: On Error GoTo Catch
     Else
         hhwndOwner = Frm.hwnd
     End If
-    Dim CF As ChooseFont
+    Dim CF As ChooseFontW
     With CF
         .lStructSize = Len(CF)
         .hwndOwner = hhwndOwner
         .hInstance = App.hInstance
-        .hdc = Printer.hdc
+        .hDC = Printer.hDC
         .flags = mFlags
         .iPointSize = 10
         .lpLogFont = VarPtr(mFont)

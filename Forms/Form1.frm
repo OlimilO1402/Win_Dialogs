@@ -446,10 +446,10 @@ End Sub
 
 Private Sub mnuEditFontChoose_Click()
     With New FontDialog
-        .Font = LblFD.Font
-        If .ShowDialog = vbOK Then
-            Set LblFD.Font = .Font
-        End If
+        Set .Font = LblFD.Font
+        If .ShowDialog = vbCancel Then Exit Sub
+        Set LblFD.Font = .Font
+        'LblFD.ForeColor = .Font.co
     End With
 End Sub
 
