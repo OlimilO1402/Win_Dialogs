@@ -220,7 +220,6 @@ Private mTag      As Variant
 'Private mFontName As String
 
 'TODO OM: ChooseFont hier als Variable
-'Die Farbe von Choosefont hier als Property
 
 Private Sub Class_Initialize()
     mDPI = GetDeviceCaps(GetDC(0), LOGPIXELSY)
@@ -338,7 +337,7 @@ Public Property Get FontName() As String
 End Property
 Public Property Let FontName(ByVal Value As String)
     Dim lb As Long: lb = 2 * Min(LF_FACESIZE, Len(Value))
-    RtlZeroMemory ByVal VarPtr(mFont.lfFaceName(0)), lb
+    RtlZeroMemory ByVal VarPtr(mFont.lfFaceName(0)), LF_FACESIZE * 2
     RtlMoveMemory ByVal VarPtr(mFont.lfFaceName(0)), ByVal StrPtr(Value), lb
 End Property
 'Public Property Font() As System.Drawing.Font

@@ -447,9 +447,10 @@ End Sub
 Private Sub mnuEditFontChoose_Click()
     With New FontDialog
         Set .Font = LblFD.Font
+        .Color = LblFD.ForeColor
         If .ShowDialog = vbCancel Then Exit Sub
         Set LblFD.Font = .Font
-        'LblFD.ForeColor = .Font.co
+        LblFD.ForeColor = .Color
     End With
 End Sub
 

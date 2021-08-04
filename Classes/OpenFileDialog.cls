@@ -16,7 +16,7 @@ Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 'Public NotInheritable Class OpenFileDialog
 '          Inherits System.Windows.Forms.FileDialog
 Option Explicit '490 Zeilen
-Private Declare Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
+Private Declare Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameW" (pOpenfilename As OPENFILENAMEW) As Long
 'Private Declare Function GetOpenFileNamePreview Lib "msvfw32.dll" (ByRef lpofn As OPENFILENAME) As Long
 Private Declare Function GetActiveWindow Lib "user32.dll" () As Long
 Private Declare Function GetDesktopWindow Lib "user32.dll" () As Long
@@ -33,27 +33,31 @@ Private Declare Function DestroyWindow Lib "user32.dll" (ByVal hwnd As Long) As 
 '  Right As Long
 '  Bottom As Long
 'End Type
-
-Private Type OPENFILENAME
+#If Not VBA7 Then
+    Private Type LongPtr
+        [_]
+    End Type
+#End If
+Private Type OPENFILENAMEW
   lStructSize       As Long
-  hwndOwner         As Long
-  hInstance         As Long
-  lpstrFilter       As String
-  lpstrCustomFilter As String
+  hwndOwner         As LongPtr
+  hInstance         As LongPtr
+  lpstrFilter       As LongPtr 'String
+  lpstrCustomFilter As LongPtr 'String
   nMaxCustFilter    As Long
   nFilterIndex      As Long
-  lpstrFile         As String
+  lpstrFile         As LongPtr 'String
   nMaxFile          As Long
-  lpstrFileTitle    As String
+  lpstrFileTitle    As LongPtr 'String
   nMaxFileTitle     As Long
-  lpstrInitialDir   As String
-  lpstrTitle        As String
+  lpstrInitialDir   As LongPtr 'String
+  lpstrTitle        As LongPtr 'String
   flags             As Long
   nFileOffset       As Integer
   nFileExtension    As Integer
-  lpstrDefExt       As String
+  lpstrDefExt       As LongPtr 'String
   lCustData         As Long
-  lpfnHook          As Long
+  lpfnHook          As LongPtr 'Long
   lpTemplateName    As String
 End Type
 

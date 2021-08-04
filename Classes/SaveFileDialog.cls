@@ -19,7 +19,7 @@ Option Explicit '521 Zeilen
 'Klasse FileDialog von .NET
 'also bis jetzt die wichtigsten Sachen
 'Private WithEvents
-Private Declare Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameA" (ByRef pOpenfilename As OPENFILENAME) As Long
+Private Declare Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameW" (ByRef pOpenfilename As OPENFILENAME) As Long
 'Private Declare Function GetOpenFileNamePreview Lib "msvfw32.dll" (ByRef lpofn As OPENFILENAME) As Long
 Private Declare Function GetActiveWindow Lib "user32.dll" () As Long
 'Public Enum DialogResult 'auch in OpenFileDialog hier aktivieren wenn nur SaveFileDialog gebraucht wird
