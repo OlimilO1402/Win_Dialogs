@@ -22,31 +22,31 @@ Private Const IDNO       As Long = 7  '    The selected button was No
 Private Const IDTRYAGAIN As Long = 10 '    The selected button was Try-Again
 Private Const IDCONTINUE As Long = 11 '    The selected button was Continue
 
-Public Enum MsgBoxResult
-    vbOK = 1         'OK
-    vbCancel = 2     'Abbrechen
-    vbAbort = 3      'Abbrechen
-    vbRetry = 4      'Wiederholen
-    vbIgnore = 5     'Ignorieren
-    vbYes = 6        'Ja
-    vbNo = 7         'Nein
-    vbTryAgain = 10  'Wiederholen
-    vbContinue = 11  'Weiter
+Public Enum MsgBoxResult ' compare: vbMsgBoxResult
+    vbOK = 1             ' = vbMsgBoxResult.vbOK     '' OK
+    vbCancel = 2         ' = vbMsgBoxResult.vbCancel '' Abbrechen
+    vbAbort = 3          ' = vbMsgBoxResult.vbAbort  '' Abbrechen
+    vbRetry = 4          ' = vbMsgBoxResult.vbRetry  '' Wiederholen
+    vbIgnore = 5         ' = vbMsgBoxResult.vbIgnore '' Ignorieren
+    vbYes = 6            ' = vbMsgBoxResult.vbYes    '' Ja
+    vbNo = 7             ' = vbMsgBoxResult.vbNo     '' Nein
+    vbTryAgain = 10      '                           '' Wiederholen
+    vbContinue = 11      '                           '' Weiter
 End Enum
 
 Private Const MB_USERICON          As Long = &H80&
 
 'Table 1
 'To indicate the buttons displayed in the message box, specify one of the following values.
-Private Const MB_OK                As Long = &H0&    '    The message box contains one push button : OK. This is the default.
-Private Const MB_OKCANCEL          As Long = &H1&    '    The message box contains two push buttons: OK and Cancel.
+Private Const MB_OK                As Long = &H0&    '    The message box contains one   push button : OK. This is the default.
+Private Const MB_OKCANCEL          As Long = &H1&    '    The message box contains two   push buttons: OK and Cancel.
 Private Const MB_ABORTRETRYIGNORE  As Long = &H2&    '    The message box contains three push buttons: Abort, Retry, and Ignore.
 Private Const MB_YESNOCANCEL       As Long = &H3&    '    The message box contains three push buttons: Yes, No, and Cancel.
-Private Const MB_YESNO             As Long = &H4&    '    The message box contains two push buttons  : Yes and No.
-Private Const MB_RETRYCANCEL       As Long = &H5&    '    The message box contains two push buttons  : Retry and Cancel.
+Private Const MB_YESNO             As Long = &H4&    '    The message box contains two   push buttons  : Yes and No.
+Private Const MB_RETRYCANCEL       As Long = &H5&    '    The message box contains two   push buttons  : Retry and Cancel.
 Private Const MB_CANCELTRYCONTINUE As Long = &H6&    '    The message box contains three push buttons: Cancel, Try Again, Continue. Use this message box type instead of MB_ABORTRETRYIGNORE.
 Private Const MB_HELP              As Long = &H4000& '    Adds a Help button to the message box. When the user clicks the Help button or presses F1, the system sends a WM_HELP message to the owner.
- 
+
 
 'Table 2
 'To display an icon in the message box, specify one of the following values.

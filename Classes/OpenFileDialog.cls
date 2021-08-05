@@ -34,9 +34,9 @@ Private Declare Function DestroyWindow Lib "user32.dll" (ByVal hwnd As Long) As 
 '  Bottom As Long
 'End Type
 #If Not VBA7 Then
-    Private Type LongPtr
+    Private Enum LongPtr
         [_]
-    End Type
+    End Enum
 #End If
 Private Type OPENFILENAMEW
   lStructSize       As Long
@@ -481,25 +481,25 @@ Try: On Error GoTo Catch
     Dim mMaxLen As Long:  mMaxLen = 32767 - Len(mFileName)
     Dim Buffer  As String: Buffer = mFileName & String$(mMaxLen, vbNullChar)
     
-    Dim OFN As OPENFILENAME
+    Dim OFN As OPENFILENAMEW
     With OFN
         .lStructSize = LenB(OFN)
         .hwndOwner = myOwnerHwnd
         .hInstance = myOwnerhInst
-        .lpstrFilter = mFilter
+        .lpstrFilter = StrPtr(mFilter)
         '.lpstrCustomFilter = mDefaultExt
         'nMaxCustFilter
         .nFilterIndex = mFilterIndex '(FilterIndex)
-        .lpstrFile = Buffer
+        .lpstrFile = StrPtr(Buffer)
         .nMaxFile = Len(Buffer) '32767
         'lpstrFileTitle 'der NurDateiName ohne Extension
         'nMaxFileTitle
-        .lpstrInitialDir = mInitialDirectory
-        .lpstrTitle = mTitle
+        .lpstrInitialDir = StrPtr(mInitialDirectory)
+        .lpstrTitle = StrPtr(mTitle)
         .flags = mFlags
         'nFileOffset
         'nFileExtension
-        .lpstrDefExt = mDefaultExt
+        .lpstrDefExt = StrPtr(mDefaultExt)
         'lCustData
         'lpfnHook
         'lpTemplateName
@@ -508,11 +508,13 @@ Try: On Error GoTo Catch
     'Result = GetOpenFileNamePreview(OFN)
     If Result <> 0 Then
         'man muﬂ am String erkennen, ob nur eine oder mehrere Dateien ausgew‰hlt wurden
-        Call GetFNsinCol(OFN.lpstrFile)
+        'Call GetFNsinCol(OFN.lpstrFile)
+        GetFNsinCol Buffer
         ShowDialog = vbOK
     Else
         If mFlags And OFN_ALLOWMULTISELECT Then
-            Call GetFNsinCol(OFN.lpstrFile)
+            'Call GetFNsinCol(OFN.lpstrFile)
+            GetFNsinCol Buffer
         End If
         ShowDialog = vbCancel
         'oder zuviele Dateien

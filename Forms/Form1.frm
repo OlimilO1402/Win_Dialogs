@@ -259,7 +259,7 @@ End Sub
 Private Sub BtnAllDialogs_Click()
     Me.FileDialog.ShowColor
     Me.FileDialog.ShowFont
-    Me.FileDialog.ShowHelp
+    'Me.FileDialog.ShowHelp
     Me.FileDialog.ShowOpen
     Me.FileDialog.ShowPrinter
     Me.FileDialog.ShowSave
@@ -304,6 +304,7 @@ Private Sub BtnTestMessageBox_Click()
         .Caption = sCap
         .Text = sTxt
         '.LanguageID =
+        .HIcon = Me.Icon.Handle
         .MsgBoxFncType = vbIndirect
         .Style = vbCancelTryContinue Or vbInformation Or vbMsgBoxHelpButton Or vbDefaultButton4
         hr = .Show
@@ -335,7 +336,10 @@ End Sub
 Private Sub mnuFileOpen_Click()
     Dim FNm As String
     If mnuUseOldComDlg.Checked Then FNm = FileOpenOld Else FNm = FileOpenNew
-    If Len(FNm) Then LblOFD.Caption = FNm
+    If Len(FNm) Then
+        MsgBox FNm
+        LblOFD.Caption = FNm
+    End If
 End Sub
 Private Function FileOpenNew() As String
     With New OpenFileDialog
