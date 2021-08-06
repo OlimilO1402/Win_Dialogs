@@ -131,12 +131,11 @@ Public Enum MsgBoxFncType
 End Enum
 
 'Maybe copy this to a module
-#If Not Win64 Then
-    
+#If Not VBA7 Then
+'#If Not Win64 Then
     Private Enum LongPtr
         [_]
     End Enum
-    
 #End If
 
 Private Type MSGBOXPARAMS
@@ -158,21 +157,15 @@ Private Type MSGBOXPARAMS
     dwLanguageId       As Long
 End Type
 
-Private Declare Function MessageBox Lib "user32.dll" Alias "MessageBoxW" ( _
-     ByVal hwnd As LongPtr, _
-     ByRef lpText As Any, _
-     ByRef lpCaption As Any, _
-     ByVal wType As Long) As Long
-
-Private Declare Function MessageBoxEx Lib "user32.dll" Alias "MessageBoxExW" ( _
-     ByVal hwnd As LongPtr, _
-     ByRef lpText As Any, _
-     ByVal lpCaption As Any, _
-     ByVal uType As Long, _
-     ByVal wLanguageId As Long) As Long
-
-Private Declare Function MessageBoxIndirect Lib "user32.dll" Alias "MessageBoxIndirectW" ( _
-     ByRef lpMsgBoxParams As Any) As Long
+#If VBA7 Then
+    Private Declare PtrSafe Function MessageBoxW Lib "user32" (ByVal hwnd As LongPtr, ByRef lpText As Any, ByRef lpCaption As Any, ByVal wType As Long) As Long
+    Private Declare PtrSafe Function MessageBoxExW Lib "user32" (ByVal hwnd As LongPtr, ByRef lpText As Any, ByVal lpCaption As Any, ByVal uType As Long, ByVal wLanguageId As Long) As Long
+    Private Declare PtrSafe Function MessageBoxIndirectW Lib "user32" (ByRef lpMsgBoxParams As Any) As Long
+#Else
+    Private Declare Function MessageBoxW Lib "user32" (ByVal hwnd As LongPtr, ByRef lpText As Any, ByRef lpCaption As Any, ByVal wType As Long) As Long
+    Private Declare Function MessageBoxExW Lib "user32" (ByVal hwnd As LongPtr, ByRef lpText As Any, ByVal lpCaption As Any, ByVal uType As Long, ByVal wLanguageId As Long) As Long
+    Private Declare Function MessageBoxIndirectW Lib "user32" (ByRef lpMsgBoxParams As Any) As Long
+#End If
 
 Private m_MsgBoxFncType As MsgBoxFncType
 Private m_MsgBoxParams  As MSGBOXPARAMS
@@ -262,9 +255,9 @@ Public Function Show(Optional aPrompt, Optional BtnsAndStyle, Optional aTitle, O
         '.lpszIcon = hIcon
         
         Select Case m_MsgBoxFncType
-        Case 0: m_Result = MessageBox(.hwndOwner, ByVal .lpszText, ByVal .lpszCaption, .dwStyle)
-        Case 1: m_Result = MessageBoxEx(.hwndOwner, ByVal .lpszText, ByVal .lpszCaption, .dwStyle, .dwLanguageId)
-        Case 2: m_Result = MessageBoxIndirect(m_MsgBoxParams)
+        Case 0: m_Result = MessageBoxW(.hwndOwner, ByVal .lpszText, ByVal .lpszCaption, .dwStyle)
+        Case 1: m_Result = MessageBoxExW(.hwndOwner, ByVal .lpszText, ByVal .lpszCaption, .dwStyle, .dwLanguageId)
+        Case 2: m_Result = MessageBoxIndirectW(m_MsgBoxParams)
         End Select
         
     End With

@@ -21,19 +21,6 @@ Attribute VB_Exposed = False
 ' können.
 Option Explicit
 'Implements CommonDialog
-Private Declare Function ChooseColorW Lib "comdlg32.dll" (pChooseColor As ChooseColor) As Long
-Private Declare Function GetActiveWindow Lib "user32.dll" () As Long
-Private Type ChooseColor
-    lStructSize    As Long
-    hwndOwner      As Long
-    hInstance      As Long
-    rgbResult      As Long
-    lpCustColors   As Long
-    flags          As Long
-    lCustData      As Long
-    lpfnHook       As Long
-    lpTemplateName As String
-End Type
 Private Const CC_RGBINIT              As Long = &H1   ' Vorgabe einer Standard-Farbe
 Private Const CC_FULLOPEN             As Long = &H2   ' Vollauswahl aller Farben anzeigen
 Private Const CC_PREVENTFULLOPEN      As Long = &H4   ' Deaktiviert den Button zum Öffnen der Dialogbox-Erweiterung
@@ -44,12 +31,68 @@ Private Const CC_ENABLETEMPLATEHANDLE As Long = &H40  ' Benutzt Template, ignori
 Private Const CC_SOLIDCOLOR           As Long = &H80  ' nur Grundfarben auswählbar
 Private Const CC_ANYCOLOR             As Long = &H100 ' Anwender kann alle Farben wählen
 
+'possible errors in Dialog ChooseColor
+Private Const CDERR_STRUCTSIZE      As Long = &H1
+Private Const CDERR_INITIALIZATION  As Long = &H2
+Private Const CDERR_NOTEMPLATE      As Long = &H3
+Private Const CDERR_NOHINSTANCE     As Long = &H4
+Private Const CDERR_LOADSTRFAILURE  As Long = &H5
+Private Const CDERR_FINDRESFAILURE  As Long = &H6
+Private Const CDERR_LOADRESFAILURE  As Long = &H7
+Private Const CDERR_MEMALLOCFAILURE As Long = &H9
+Private Const CDERR_MEMLOCKFAILURE  As Long = &HA
+Private Const CDERR_NOHOOK          As Long = &HB
+Private Const CDERR_DIALOGFAILURE   As Long = &HFFFF&
+
+#If VBA7 = 0 Then
+    Private Enum LongPtr
+        [_]
+    End Enum
+#End If
+
+'typedef struct tagCHOOSECOLORW {
+'  DWORD        lStructSize;
+'  HWND         hwndOwner;
+'  HWND         hInstance;
+'  COLORREF     rgbResult;
+'  COLORREF     *lpCustColors;
+'  DWORD        Flags;
+'  LPARAM       lCustData;
+'  LPCCHOOKPROC lpfnHook;
+'  LPCWSTR      lpTemplateName;
+'  LPEDITMENU   lpEditInfo;
+'} CHOOSECOLORW, *LPCHOOSECOLORW;
+
+Private Type ChooseColorW
+    lStructSize    As Long    '4
+    hwndOwner      As LongPtr '4
+    hInstance      As LongPtr '4
+    rgbResult      As Long    '4
+    lpCustColors   As LongPtr '4
+    flags          As Long    '4
+    lCustData      As Long    '4
+    lpfnHook       As LongPtr '4
+    lpTemplateName As LongPtr 'String '4
+#If Win64 Then
+    lpEditMenu     As LongPtr '8
+#End If
+End Type
+#If VBA7 Then
+Private Declare PtrSafe Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
+Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As Long
+Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
+#Else
+Private Declare Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
+Private Declare Function GetActiveWindow Lib "user32" () As Long
+Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
+#End If
+
 Private mFlags As Long
 Private Const MaxCustomColors As Long = 16
-Private mCustomColors(MaxCustomColors - 1) As Long 'mehr als 16 sind im Dialog gar nicht möglich
-Private mCstCclColors(MaxCustomColors - 1) As Long 'CancelColors
+Private mCustomColors() As Long 'mehr als 16 sind im Dialog gar nicht möglich
 'wenn der Cancel-Button gedrückt wurde dann soll auch die alte Farbtabelle wiederhergestellt werden
 Private mColor As Long
+Private mTemplateName As String
 
 Private Sub Class_Initialize()
     '
@@ -127,7 +170,7 @@ Public Sub Reset()
     mFlags = mFlags Or CC_FULLOPEN
     mFlags = mFlags Or CC_PREVENTFULLOPEN
     mColor = vbBlack '&H0& 'Schwarz '
-    'ReDim mCustomColors(16)
+    ReDim mCustomColors(0 To MaxCustomColors - 1) 'As Long 'mehr als 16 sind im Dialog gar nicht möglich
 End Sub
 
 'Public Overridable Property ShowHelp() As Boolean
@@ -136,9 +179,9 @@ Public Property Get ShowHelp() As Boolean
     ' angezeigt wird, oder legt diesen fest.
     ShowHelp = (mFlags And CC_SHOWHELP)
 End Property
-Public Property Let ShowHelp(BolVal As Boolean)
+Public Property Let ShowHelp(ByVal Value As Boolean)
     mFlags = mFlags Or CC_SHOWHELP
-    If Not BolVal Then
+    If Not Value Then
         mFlags = mFlags Xor CC_SHOWHELP
     End If
 End Property
@@ -149,9 +192,9 @@ Public Property Get SolidColorOnly() As Boolean
     ' Volltonfarben auswählen können, oder legt diesen fest.
      SolidColorOnly = (mFlags And CC_SOLIDCOLOR)
 End Property
-Public Property Let SolidColorOnly(BolVal As Boolean)
+Public Property Let SolidColorOnly(ByVal Value As Boolean)
     mFlags = mFlags Or CC_SOLIDCOLOR
-    If Not BolVal Then
+    If Not Value Then
         mFlags = mFlags Xor CC_SOLIDCOLOR
     End If
 End Property
@@ -162,7 +205,7 @@ Public Function ToStr() As String
 End Function
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
-    ReDim CancelColors(MaxCustomColors - 1) As Long
+    ReDim CancelColors(0 To MaxCustomColors - 1) As Long
     Dim i As Long
 Try: On Error GoTo Catch
     'die Custom Farbtabelle sichern 'falls Abbrechen geklickt wurde
@@ -170,33 +213,58 @@ Try: On Error GoTo Catch
     '    CancelColors(i) = mCustomColors(i)
     'Next
     CancelColors() = mCustomColors()
-    Dim hhwndOwner As Long
+    Dim ahWndOwner As Long
     If IsMissing(Frm) Then
-        hhwndOwner = GetActiveWindow
+        'ahWndOwner = GetActiveWindow
     Else
-        hhwndOwner = Frm.hwnd
+        'ahWndOwner = Frm.hwnd
     End If
-    Dim ChCl As ChooseColor
+    Dim ChCl As ChooseColorW
     With ChCl
         .lStructSize = LenB(ChCl)
-        .hwndOwner = hhwndOwner
+        Debug.Print .lStructSize
+        .hwndOwner = ahWndOwner
+#If VBA6 = 1 Or VBA7 = 1 Then
+        .hInstance = Application.HinstancePtr
+#Else
         .hInstance = App.hInstance
+#End If
         .rgbResult = mColor 'RGB(0, 255, 0) 'Farbe voreinstellen
         .lpCustColors = VarPtr(mCustomColors(0)) 'Benutzerdefinierte Farben zuweisen
         .flags = mFlags
         .lCustData = 0&
         .lpfnHook = 0&
-        '.lpTemplateName = "" '0&
+        .lpTemplateName = StrPtr(mTemplateName) '"" '0&
     End With
     ShowDialog = ChooseColorW(ChCl)
     mColor = ChCl.rgbResult
-    If ShowDialog = vbCancel Then
-        For i = 0 To MaxCustomColors - 1
-            mCustomColors(i) = CancelColors(i)
-        Next
+    If ShowDialog = 0 Then
+        mCustomColors() = CancelColors()
+        CheckMessError
     End If
     Exit Function
 Catch:
     ShowDialog = vbAbort
 End Function
 
+Private Sub CheckMessError()
+    Dim hr As Long: hr = CommDlgExtendedError
+    If hr = 0 Then Exit Sub
+    Dim s As String
+    Select Case hr
+    Case CDERR_DIALOGFAILURE:   s = "DIALOGFAILURE"
+    Case CDERR_FINDRESFAILURE:  s = "FINDRESFAILURE"
+    Case CDERR_MEMLOCKFAILURE:  s = "MEMLOCKFAILURE"
+    Case CDERR_INITIALIZATION:  s = "INITIALIZATION"
+    Case CDERR_NOHINSTANCE:     s = "NOHINSTANCE"
+    Case CDERR_NOHOOK:          s = "NOHOOK"
+    Case CDERR_LOADRESFAILURE:  s = "LOADRESFAILURE"
+    Case CDERR_NOTEMPLATE:      s = "NOTEMPLATE"
+    Case CDERR_LOADSTRFAILURE:  s = "LOADSTRFAILURE"
+    Case CDERR_STRUCTSIZE:      s = "STRUCTSIZE"
+    Case CDERR_MEMALLOCFAILURE: s = "MEMALLOCFAILURE"
+    End Select
+    If Len(s) Then
+        MsgBox s
+    End If
+End Sub
