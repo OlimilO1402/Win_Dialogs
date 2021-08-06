@@ -63,19 +63,19 @@ Private Const CDERR_DIALOGFAILURE   As Long = &HFFFF&
 '  LPEDITMENU   lpEditInfo;
 '} CHOOSECOLORW, *LPCHOOSECOLORW;
 
-Private Type ChooseColorW
-    lStructSize    As Long    '4
-    hwndOwner      As LongPtr '4
-    hInstance      As LongPtr '4
-    rgbResult      As Long    '4
-    lpCustColors   As LongPtr '4
-    flags          As Long    '4
-    lCustData      As Long    '4
-    lpfnHook       As LongPtr '4
-    lpTemplateName As LongPtr 'String '4
-#If Win64 Then
-    lpEditMenu     As LongPtr '8
-#End If
+Private Type ChooseColorW     '      x86  ' x64
+    lStructSize    As Long    '        4  '   4 + 4pads
+    hwndOwner      As LongPtr '        4  '   8
+    hInstance      As LongPtr '        4  '   8
+    rgbResult      As Long    '        4  '   4 + 4pads
+    lpCustColors   As LongPtr '        4  '   8
+    flags          As Long    '        4  '   4
+    lCustData      As Long    '        4  '   4
+    lpfnHook       As LongPtr '        4  '   8
+    lpTemplateName As LongPtr 'String  4  '   8
+#If Win64 Then                ' Sum:  36
+    lpEditMenu     As LongPtr '               8
+#End If                       '         Sum: 72
 End Type
 #If VBA7 Then
 Private Declare PtrSafe Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
