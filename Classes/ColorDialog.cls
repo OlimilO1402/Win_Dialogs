@@ -60,23 +60,20 @@ Private Const CDERR_DIALOGFAILURE   As Long = &HFFFF&
 '  LPARAM       lCustData;
 '  LPCCHOOKPROC lpfnHook;
 '  LPCWSTR      lpTemplateName;
-'  LPEDITMENU   lpEditInfo;
+'  LPEDITMENU   lpEditInfo;       ' Käse dat gibbet nich!!
 '} CHOOSECOLORW, *LPCHOOSECOLORW;
 
-Private Type ChooseColorW     '      x86  ' x64
-    lStructSize    As Long    '        4  '   4 + 4pads
-    hwndOwner      As LongPtr '        4  '   8
-    hInstance      As LongPtr '        4  '   8
-    rgbResult      As Long    '        4  '   4 + 4pads
-    lpCustColors   As LongPtr '        4  '   8
-    flags          As Long    '        4  '   4
-    lCustData      As Long    '        4  '   4
-    lpfnHook       As LongPtr '        4  '   8
-    lpTemplateName As LongPtr 'String  4  '   8
-#If Win64 Then                ' Sum:  36
-    lpEditMenu     As LongPtr '               8
-#End If                       '         Sum: 72
-End Type
+Private Type ChooseColorW     '      x86 '     x64
+    lStructSize    As Long    '        4 '       4 + 4pads
+    hwndOwner      As LongPtr '        4 '       8
+    hInstance      As LongPtr '        4 '       8
+    rgbResult      As Long    '        4 '       4 + 4pads
+    lpCustColors   As LongPtr '        4 '       8
+    flags          As Long    '        4 '       4 + 4pads
+    lCustData      As LongPtr '        4 '       8
+    lpfnHook       As LongPtr '        4 '       8
+    lpTemplateName As LongPtr 'String  4 '       8
+End Type                      '  Sum: 36 ' Sum: 72
 #If VBA7 Then
 Private Declare PtrSafe Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
 Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As Long
@@ -214,21 +211,21 @@ Try: On Error GoTo Catch
     'Next
     CancelColors() = mCustomColors()
     Dim ahWndOwner As Long
-    If IsMissing(Frm) Then
-        'ahWndOwner = GetActiveWindow
-    Else
-        'ahWndOwner = Frm.hwnd
-    End If
+'    If IsMissing(Frm) Then
+'        ahWndOwner = GetActiveWindow
+'    Else
+'        ahWndOwner = Frm.hwnd
+'    End If
     Dim ChCl As ChooseColorW
     With ChCl
         .lStructSize = LenB(ChCl)
-        Debug.Print .lStructSize
+        'Debug.Print .lStructSize
         .hwndOwner = ahWndOwner
-#If VBA6 = 1 Or VBA7 = 1 Then
-        .hInstance = Application.HinstancePtr
-#Else
-        .hInstance = App.hInstance
-#End If
+'#If VBA6 = 1 Or VBA7 = 1 Then
+'        .hInstance = Application.HinstancePtr
+'#Else
+'        .hInstance = App.hInstance
+'#End If
         .rgbResult = mColor 'RGB(0, 255, 0) 'Farbe voreinstellen
         .lpCustColors = VarPtr(mCustomColors(0)) 'Benutzerdefinierte Farben zuweisen
         .flags = mFlags
