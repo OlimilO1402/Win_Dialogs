@@ -220,8 +220,8 @@ Private Type ChooseFontW
 End Type
 
 #If VBA7 Then
-Private Declare PtrSafe Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal BytLen As Long)
-Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal BytLen As Long)
+Private Declare PtrSafe Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
+Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
 Private Declare PtrSafe Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
 Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
 Private Declare PtrSafe Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
@@ -230,9 +230,11 @@ Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As L
 Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
 Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
 Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
+Private Declare PtrSafe Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As LongPtr
+Private Declare PtrSafe Sub CoTaskMemFree Lib "ole32" (ByRef pv As Any)
 #Else
-Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal BytLen As Long)
-Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal BytLen As Long)
+Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
+Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
 Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
 Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
 Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
@@ -241,6 +243,8 @@ Private Declare Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
 Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
 Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
 Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
+Private Declare Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As LongPtr
+Private Declare Sub CoTaskMemFree Lib "ole32" (ByRef pv As Any)
 #End If
 Private Const LOGPIXELSY As Long = 90
 Private mDPI      As Long
@@ -528,27 +532,38 @@ Finally:
     GethInst = GetModuleHandleW(0) ' in VBA7 correct is also: (0^)
 End Function
 
-Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
+Private Function CoTask_GetLogFontPtr() As LongPtr
+    Dim bytLen As Long: bytLen = LenB(mFont)
+    Dim p As LongPtr: p = CoTaskMemAlloc(bytLen)
+    RtlMoveMemory ByVal p, mFont, bytLen
+    CoTask_GetLogFontPtr = p
+End Function
+Private Property Let pFont(ByVal p As LongPtr)
+    Dim bytLen As Long: bytLen = LenB(mFont)
+    RtlMoveMemory mFont, ByVal p, bytLen
+End Property
 
-Try: On Error GoTo Catch
+Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
+Try: On Error GoTo Finally
     Dim aOwnerhWnd  As LongPtr: aOwnerhWnd = GethWnd(Frm)
     Dim aOwnerhInst As LongPtr: aOwnerhInst = GethInst
     Dim CF As ChooseFontW
     With CF
-        .lStructSize = LenB(CF) '104???
-        Debug.Print .lStructSize
+        .lStructSize = LenB(CF)
+        'Debug.Print .lStructSize '104
         .hwndOwner = aOwnerhWnd
         .hInstance = aOwnerhInst
         '.hDC = Printer.hDC
         .flags = mFlags
         .iPointSize = 10
-        .lpLogFont = VarPtr(mFont)
+        .lpLogFont = CoTask_GetLogFontPtr 'VarPtr(mFont)
         .rgbColors = mColor
         .nSizeMax = mMaxSize
         .nSizeMin = mMinSize
     End With
     ShowDialog = ChooseFontW(CF)
     If ShowDialog Then
+        pFont = CF.lpLogFont
         mColor = CF.rgbColors
         mMinSize = CF.nSizeMin
         mMaxSize = CF.nSizeMax
@@ -556,9 +571,9 @@ Try: On Error GoTo Catch
         ShowDialog = vbAbort
         CheckMessError
     End If
-    Exit Function
-Catch:
-    ShowDialog = vbAbort
+Finally:
+    CoTaskMemFree ByVal CF.lpLogFont
+    If Err Then ShowDialog = vbAbort
 End Function
 
 Private Sub CheckMessError()
@@ -588,5 +603,7 @@ Private Sub CheckMessError()
         MsgBox s
     End If
 End Sub
+
+
 
 
