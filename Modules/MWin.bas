@@ -43,6 +43,7 @@ Public Function HelpInfo_ToStr() As String
     End With
     HelpInfo_ToStr = s
 End Function
+
 Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Optional Title As Variant, Optional HelpFile As Variant, Optional Context As Variant) As VbMsgBoxResult
 '    Dim mb As MessageBox: Set mb = New MessageBox
 '    With mb
@@ -60,3 +61,15 @@ Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Opt
     LastMsgBoxResult = mb.Result_ToStr
 End Function
 
+'Property Get App_EXEName() As String
+'#If VBA6 Or VBA7 Then
+'    App_EXEName = Application.Name
+'#Else
+'    App_EXEName = App.EXEName
+'#End If
+'End Property
+'Public Function MsgBoxW(Prompt, Optional ByVal Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title) As VbMsgBoxResult
+''Public Function MsgBoxW(Prompt, Optional ByVal Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title, Optional Helpfile, Optional Context) As VbMsgBoxResult
+'    Title = IIf(IsMissing(Title), App_EXEName, CStr(Title))
+'    MsgBoxW = MessageBoxW(0, StrPtr(Prompt), StrPtr(Title), Buttons)
+'End Function

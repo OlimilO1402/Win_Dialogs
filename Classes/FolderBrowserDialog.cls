@@ -19,6 +19,34 @@ Attribute VB_Exposed = False
 ' Stellt ein Standarddialogfeld dar, in dem Benutzer einen Ordner auswählen können.
 Option Explicit
 Implements ICallBack
+
+Private Const WM_USER              As Long = &H400
+Public Enum BrowseInfoFlags 'ulFlags:
+    BIF_RETURNONLYFSDIRS = &H1        ': Gestattet nur Dateisystemordner als Auswahl.
+    BIF_DONTGOBELOWDOMAIN = &H2       ': Der Dialog zeigt keine Netzwerkordner unterhalb der aktuellen Domain.
+    BIF_STATUSTEXT = &H4              ': Der Dialog enthält eine Statuszeile. Die Rückruffunktion kann die Statuszeile ausfüllen.
+    BIF_RETURNFSANCESTORS = &H8       ': Gestattet nur Dateisystemobjekte als Auswahl
+    BIF_EDITBOX = &H10
+    BIF_VALIDATE = &H20
+    BIF_NEWDIALOGSTYLE = &H40
+    BIF_USENEWUI = &H40
+    BIF_BROWSEINCLUDEURLS = &H80
+    BIF_DONTSHOWNEWFOLDERBUTTON = &H200  '512
+    BFFM_SETSTATUSTEXTA = (WM_USER + 100)
+    BFFM_ENABLEOK = (WM_USER + 101)      '1125
+    BFFM_SETSELECTIONA = (WM_USER + 102) '1126
+    BFFM_SETSELECTIONW = (WM_USER + 103)
+    BFFM_SETSTATUSTEXTW = (WM_USER + 104)
+    BIF_BROWSEFORCOMPUTER = &H1000       ': Als Auswahl sind nur Computer erlaubt. Wenn der Anwender andere Objekte, also Ordner oder Laufwerke markiert, kann der OK-Button nicht ausgewählt werden.
+    BIF_BROWSEFORPRINTER = &H2000        ': Gestattet nur Drucker als Auswahl.
+    BIF_BROWSEINCLUDEFILES = &H4000      ': Der Dialog zeigt neben Computern, Laufwerken und Ordnern auch Dateien an.
+    BIF_SHAREABLE = &H8000
+End Enum
+Private Const BFFM_INITIALIZED     As Long = 1
+Private Const BFFM_SELCHANGED      As Long = 2
+'Private Const BFFM_VALIDATEFAILEDA As Long = 3
+'Private Const BFFM_VALIDATEFAILEDW As Long = 4
+'
 'Private Const CSIDL_DESKTOP                 As Long = &H0
 'Private Const CSIDL_INTERNET                As Long = &H1
 'Private Const CSIDL_PROGRAMS                As Long = &H2
@@ -149,46 +177,12 @@ Private mRootFolder   As Long
 Private mSelectedPath As String
 Private mTag          As Variant
 
-Private Const WM_USER              As Long = &H400
-Public Enum BrowseInfoFlags 'ulFlags:
-    BIF_RETURNONLYFSDIRS = &H1        ': Gestattet nur Dateisystemordner als Auswahl.
-    BIF_DONTGOBELOWDOMAIN = &H2       ': Der Dialog zeigt keine Netzwerkordner unterhalb der aktuellen Domain.
-    BIF_STATUSTEXT = &H4              ': Der Dialog enthält eine Statuszeile. Die Rückruffunktion kann die Statuszeile ausfüllen.
-    BIF_RETURNFSANCESTORS = &H8       ': Gestattet nur Dateisystemobjekte als Auswahl
-    BIF_EDITBOX = &H10
-    BIF_VALIDATE = &H20
-    BIF_NEWDIALOGSTYLE = &H40
-    BIF_USENEWUI = &H40
-    BIF_BROWSEINCLUDEURLS = &H80
-    BIF_DONTSHOWNEWFOLDERBUTTON = &H200  '512
-    BFFM_SETSTATUSTEXTA = (WM_USER + 100)
-    BFFM_ENABLEOK = (WM_USER + 101)      '1125
-    BFFM_SETSELECTIONA = (WM_USER + 102) '1126
-    BFFM_SETSELECTIONW = (WM_USER + 103)
-    BFFM_SETSTATUSTEXTW = (WM_USER + 104)
-    BIF_BROWSEFORCOMPUTER = &H1000       ': Als Auswahl sind nur Computer erlaubt. Wenn der Anwender andere Objekte, also Ordner oder Laufwerke markiert, kann der OK-Button nicht ausgewählt werden.
-    BIF_BROWSEFORPRINTER = &H2000        ': Gestattet nur Drucker als Auswahl.
-    BIF_BROWSEINCLUDEFILES = &H4000      ': Der Dialog zeigt neben Computern, Laufwerken und Ordnern auch Dateien an.
-    BIF_SHAREABLE = &H8000
-End Enum
-Private Const BFFM_INITIALIZED     As Long = 1
-Private Const BFFM_SELCHANGED      As Long = 2
-'Private Const BFFM_VALIDATEFAILEDA As Long = 3
-'Private Const BFFM_VALIDATEFAILEDW As Long = 4
-'
-Private Declare Function SHGetSpecialFolderLocation Lib "Shell32" ( _
-    ByVal hwnd As Long, ByVal csidl As Long, ByRef ppidl_out As Long) As Long 'HRESULT
-
+Private Declare Function SHGetSpecialFolderLocation Lib "Shell32" (ByVal hwnd As Long, ByVal csidl As Long, ByRef ppidl_out As Long) As Long      'HRESULT
 Private Declare Function SHBrowseForFolder Lib "Shell32" (pBrowseInfo As BrowseInfo) As Long
-
 Private Declare Function SHGetPathFromIDList Lib "Shell32" (ByVal pidList As Long, ByRef lpBuffer As Any) As Long
-
 Private Declare Function SendMessageA Lib "user32" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
-
 Private Declare Function GetActiveWindow Lib "user32" () As Long
-
 Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Any) As Long
-
 Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
 
 Public Event HelpRequest(ByVal sender As FolderBrowserDialog)

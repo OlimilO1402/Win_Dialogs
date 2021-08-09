@@ -118,9 +118,13 @@ Private Const FF_MODERN      As Long = 48 ' Modern
 Private Const FF_SCRIPT      As Long = 64 ' Script
 Private Const FF_DECORATIVE  As Long = 80 ' Dekoriert
 
-
 Private Const LF_FACESIZE As Long = 32
 
+#If VBA7 = 0 Then
+    Private Enum LongPtr
+        [_]
+    End Enum
+#End If
 'typedef struct tagLOGFONTW {
 '  LONG  lfHeight;
 '  LONG  lfWidth;
@@ -155,7 +159,6 @@ Private Type LOGFONTW
     lfFaceName(0 To LF_FACESIZE - 1) As Integer 'String * LF_FACESIZE '(1 To LF_FACESIZE) As Byte
 End Type
 
-
 'typedef struct tagCHOOSEFONTW {
 '  DWORD        lStructSize;
 '  HWND         hwndOwner;
@@ -177,25 +180,25 @@ End Type
 
 Private Type ChooseFontW
     lStructSize    As Long
-    hwndOwner      As Long ' caller's window handle
-    hDC            As Long ' printer DC/IC or NULL
-    lpLogFont      As Long ' LOGFONT  ' ptr. to a LOGFONT struct
-    iPointSize     As Long ' 10 size points of selected font
-    flags          As Long ' enum. type flags
-    rgbColors      As Long ' returned text color
-    lCustData      As Long ' data passed to hook fn.
-    lpfnHook       As Long ' ptr. to hook function
-    lpTemplateName As Long 'String ' custom template name
-    hInstance      As Long ' Instance handle of.EXE that
-    ' contains cust. dlg. template
-    lpszStyle      As Long 'String ' return the style field here
-    ' must be LF_FACESIZE or bigger
+    hwndOwner      As LongPtr ' caller's window handle
+    hDC            As LongPtr ' printer DC/IC or NULL
+    lpLogFont      As LongPtr ' LOGFONT  ' ptr. to a LOGFONT struct
+    iPointSize     As Long    ' 10 size points of selected font
+    flags          As Long    ' enum. type flags
+    rgbColors      As Long    ' returned text color
+    lCustData      As LongPtr ' data passed to hook fn.
+    lpfnHook       As LongPtr ' ptr. to hook function
+    lpTemplateName As LongPtr 'String ' custom template name
+    hInstance      As LongPtr ' Instance handle of.EXE that
+                              ' contains cust. dlg. template
+    lpszStyle      As LongPtr 'String ' return the style field here
+                              ' must be LF_FACESIZE or bigger
     nFontType      As Integer ' same value reported to the EnumFonts
-    ' call back with the extra FONTTYPE_
-    ' bits added
+                              ' call back with the extra FONTTYPE_
+                              ' bits added
     MISSING_ALIGNMENT As Integer
-    nSizeMin       As Long ' minimum pt size allowed &
-    nSizeMax       As Long ' max pt size allowed if
+    nSizeMin       As Long    ' minimum pt size allowed &
+    nSizeMax       As Long    ' max pt size allowed if
     ' CF_LIMITSIZE is used
 End Type
 
@@ -261,11 +264,9 @@ Public Property Get AllowScriptChange() As Boolean
     ' Zeichensatz angezeigt wird, oder legt diesen fest.
     AllowScriptChange = Not (mFlags And CF_NOSCRIPTSEL)
 End Property
-Public Property Let AllowScriptChange(BolVal As Boolean)
+Public Property Let AllowScriptChange(ByVal Value As Boolean)
     mFlags = mFlags Or CF_NOSCRIPTSEL
-    If BolVal Then
-        mFlags = mFlags Xor CF_NOSCRIPTSEL
-    End If
+    If Value Then mFlags = mFlags Xor CF_NOSCRIPTSEL
 End Property
 
 'Public Property AllowSimulations() As Boolean
@@ -277,9 +278,7 @@ Public Property Get AllowSimulations() As Boolean
 End Property
 Public Property Let AllowSimulations(ByVal Value As Boolean)
     mFlags = mFlags Or CF_NOSIMULATIONS
-    If Value Then
-        mFlags = mFlags Xor CF_NOSIMULATIONS
-    End If
+    If Value Then mFlags = mFlags Xor CF_NOSIMULATIONS
 End Property
 
 'Public Property AllowVectorFonts() As Boolean
@@ -290,9 +289,7 @@ Public Property Get AllowVectorFonts() As Boolean
 End Property
 Public Property Let AllowVectorFonts(ByVal Value As Boolean)
     mFlags = mFlags Or CF_NOVECTORFONTS
-    If Value Then
-        mFlags = mFlags Xor CF_NOVECTORFONTS
-    End If
+    If Value Then mFlags = mFlags Xor CF_NOVECTORFONTS
 End Property
 
 'Public Property AllowVerticalFonts() As Boolean
@@ -303,9 +300,7 @@ Public Property Get AllowVerticalFonts() As Boolean
 End Property
 Public Property Let AllowVerticalFonts(ByVal Value As Boolean)
     mFlags = mFlags Or CF_NOVERTFONTS
-    If Value Then
-        mFlags = mFlags Xor CF_NOVERTFONTS
-    End If
+    If Value Then mFlags = mFlags Xor CF_NOVERTFONTS
 End Property
 
 'Public Property Color() As System.Drawing.Color
@@ -323,11 +318,9 @@ Public Property Get FixedPitchOnly() As Boolean
     ' Schriftbreite ausgewählt werden können, oder legt diesen fest.
     FixedPitchOnly = (mFlags And CF_FIXEDPITCHONLY)
 End Property
-Public Property Let FixedPitchOnly(BolVal As Boolean)
+Public Property Let FixedPitchOnly(ByVal Value As Boolean)
     mFlags = mFlags Or CF_FIXEDPITCHONLY
-    If Not BolVal Then
-        mFlags = mFlags Xor CF_FIXEDPITCHONLY
-    End If
+    If Not Value Then mFlags = mFlags Xor CF_FIXEDPITCHONLY
 End Property
 
 Public Property Get FontName() As String
@@ -378,11 +371,9 @@ Public Property Get FontMustExist() As Boolean
     ' auswählt, oder legt diesen fest.
     FontMustExist = (mFlags And CF_FORCEFONTEXIST)
 End Property
-Public Property Let FontMustExist(BolVal As Boolean)
+Public Property Let FontMustExist(ByVal Value As Boolean)
     mFlags = mFlags Or CF_FORCEFONTEXIST
-    If Not BolVal Then
-        mFlags = mFlags Xor CF_FORCEFONTEXIST
-    End If
+    If Not Value Then mFlags = mFlags Xor CF_FORCEFONTEXIST
 End Property
 
 'Public Property MaxSize() As Integer
@@ -390,8 +381,8 @@ Public Property Get MaxSize() As Long
     ' Ruft den größten Schriftgrad ab, den der Benutzer auswählen kann, oder legt diesen fest.
     MaxSize = mMaxSize
 End Property
-Public Property Let MaxSize(LngVal As Long)
-    mMaxSize = LngVal
+Public Property Let MaxSize(ByVal Value As Long)
+    mMaxSize = Value
 End Property
 
 'Public Property MinSize() As Integer
@@ -399,8 +390,8 @@ Public Property Get MinSize() As Long
     ' Ruft den kleinsten Schriftgrad ab, den der Benutzer auswählen kann, oder legt diesen fest.
     MinSize = mMinSize
 End Property
-Public Property Let MinSize(LngVal As Long)
-    mMinSize = LngVal
+Public Property Let MinSize(ByVal Value As Long)
+    mMinSize = Value
 End Property
 
 'Public Property ScriptsOnly() As Boolean
@@ -410,10 +401,9 @@ Public Property Get ScriptsOnly() As Boolean
     ' ausgewählt werden können, oder legt diesen fest.
     ScriptsOnly = (mFlags And CF_SELECTSCRIPT)
 End Property
-Public Property Let ScriptsOnly(BolVal As Boolean)
+Public Property Let ScriptsOnly(ByVal Value As Boolean)
     mFlags = mFlags Or CF_SELECTSCRIPT
-    If Not BolVal Then
-        mFlags = mFlags Xor CF_SELECTSCRIPT
+    If Not Value Then mFlags = mFlags Xor CF_SELECTSCRIPT
     End If
 End Property
 
@@ -423,20 +413,18 @@ Public Property Get ShowApply() As Boolean
     ' oder legt diesen fest.
     ShowApply = (mFlags And CF_APPLY)
 End Property
-Public Property Let ShowApply(BolVal As Boolean)
+Public Property Let ShowApply(ByVal Value As Boolean)
     mFlags = mFlags Or CF_APPLY
-    If Not BolVal Then
-        mFlags = mFlags Xor CF_APPLY
-    End If
+    If Not Value Then mFlags = mFlags Xor CF_APPLY
 End Property
 
 'Public Property ShowColor() As Boolean
 Public Property Get ShowColor() As Boolean
 ' Ruft einen Wert ab, der angibt, ob im Dialogfeld die Farbauswahl angezeigt wird, oder legt diesen fest.
-
+    '
 End Property
 Public Property Let ShowColor(BolVal As Boolean)
-
+    '
 End Property
 
 'Public Property ShowEffects() As Boolean
@@ -446,11 +434,9 @@ Public Property Get ShowEffects() As Boolean
     ' oder legt diesen fest.
     ShowEffects = (mFlags And CF_EFFECTS)
 End Property
-Public Property Let ShowEffects(BolVal As Boolean)
+Public Property Let ShowEffects(ByVal Value As Boolean)
     mFlags = mFlags Or CF_EFFECTS
-    If Not BolVal Then
-        mFlags = mFlags Xor CF_EFFECTS
-    End If
+    If Not Value Then mFlags = mFlags Xor CF_EFFECTS
 End Property
 
 'Public Property ShowHelp() As Boolean
@@ -458,11 +444,9 @@ Public Property Get ShowHelp() As Boolean
     ' Ruft einen Wert ab, der angibt, ob im Dialogfeld die Hilfeschaltfläche angezeigt wird, oder legt diesen fest.
     ShowHelp = (mFlags And CF_SHOWHELP)
 End Property
-Public Property Let ShowHelp(BolVal As Boolean)
+Public Property Let ShowHelp(ByVal Value As Boolean)
     mFlags = mFlags Or CF_SHOWHELP
-    If Not BolVal Then
-        mFlags = mFlags Xor CF_SHOWHELP
-    End If
+    If Not Value Then mFlags = mFlags Xor CF_SHOWHELP
 End Property
 
 'Protected ReadOnly Property Options() As Integer
@@ -477,29 +461,44 @@ End Property
 Public Property Get Tag() As Variant
     Tag = mTag
 End Property
-Public Property Let Tag(VarVal As Variant)
-    mTag = VarVal
+Public Property Let Tag(Value)
+    mTag = Value
+End Property
+Public Property Set Tag(Value)
+    Set mTag = Value
 End Property
 
 Public Function ToString() As String
-    ToString = "System.Windows.Forms.FolderBrowserDialog"
+    ToString = "MBO.Forms.FontDialog"
+End Function
+
+Private Function GethWnd(Frm As Variant) As LongPtr
+Try: On Error GoTo Catch
+    GethWnd = Frm.hwnd
+    Exit Function
+Catch:
+    GethWnd = GetActiveWindow
+End Function
+
+Private Function GethInst() As LongPtr
+#If VBA6 Or VBA7 Then
+    GethInst = Application.HinstancePtr
+#Else
+    GethInst = App.hInstance
+#End If
 End Function
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
 
 Try: On Error GoTo Catch
-    Dim hhwndOwner As Long
-    If IsMissing(Frm) Then
-        hhwndOwner = GetActiveWindow
-    Else
-        hhwndOwner = Frm.hwnd
-    End If
+    Dim aOwnerhWnd  As LongPtr: aOwnerhWnd = GethWnd(Frm)
+    Dim aOwnerhInst As LongPtr: aOwnerhInst = GethInst
     Dim CF As ChooseFontW
     With CF
-        .lStructSize = Len(CF)
-        .hwndOwner = hhwndOwner
-        .hInstance = App.hInstance
-        .hDC = Printer.hDC
+        .lStructSize = LenB(CF)
+        .hwndOwner = aOwnerhWnd
+        .hInstance = aOwnerhInst
+        '.hDC = Printer.hDC
         .flags = mFlags
         .iPointSize = 10
         .lpLogFont = VarPtr(mFont)

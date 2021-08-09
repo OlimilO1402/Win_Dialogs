@@ -131,8 +131,7 @@ Public Enum MsgBoxFncType
 End Enum
 
 'Maybe copy this to a module
-#If Not VBA7 Then
-'#If Not Win64 Then
+#If VBA7 = 0 Then
     Private Enum LongPtr
         [_]
     End Enum

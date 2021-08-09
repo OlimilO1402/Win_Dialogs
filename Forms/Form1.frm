@@ -2,13 +2,13 @@ VERSION 5.00
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   6540
+   ClientHeight    =   6015
    ClientLeft      =   225
    ClientTop       =   870
    ClientWidth     =   5295
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6540
+   ScaleHeight     =   6015
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton BtnTestMessageBox 
@@ -20,7 +20,7 @@ Begin VB.Form Form1
       Width           =   2415
    End
    Begin VB.CommandButton BtnAllDialogs 
-      Caption         =   "All Dialogs"
+      Caption         =   "All Dialogs (old)"
       Height          =   375
       Left            =   120
       TabIndex        =   17
@@ -349,9 +349,16 @@ Private Function FileOpenNew() As String
         .DefaultExt = ".htm"
         .ShowReadOnly = True
         .AddExtension = False
+        .MultiSelect = True
         If .ShowDialog = vbOK Then
             FileOpenNew = .FileName
         End If
+        Dim FNm
+        Dim s As String
+        For Each FNm In .FileNames
+            s = s & FNm & vbCrLf
+        Next
+        MsgBox s
     End With
 End Function
 Private Function FileOpenOld() As String
@@ -362,6 +369,7 @@ Try: On Error GoTo Catch
         .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
         .DefaultExt = ".htm"
         .CancelError = True
+        .flags = .flags Or FileOpenConstants.cdlOFNAllowMultiselect
         .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
         .ShowOpen
         FileOpenOld = .FileName
@@ -457,7 +465,6 @@ Private Sub mnuEditFontChoose_Click()
         LblFD.ForeColor = .Color
     End With
 End Sub
-
 
 ' v ############################## v ' based on SHBrowseForFolder deprecated ' v ############################## v '
 Private Sub PrepareSpecialFolder()
@@ -589,8 +596,6 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
     End With
 
 End Sub
-
-
 
 Private Sub mnuHelpInfo_Click()
     Dim s As String
