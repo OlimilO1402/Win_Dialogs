@@ -118,13 +118,28 @@ Private Const FF_MODERN      As Long = 48 ' Modern
 Private Const FF_SCRIPT      As Long = 64 ' Script
 Private Const FF_DECORATIVE  As Long = 80 ' Dekoriert
 
-Private Const LF_FACESIZE As Long = 32
+'possible errors in dialog FontDialog
+Private Const CDERR_STRUCTSIZE      As Long = &H1
+Private Const CDERR_INITIALIZATION  As Long = &H2
+Private Const CDERR_NOTEMPLATE      As Long = &H3
+Private Const CDERR_NOHINSTANCE     As Long = &H4
+Private Const CDERR_LOADSTRFAILURE  As Long = &H5
+Private Const CDERR_FINDRESFAILURE  As Long = &H6
+Private Const CDERR_LOADRESFAILURE  As Long = &H7
+Private Const CDERR_LOCKRESFAILURE  As Long = &H8
+Private Const CDERR_MEMALLOCFAILURE As Long = &H9
+Private Const CDERR_MEMLOCKFAILURE  As Long = &HA
+Private Const CDERR_NOHOOK          As Long = &HB
+Private Const CFERR_MAXLESSTHANMIN  As Long = &H2002&
+Private Const CFERR_NOFONTS         As Long = &H2001&
+Private Const CDERR_DIALOGFAILURE   As Long = &HFFFF&
 
 #If VBA7 = 0 Then
     Private Enum LongPtr
         [_]
     End Enum
 #End If
+
 'typedef struct tagLOGFONTW {
 '  LONG  lfHeight;
 '  LONG  lfWidth;
@@ -142,6 +157,7 @@ Private Const LF_FACESIZE As Long = 32
 '  WCHAR lfFaceName[LF_FACESIZE];
 '} LOGFONTW, *PLOGFONTW, *NPLOGFONTW, *LPLOGFONTW;
 
+Private Const LF_FACESIZE    As Long = 32
 Private Type LOGFONTW
     lfHeight         As Long
     lfWidth          As Long
@@ -179,38 +195,53 @@ End Type
 '} CHOOSEFONTW;
 
 Private Type ChooseFontW
-    lStructSize    As Long
-    hwndOwner      As LongPtr ' caller's window handle
-    hDC            As LongPtr ' printer DC/IC or NULL
-    lpLogFont      As LongPtr ' LOGFONT  ' ptr. to a LOGFONT struct
-    iPointSize     As Long    ' 10 size points of selected font
-    flags          As Long    ' enum. type flags
-    rgbColors      As Long    ' returned text color
-    lCustData      As LongPtr ' data passed to hook fn.
-    lpfnHook       As LongPtr ' ptr. to hook function
-    lpTemplateName As LongPtr 'String ' custom template name
-    hInstance      As LongPtr ' Instance handle of.EXE that
-                              ' contains cust. dlg. template
-    lpszStyle      As LongPtr 'String ' return the style field here
-                              ' must be LF_FACESIZE or bigger
-    nFontType      As Integer ' same value reported to the EnumFonts
-                              ' call back with the extra FONTTYPE_
-                              ' bits added
-    MISSING_ALIGNMENT As Integer
-    nSizeMin       As Long    ' minimum pt size allowed &
-    nSizeMax       As Long    ' max pt size allowed if
-    ' CF_LIMITSIZE is used
+    lStructSize    As Long    '4
+    hwndOwner      As LongPtr '8  caller's window handle
+    hDC            As LongPtr '8  printer DC/IC or NULL
+    lpLogFont      As LongPtr '8  LOGFONT  ' ptr. to a LOGFONT struct
+    iPointSize     As Long    '4  10 size points of selected font
+    flags          As Long    '4  enum. type flags
+    rgbColors      As Long    '4  returned text color
+    lCustData      As LongPtr '8  data passed to hook fn.
+    lpfnHook       As LongPtr '8  ptr. to hook function
+    lpTemplateName As LongPtr '8  String ' custom template name
+    hInstance      As LongPtr '8  Instance handle of.EXE that
+                              '   contains cust. dlg. template
+    lpszStyle      As LongPtr '8  String ' return the style field here
+                              '   must be LF_FACESIZE or bigger
+    nFontType      As Integer '2  same value reported to the EnumFonts
+                              '   call back with the extra FONTTYPE_
+                              '   bits added
+    MISSING_ALIGN  As Integer '2
+    nSizeMin       As Long    '4  minimum pt size allowed &
+    nSizeMax       As Long    '4  max pt size allowed if
+                              '   CF_LIMITSIZE is used
+    'PadAtTheEnd    As Long    '4
 End Type
 
+#If VBA7 Then
+Private Declare PtrSafe Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal BytLen As Long)
+Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal BytLen As Long)
+Private Declare PtrSafe Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
+Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
+Private Declare PtrSafe Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
+Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
+Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
+Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
+Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
+#Else
 Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal BytLen As Long)
 Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal BytLen As Long)
 Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
-Private Declare Function GetActiveWindow Lib "user32" () As Long
+Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
 Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
-Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As Long, ByVal nIndex As Long) As Long
-Private Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
-Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Long) As Long
-
+Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
+Private Declare Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
+Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
+Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
+#End If
 Private Const LOGPIXELSY As Long = 90
 Private mDPI      As Long
 Private mPT2Px    As Long
@@ -236,17 +267,14 @@ End Function
 
 'Public Overrides Sub Reset()
 Public Sub Reset()
-    Dim StdName As String: StdName = "Ms Sans Serif"
+    Dim StdName As String: StdName = "Ms Sans Serif" '"Arial", "Verdana", "Tahoma", "Consolas" what'd you prefer?
     Me.FontName = StdName
-    'mFontName = "Ms Sans Serif"
-    'Dim StdF As New StdFont:
-    'StdF.Name = StdName
     ' Setzt alle Optionen im Dialogfeld auf die Standardwerte zurück.
     mFlags = mFlags Or CF_BOTH
     mFlags = mFlags Or CF_EFFECTS
     mFlags = mFlags Or CF_INITTOLOGFONTSTRUCT
     mFont.lfHeight = S2H(8) '10 + 2 / 3
-    'mFont.lfFaceName = StrPtr(mFontName) ', vbFromUnicode) & vbNullChar '& Space$(LF_FACESIZE - 2 - Len(StdName)) & vbNullChar
+    mMaxSize = 32767
 End Sub
 Private Function Min(V1, V2)
     If V1 < V2 Then Min = V1 Else Min = V2
@@ -333,9 +361,14 @@ Public Property Let FontName(ByVal Value As String)
     RtlZeroMemory ByVal VarPtr(mFont.lfFaceName(0)), LF_FACESIZE * 2
     RtlMoveMemory ByVal VarPtr(mFont.lfFaceName(0)), ByVal StrPtr(Value), lb
 End Property
-'Public Property Font() As System.Drawing.Font
-Public Property Get Font() As Font 'Boolean
+
+#If VBA7 Then
+Public Property Get Font() As NewFont
+    Set Font = New NewFont
+#Else
+Public Property Get Font() As StdFont
     Set Font = New StdFont
+#End If
     With Font
         .Bold = mFont.lfWidth
         .Charset = mFont.lfCharSet
@@ -348,20 +381,25 @@ Public Property Get Font() As Font 'Boolean
         .Weight = mFont.lfWeight
     End With
 End Property
-Public Property Set Font(FntVal As Font)
+
+#If VBA7 Then
+Public Property Set Font(aFont As NewFont)
+#Else
+Public Property Set Font(aFont As Font)
+#End If
     With mFont
-        .lfWidth = FntVal.Bold
-        .lfCharSet = FntVal.Charset
-        .lfItalic = FntVal.Italic
+        .lfWidth = aFont.Bold
+        .lfCharSet = aFont.Charset
+        .lfItalic = aFont.Italic
         'Dim StdName As String: StdName = "Ms Sans Serif"
         '.lfFaceName = StrConv(FntVal.Name, vbFromUnicode) & vbNullChar
         
-        .lfHeight = S2H(FntVal.Size)
-        .lfStrikeOut = FntVal.Strikethrough
-        .lfUnderline = FntVal.Underline
-        .lfWeight = FntVal.Weight
+        .lfHeight = S2H(aFont.Size)
+        .lfStrikeOut = aFont.Strikethrough
+        .lfUnderline = aFont.Underline
+        .lfWeight = aFont.Weight
     End With
-    Me.FontName = FntVal.Name
+    Me.FontName = aFont.Name
 End Property
 
 'Public Property FontMustExist() As Boolean
@@ -404,7 +442,6 @@ End Property
 Public Property Let ScriptsOnly(ByVal Value As Boolean)
     mFlags = mFlags Or CF_SELECTSCRIPT
     If Not Value Then mFlags = mFlags Xor CF_SELECTSCRIPT
-    End If
 End Property
 
 'Public Property ShowApply() As Boolean
@@ -481,11 +518,14 @@ Catch:
 End Function
 
 Private Function GethInst() As LongPtr
+Try: On Error GoTo Finally
 #If VBA6 Or VBA7 Then
-    GethInst = Application.HinstancePtr
+    GethInst = Application.hInstance 'Ptr
 #Else
     GethInst = App.hInstance
 #End If
+Finally:
+    GethInst = GetModuleHandleW(0) ' in VBA7 correct is also: (0^)
 End Function
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
@@ -495,7 +535,8 @@ Try: On Error GoTo Catch
     Dim aOwnerhInst As LongPtr: aOwnerhInst = GethInst
     Dim CF As ChooseFontW
     With CF
-        .lStructSize = LenB(CF)
+        .lStructSize = LenB(CF) '104???
+        Debug.Print .lStructSize
         .hwndOwner = aOwnerhWnd
         .hInstance = aOwnerhInst
         '.hDC = Printer.hDC
@@ -507,11 +548,45 @@ Try: On Error GoTo Catch
         .nSizeMin = mMinSize
     End With
     ShowDialog = ChooseFontW(CF)
-    mColor = CF.rgbColors
-    mMinSize = CF.nSizeMin
-    mMaxSize = CF.nSizeMax
+    If ShowDialog Then
+        mColor = CF.rgbColors
+        mMinSize = CF.nSizeMin
+        mMaxSize = CF.nSizeMax
+    Else
+        ShowDialog = vbAbort
+        CheckMessError
+    End If
     Exit Function
 Catch:
     ShowDialog = vbAbort
 End Function
+
+Private Sub CheckMessError()
+    Dim hr As Long: hr = CommDlgExtendedError
+    If hr = 0 Then Exit Sub
+    Dim s As String
+    Select Case hr
+    Case CDERR_STRUCTSIZE:      s = "STRUCTSIZE"
+    Case CDERR_INITIALIZATION:  s = "INITIALIZATION"
+    Case CDERR_NOTEMPLATE:      s = "NOTEMPLATE"
+    Case CDERR_NOHINSTANCE:     s = "NOHINSTANCE"
+    Case CDERR_LOADSTRFAILURE:  s = "LOADSTRFAILURE"
+    Case CDERR_FINDRESFAILURE:  s = "FINDRESFAILURE"
+    Case CDERR_LOADRESFAILURE:  s = "LOADRESFAILURE"
+    Case CDERR_LOCKRESFAILURE:  s = "LOCKRESFAILURE"
+    Case CDERR_MEMALLOCFAILURE: s = "MEMALLOCFAILURE"
+    Case CDERR_MEMLOCKFAILURE:  s = "MEMLOCKFAILURE"
+    Case CDERR_NOHOOK:          s = "NOHOOK"
+    Case CDERR_DIALOGFAILURE:   s = "DIALOGFAILURE"
+    
+    'Errors special for FontDialog:
+    Case CFERR_MAXLESSTHANMIN:  s = "MAXLESSTHANMIN"
+    Case CFERR_NOFONTS:         s = "NOFONTS"
+    
+    End Select
+    If Len(s) Then
+        MsgBox s
+    End If
+End Sub
+
 

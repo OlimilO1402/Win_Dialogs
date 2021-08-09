@@ -27,7 +27,7 @@ Begin VB.Form Form1
       Top             =   1920
       Width           =   2655
    End
-   Begin MSComDlg.CommonDialog FileDialog 
+   Begin MSComDlg.CommonDialog CommonDialog 
       Left            =   4800
       Top             =   0
       _ExtentX        =   847
@@ -257,12 +257,12 @@ Private Sub Form_Load()
 End Sub
 
 Private Sub BtnAllDialogs_Click()
-    Me.FileDialog.ShowColor
-    Me.FileDialog.ShowFont
-    'Me.FileDialog.ShowHelp
-    Me.FileDialog.ShowOpen
-    Me.FileDialog.ShowPrinter
-    Me.FileDialog.ShowSave
+    Me.CommonDialog.ShowColor
+    Me.CommonDialog.ShowFont
+    'Me.CommonDialog.ShowHelp
+    Me.CommonDialog.ShowOpen
+    Me.CommonDialog.ShowPrinter 'sill missing here
+    Me.CommonDialog.ShowSave
 End Sub
 
 Private Sub BtnTestMessageBox_Click()
@@ -363,7 +363,7 @@ Private Function FileOpenNew() As String
 End Function
 Private Function FileOpenOld() As String
 Try: On Error GoTo Catch
-    With Me.FileDialog
+    With Me.CommonDialog
         .Filter = MApp.FileExtFilter
         .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
         .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
@@ -395,7 +395,7 @@ Private Function FileSaveNew() As String
 End Function
 Private Function FileSaveOld() As String
 Try: On Error GoTo Catch
-    With Me.FileDialog
+    With Me.CommonDialog
         .Filter = MApp.FileExtFilter
         .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
         .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist

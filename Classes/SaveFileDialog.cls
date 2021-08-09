@@ -120,6 +120,7 @@ Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
 'Private Declare PtrSafe Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As LongPtr, ByVal lpWindowName As LongPtr, ByVal dwStyle As Long, ByVal X As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As LongPtr, ByVal hMenu As LongPtr, ByVal hInstance As LongPtr, ByRef lpParam As Any) As Long
 'Private Declare PtrSafe Function DestroyWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
 'Private Declare PtrSafe Function GetWindowRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
+Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
 #Else
 Private Declare Function GetSaveFileNameW Lib "comdlg32" (ByRef pOpenfilename As OPENFILENAMEW) As Long
 Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
@@ -128,6 +129,7 @@ Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
 'Private Declare Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As LongPtr, ByVal lpWindowName As LongPtr, ByVal dwStyle As Long, ByVal X As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As LongPtr, ByVal hMenu As LongPtr, ByVal hInstance As LongPtr, ByRef lpParam As Any) As Long
 'Private Declare Function DestroyWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
 'Private Declare Function GetWindowRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
+Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
 #End If
 
 'Private Base As New FileDialog
@@ -478,11 +480,14 @@ Catch:
 End Function
 
 Private Function GethInst() As LongPtr
+Try: On Error GoTo Finally
 #If VBA6 Or VBA7 Then
-    GethInst = App.hInstance
+    GethInst = Application.hInstance 'Ptr
 #Else
-    GethInst = Application.hInstPtr
+    GethInst = App.hInstance
 #End If
+Finally:
+    GethInst = GetModuleHandleW(0) ' in VBA7 correct is also: (0^)
 End Function
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
