@@ -16,6 +16,7 @@ Class=SaveFileDialog; Classes\SaveFileDialog.cls
 Class=OpenFolderDialog; Classes\OpenFolderDialog.cls
 Class=MessageBox; Classes\MessageBox.cls
 ResFile32="Resources\MyRes.RES"
+Class=MyFontDialog; Classes\MyFontDialog.cls
 IconForm="Form1"
 Startup="Sub Main"
 HelpFile=""

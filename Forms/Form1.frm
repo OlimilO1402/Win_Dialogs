@@ -11,6 +11,14 @@ Begin VB.Form Form1
    ScaleHeight     =   6015
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command5 
+      Caption         =   "Command5"
+      Height          =   615
+      Left            =   2520
+      TabIndex        =   19
+      Top             =   720
+      Width           =   1455
+   End
    Begin VB.CommandButton BtnTestMessageBox 
       Caption         =   "Test MessageBox"
       Height          =   375
@@ -251,6 +259,14 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 Private CD  As New ColorDialog
+
+Private Sub Command5_Click()
+    Dim FD As New MyFontDialog
+    'MsgBox Hex(FD.Options)
+    If FD.ShowDialog(Me.hwnd) = vbOK Then
+        '
+    End If
+End Sub
 
 Private Sub Form_Load()
     PrepareSpecialFolder
@@ -577,7 +593,7 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
                               .flags = .flags Or BIF_RETURNFSANCESTORS
         End Select
         
-        If ChkShowEditBox.Value = vbChecked Then
+        If ChkShowEditBox.value = vbChecked Then
             .flags = .flags Or BIF_EDITBOX
         End If
         If Me.ChkShowNewFolderButton = vbUnchecked Then
@@ -587,7 +603,7 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         .Description = "Hier sollte ein Hinweis stehen für den Benutzer was er hier tun soll. " & _
                        "In maximal 3 Zeilen erklärt. 12345 67890 12345 67890 12345 67890 " & _
                        "12345 67890 12345 67890 12345 67890 12345!"
-        If (ChkSelectedPath.Value = vbChecked) And (Len(TxtSelectedPath.Text) > 0) Then
+        If (ChkSelectedPath.value = vbChecked) And (Len(TxtSelectedPath.Text) > 0) Then
             .SelectedPath = TxtSelectedPath.Text
         End If
         If .ShowDialog(Me) = vbOK Then
