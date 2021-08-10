@@ -266,7 +266,7 @@ Private Sub Command5_Click()
     Set FD.Font = LblFD.Font
     'FD.AllowVectorFonts = False
     'FD.AllowVerticalFonts = False
-    FD.FixedPitchOnly = True
+    'FD.FixedPitchOnly = True
     'FD.ShowColor = False
     'FD.ShowHelp = True
     FD.Color = LblFD.ForeColor
