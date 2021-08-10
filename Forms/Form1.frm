@@ -263,8 +263,16 @@ Private CD  As New ColorDialog
 Private Sub Command5_Click()
     Dim FD As New MyFontDialog
     'MsgBox Hex(FD.Options)
+    Set FD.Font = LblFD.Font
+    'FD.AllowVectorFonts = False
+    'FD.AllowVerticalFonts = False
+    FD.FixedPitchOnly = True
+    'FD.ShowColor = False
+    'FD.ShowHelp = True
+    FD.Color = LblFD.ForeColor
     If FD.ShowDialog(Me.hwnd) = vbOK Then
-        '
+        Set LblFD.Font = FD.Font
+        LblFD.ForeColor = FD.Color
     End If
 End Sub
 
@@ -593,7 +601,7 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
                               .flags = .flags Or BIF_RETURNFSANCESTORS
         End Select
         
-        If ChkShowEditBox.value = vbChecked Then
+        If ChkShowEditBox.Value = vbChecked Then
             .flags = .flags Or BIF_EDITBOX
         End If
         If Me.ChkShowNewFolderButton = vbUnchecked Then
@@ -603,7 +611,7 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         .Description = "Hier sollte ein Hinweis stehen für den Benutzer was er hier tun soll. " & _
                        "In maximal 3 Zeilen erklärt. 12345 67890 12345 67890 12345 67890 " & _
                        "12345 67890 12345 67890 12345 67890 12345!"
-        If (ChkSelectedPath.value = vbChecked) And (Len(TxtSelectedPath.Text) > 0) Then
+        If (ChkSelectedPath.Value = vbChecked) And (Len(TxtSelectedPath.Text) > 0) Then
             .SelectedPath = TxtSelectedPath.Text
         End If
         If .ShowDialog(Me) = vbOK Then
