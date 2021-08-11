@@ -11,7 +11,7 @@ contains classes for the very often used typical windows dialogs:
 they work mostly the same as the correspondent classes from System.Windows.Forms.  
 Project started in may 2006  
   
-Special thanks goes to Frank Schüler for his great efforts on OpenFolderDialog  
+Special thanks goes to [Frank Schüler](http://foren.activevb.de/community/mitglieder/details/d32526d3b730ccd55be4fb3b72de8e03/forum/vb-classic/) for his great efforts on OpenFolderDialog  
   
 ![WinDialogs Image](Resources/WinDialogs.png "Windialogs Image")  
 ![OpenFileDialog Image](Resources/Pictures/OpenFileDialog.png "OpenFileDialog Image")  
