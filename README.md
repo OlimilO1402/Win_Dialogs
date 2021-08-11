@@ -18,6 +18,7 @@ Special thanks goes to Frank Schüler for his great efforts on OpenFolderDialog
 ![SaveFileDialog Image](Resources/Pictures/SaveFileDialog.png "SaveFileDialog Image")  
 ![ColorDialog Image](Resources/Pictures/ColorDialog.png "ColorDialog Image")
 ![FontDialog Image](Resources/Pictures/FontDialog.png "FontDialog Image")
+![FontDialogWHook Image](Resources/Pictures/FontDialogWHook.png "FontDialogWHook Image")
 ![OpenFolderDialog Image](Resources/Pictures/OpenFolderDialog.png "OpenFolderDialog Image")
 ![OpenFileFolderDialog Image](Resources/Pictures/OpenFileFolderDialog.png "OpenFileFolderDialog Image")
 ![FolderBrowserDialog Image](Resources/Pictures/FolderBrowserDialog.png "FolderBrowserDialog Image")

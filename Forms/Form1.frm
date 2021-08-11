@@ -267,7 +267,7 @@ Private Sub Command5_Click()
     'FD.AllowVectorFonts = False
     'FD.AllowVerticalFonts = False
     'FD.FixedPitchOnly = True
-    'FD.ShowColor = False
+    FD.ShowColor = True
     'FD.ShowHelp = True
     FD.Color = LblFD.ForeColor
     If FD.ShowDialog(Me.hwnd) = vbOK Then

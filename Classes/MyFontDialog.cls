@@ -52,12 +52,6 @@ Private Const CDERR_DIALOGFAILURE   As Long = &HFFFF&
 Private Const LOGPIXELSX As Long = 88
 Private Const LOGPIXELSY As Long = 90
 
-#If VBA7 = 0 Then
-    Public Enum LongPtr
-        [_]
-    End Enum
-#End If
-
 'typedef struct tagLOGFONTW {
 '  LONG  lfHeight;
 '  LONG  lfWidth;
@@ -75,23 +69,23 @@ Private Const LOGPIXELSY As Long = 90
 '  WCHAR lfFaceName[LF_FACESIZE];
 '} LOGFONTW, *PLOGFONTW, *NPLOGFONTW, *LPLOGFONTW;
 
-Private Const LF_FACESIZE    As Long = 32
-Private Type LOGFONT 'W
-    lfHeight         As Long
-    lfWidth          As Long
-    lfEscapement     As Long
-    lfOrientation    As Long
-    lfWeight         As Long
-    lfItalic         As Byte
-    lfUnderline      As Byte
-    lfStrikeOut      As Byte
-    lfCharSet        As Byte
-    lfOutPrecision   As Byte
-    lfClipPrecision  As Byte
-    lfQuality        As Byte
-    lfPitchAndFamily As Byte
-    lfFaceName(0 To LF_FACESIZE - 1) As Integer 'String * LF_FACESIZE '(1 To LF_FACESIZE) As Byte
-End Type
+'Private Const LF_FACESIZE    As Long = 32
+'Private Type LOGFONT 'W
+'    lfHeight         As Long
+'    lfWidth          As Long
+'    lfEscapement     As Long
+'    lfOrientation    As Long
+'    lfWeight         As Long
+'    lfItalic         As Byte
+'    lfUnderline      As Byte
+'    lfStrikeOut      As Byte
+'    lfCharSet        As Byte
+'    lfOutPrecision   As Byte
+'    lfClipPrecision  As Byte
+'    lfQuality        As Byte
+'    lfPitchAndFamily As Byte
+'    lfFaceName(0 To LF_FACESIZE - 1) As Integer 'String * LF_FACESIZE '(1 To LF_FACESIZE) As Byte
+'End Type
 
 'typedef struct tagCHOOSEFONTW {
 '  DWORD        lStructSize;
@@ -148,6 +142,8 @@ Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As Long
 Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
 Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
 Private Declare PtrSafe Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As LongPtr
+Private Declare PtrSafe Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+Private Declare PtrSafe Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
 Private Declare PtrSafe Sub CoTaskMemFree Lib "ole32" (ByRef pv As Any)
 #Else
 Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
@@ -161,9 +157,10 @@ Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As 
 Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
 Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
 Private Declare Function CoTaskMemAlloc Lib "Ole32" (ByVal cb As Long) As LongPtr
+Private Declare Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
 Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
 #End If
-
 
 Private Const defaultMinSize As Long = 0
 
@@ -187,7 +184,36 @@ Private mShowColor As Boolean
 
 Private usingDefaultIndirectColor As Boolean
 
-''' ############################## '''  Option related props ''' ############################## '''
+''' ############################## '''   C'tor/Init/Reset   ''' ############################## '''
+'/// <summary>Initialisiert eine neue Instanz der <see cref="T:System.Windows.Forms.FontDialog" />-Klasse.</summary>
+Private Sub Class_Initialize()
+    Set MFontDialog.FontDialog = Me
+    Reset
+End Sub
+
+'/// <summary>Setzt alle Optionen im Dialogfeld auf die Standardwerte zurück.</summary>
+'/// <filterpriority>1</filterpriority>
+Public Sub Reset()
+    mOptions = CF_EFFECTS Or CF_SCREENFONTS ' 257
+    'Set mFont = Nothing
+    Set mFont = New StdFont 'othing
+    mFont.Name = "Arial"
+    mFont.Size = 10
+    'mfont.
+    mColor = vbBlack 'SystemColors.ControlText
+    usingDefaultIndirectColor = True
+    mShowColor = False
+    mMinSize = 0
+    mMaxSize = 0
+    SetOption CF_TTONLY, True
+End Sub
+
+Private Sub ResetFont()
+    Set mFont = Nothing
+End Sub
+
+
+''' ############################## '''  Props Option related  ''' ############################## '''
 '/// <summary>Ruft einen Wert ab, der angibt, ob GDI-Schriftartsimulationen (Graphics Device Interface) für das Dialogfeld zugelassen sind, oder legt diesen fest.</summary>
 '/// <returns>true, wenn Schriftartsimulationen zulässig sind, andernfalls false.Der Standardwert ist true.</returns>
 Public Property Get AllowSimulations() As Boolean
@@ -278,6 +304,15 @@ Public Property Let ShowHelp(ByVal Value As Boolean)
     SetOption CF_SHOWHELP, Value
 End Property
 
+'/// <summary>Ruft einen Wert ab, der angibt, ob im Dialogfeld die Farbauswahl angezeigt wird, oder legt diesen fest.</summary>
+'/// <returns>true, wenn im Dialogfeld die Farbauswahl angezeigt wird, andernfalls false.Der Standardwert ist false.</returns>
+Public Property Get ShowColor() As Boolean
+    ShowColor = mShowColor
+End Property
+Public Property Let ShowColor(ByVal Value As Boolean)
+    mShowColor = Value
+End Property
+
 '/// <summary>Ruft Werte für die Initialisierung von <see cref="T:System.Windows.Forms.FontDialog" /> ab.</summary>
 '/// <returns>Eine bitweise Kombination von internen Werten, die das <see cref="T:System.Windows.Forms.FontDialog" /> initialisiert.</returns>
 'private  int Options => options
@@ -297,6 +332,7 @@ Private Sub SetOption(ByVal aOption As Long, ByVal Value As Boolean)
     End If
 End Sub
 
+''' ############################## '''  Public Properties  ''' ############################## '''
 '/// <summary>Ruft die ausgewählte Schriftfarbe ab oder legt diese fest.</summary>
 '/// <returns>Die Farbe der ausgewählten Schriftart.Der Standardwert ist <see cref="P:System.Drawing.Color.Black" />.</returns>
 Public Property Get Color() As Variant 'Long 'Color
@@ -339,7 +375,11 @@ Public Property Get Font() As StdFont
     Set Font = mFont
 End Property
 'Public Property Set Font(ByVal Value As Font)
+#If VBA7 Then
+Public Property Set Font(ByVal Value As NewFont)
+#Else
 Public Property Set Font(ByVal Value As StdFont)
+#End If
     Set mFont = Value
 End Property
 
@@ -364,15 +404,6 @@ Public Property Let MinSize(ByVal Value As Long)
     If 0 < mMaxSize And mMaxSize < mMinSize Then mMaxSize = MinSize
 End Property
 
-'/// <summary>Ruft einen Wert ab, der angibt, ob im Dialogfeld die Farbauswahl angezeigt wird, oder legt diesen fest.</summary>
-'/// <returns>true, wenn im Dialogfeld die Farbauswahl angezeigt wird, andernfalls false.Der Standardwert ist false.</returns>
-Public Property Get ShowColor() As Boolean
-    ShowColor = mShowColor
-End Property
-Public Property Let ShowColor(ByVal Value As Boolean)
-    mShowColor = Value
-End Property
-
 '/// <summary>Tritt ein, wenn der Benutzer im Dialogfeld für die Schriftart auf die Schaltfläche Übernehmen klickt.</summary>
 '/// <filterpriority>1</filterpriority>
 '[SRDescription("FnDapplyDescr")]
@@ -388,64 +419,6 @@ End Property
 '        }
 '    }
 
-'/// <summary>Initialisiert eine neue Instanz der <see cref="T:System.Windows.Forms.FontDialog" />-Klasse.</summary>
-Private Sub Class_Initialize()
-    Reset
-End Sub
-
-'/// <summary>Gibt für Standarddialogfelder die Hookprozedur an, die überschrieben wird, um einem Standarddialogfeld bestimmte Funktionen hinzuzufügen.</summary>
-'/// <returns>Ein Wert von 0, wenn die Meldung von der Prozedur für Standarddialogfelder verarbeitet wird. Ein Wert ungleich 0, wenn die Meldung von dieser Prozedur ignoriert wird.</returns>
-'/// <param name="hWnd">Das Handle für das Dialogfeldfenster. </param>
-'/// <param name="msg">Die empfangene Meldung. </param>
-'/// <param name="wparam">Zusätzliche Informationen zur Meldung. </param>
-'/// <param name="lparam">Zusätzliche Informationen zur Meldung. </param>
-'[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-'    private  override IntPtr HookProc(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
-'    {
-'        Switch (msg)
-'        {
-'        Case 273:
-'        {
-'            if ((int)wparam != 1026)
-'            {
-'                break
-'            }
-'            NativeMethods.LOGFONT lOGFONT = new NativeMethods.LOGFONT()
-'            UnsafeNativeMethods.SendMessage(new HandleRef(null, hWnd), 1025, 0, lOGFONT)
-'            UpdateFont (LOGFONT)
-'            int num = (int)UnsafeNativeMethods.SendDlgItemMessage(new HandleRef(null, hWnd), 1139, 327, IntPtr.Zero, IntPtr.Zero)
-'            if (num != -1)
-'            {
-'                UpdateColor((int)UnsafeNativeMethods.SendDlgItemMessage(new HandleRef(null, hWnd), 1139, 336, (IntPtr)num, IntPtr.Zero))
-'            }
-'            if (NativeWindow.WndProcShouldBeDebuggable)
-'            {
-'                OnApply (EventArgs.Empty)
-'                break
-'            }
-'            Try
-'            {
-'                OnApply (EventArgs.Empty)
-'            }
-'            catch (Exception t)
-'            {
-'                Application.OnThreadException (t)
-'            }
-'            break
-'        }
-'        Case 272:
-'            if (!showColor)
-'            {
-'                IntPtr dlgItem = UnsafeNativeMethods.GetDlgItem(new HandleRef(null, hWnd), 1139)
-'                SafeNativeMethods.ShowWindow(new HandleRef(null, dlgItem), 0)
-'                dlgItem = UnsafeNativeMethods.GetDlgItem(new HandleRef(null, hWnd), 1091)
-'                SafeNativeMethods.ShowWindow(new HandleRef(null, dlgItem), 0)
-'            }
-'            break
-'        }
-'        return base.HookProc(hWnd, msg, wparam, lparam)
-'    }
-
 '/// <summary>Löst das <see cref="E:System.Windows.Forms.FontDialog.Apply" />-Ereignis aus.</summary>
 '/// <param name="e">Eine Instanz von <see cref="T:System.EventArgs" />, die die Daten enthält. </param>
 '    private  virtual void OnApply(EventArgs e)
@@ -453,26 +426,7 @@ End Sub
 '        ((EventHandler)base.Events'[EventApply])?.Invoke(this, e)
 '    }
 
-'/// <summary>Setzt alle Optionen im Dialogfeld auf die Standardwerte zurück.</summary>
-'/// <filterpriority>1</filterpriority>
-Public Sub Reset()
-    mOptions = CF_EFFECTS Or CF_SCREENFONTS ' 257
-    'Set mFont = Nothing
-    Set mFont = New StdFont 'othing
-    mFont.Name = "Arial"
-    mFont.Size = 10
-    'mfont.
-    mColor = vbBlack 'SystemColors.ControlText
-    usingDefaultIndirectColor = True
-    mShowColor = False
-    mMinSize = 0
-    mMaxSize = 0
-    SetOption CF_TTONLY, True
-End Sub
 
-Private Sub ResetFont()
-    Set mFont = Nothing
-End Sub
 
 '/// <summary>Gibt ein Dateidialogfeld an.</summary>
 '/// <returns>true, wenn das Dialogfeld erfolgreich ausgeführt wurde, andernfalls false.</returns>
@@ -496,18 +450,21 @@ Public Function ShowDialog(ByVal hwndOwner As LongPtr) As VbMsgBoxResult 'Boolea
     'ReleaseDC dC
 Try: On Error GoTo Finally
 '{
+    Dim lpfnHook As LongPtr: lpfnHook = FncPtr(AddressOf MFontDialog.FontDialog_HookProc)
+    Set MFontDialog.FontDialog = Me
     Dim IntPtr_LF As LongPtr ': IntPtr_LF = IntPtr.Zero
-    Dim aLOGFONT  As LOGFONT ': = new NativeMethods.LOGFONT()
-    Font_ToLogFont aLOGFONT ', graphics
-    IntPtr_LF = CoTaskMemAlloc(LenB(aLOGFONT)) 'Marshal.SizeOf(typeof(NativeMethods.LOGFONT)))
+    Dim aLogFont  As LOGFONT ': = new NativeMethods.LOGFONT()
+    Font_ToLogFont aLogFont ', graphics
+    IntPtr_LF = CoTaskMemAlloc(LenB(aLogFont)) 'Marshal.SizeOf(typeof(NativeMethods.LOGFONT)))
+    GlobalLock IntPtr_LF
     'Marshal.StructureToPtr((object)lOGFONT, intPtr, fDeleteOld: false)
-    RtlMoveMemory ByVal IntPtr_LF, aLOGFONT, LenB(aLOGFONT)
+    RtlMoveMemory ByVal IntPtr_LF, aLogFont, LenB(aLogFont)
     Dim aCHOOSEFONT As ChooseFont
     aCHOOSEFONT.lStructSize = LenB(aCHOOSEFONT) 'Marshal.SizeOf(typeof(NativeMethods.CHOOSEFONT))
     aCHOOSEFONT.hwndOwner = hwndOwner
     aCHOOSEFONT.hDC = 0 'IntPtr.Zero
     aCHOOSEFONT.lpLogFont = IntPtr_LF
-    aCHOOSEFONT.flags = mOptions Or CF_INITTOLOGFONTSTRUCT 'Or CF_ENABLEHOOK
+    aCHOOSEFONT.flags = mOptions Or CF_INITTOLOGFONTSTRUCT Or CF_ENABLEHOOK
     If (mMinSize > 0 Or mMaxSize > 0) Then
         aCHOOSEFONT.flags = aCHOOSEFONT.flags Or CF_LIMITSIZE
     End If
@@ -516,7 +473,7 @@ Try: On Error GoTo Finally
     Else
         aCHOOSEFONT.rgbColors = vbBlack 'ColorTranslator.ToWin32(SystemColors.ControlText)
     End If
-    'aCHOOSEFONT.lpfnHook = lpfnHook
+    aCHOOSEFONT.lpfnHook = lpfnHook
     aCHOOSEFONT.hInstance = GetModuleHandleW(0) 'UnsafeNativeMethods.GetModuleHandle(Null)
     aCHOOSEFONT.nSizeMin = mMinSize
     If (mMaxSize = 0) Then
@@ -525,6 +482,7 @@ Try: On Error GoTo Finally
         aCHOOSEFONT.nSizeMax = mMaxSize
     End If
     Dim pCF As LongPtr: pCF = CoTaskMemAlloc(LenB(aCHOOSEFONT))
+    GlobalLock pCF
     RtlMoveMemory ByVal pCF, aCHOOSEFONT, LenB(aCHOOSEFONT)
     If ChooseFontW(ByVal pCF) = 0 Then
         'return false
@@ -534,16 +492,18 @@ Try: On Error GoTo Finally
     End If
     Dim alOGFONT2 As LOGFONT: RtlMoveMemory alOGFONT2, ByVal IntPtr_LF, LenB(alOGFONT2) 'aLOGFONT2 = (NativeMethods.LOGFONT)UnsafeNativeMethods.PtrToStructure(intPtr, typeof(NativeMethods.LOGFONT))
     'If (alOGFONT2.lfFaceName <> 0 And Len(alOGFONT2.lfFaceName) > 0) Then
-        aLOGFONT = alOGFONT2
-        UpdateFont aLOGFONT
+        aLogFont = alOGFONT2
+        UpdateFont aLogFont
         
         RtlMoveMemory aCHOOSEFONT, ByVal pCF, LenB(aCHOOSEFONT)
         UpdateColor aCHOOSEFONT.rgbColors
+        GlobalUnlock pCF
         CoTaskMemFree ByVal pCF
     'End If
     ShowDialog = vbOK 'return true
 Finally:
     If IntPtr_LF <> 0 Then  ' IntPtr.Zero)
+        GlobalUnlock ByVal IntPtr_LF
         CoTaskMemFree ByVal IntPtr_LF
     End If
 End Function
@@ -561,14 +521,14 @@ Friend Function ToStr() As String
     ToStr = "MBO.Windows.Forms.FontDialog, Font: " & mFont.Name
 End Function
 
-Private Sub UpdateColor(ByVal rgb As Long)
+Friend Sub UpdateColor(ByVal rgb As Long)
     'If (ColorTranslator.ToWin32(mColor) <> rgb) Then
         mColor = rgb 'ColorTranslator.FromOle(rgb)
         'usingDefaultIndirectColor = False
     'End If
 End Sub
 
-Private Sub UpdateFont(lf As LOGFONT)
+Friend Sub UpdateFont(lf As LOGFONT)
     Font_FromLogFont lf
 '    Dim dC As LongPtr: dC = GetDC(0)
 'Try: On Error GoTo Finally
@@ -604,8 +564,8 @@ Public Property Let FontName(ByVal Value As String)
     RtlMoveMemory ByVal VarPtr(mFont.lfFaceName(0)), ByVal StrPtr(Value), lb
 End Property
 
-Private Sub Font_ToLogFont(aLOGFONT As LOGFONT) ', graphics
-    With aLOGFONT
+Private Sub Font_ToLogFont(aLogFont As LOGFONT) ', graphics
+    With aLogFont
         .lfCharSet = mFont.Charset
         '.lfClipPrecision = 0
         '.lfEscapement = 0
@@ -623,8 +583,8 @@ Private Sub Font_ToLogFont(aLOGFONT As LOGFONT) ', graphics
     End With
     Dim Value As String: Value = mFont.Name
     Dim lb As Long: lb = 2 * Min(LF_FACESIZE, Len(Value))
-    RtlZeroMemory ByVal VarPtr(aLOGFONT.lfFaceName(0)), LF_FACESIZE * 2
-    RtlMoveMemory ByVal VarPtr(aLOGFONT.lfFaceName(0)), ByVal StrPtr(Value), lb
+    RtlZeroMemory ByVal VarPtr(aLogFont.lfFaceName(0)), LF_FACESIZE * 2
+    RtlMoveMemory ByVal VarPtr(aLogFont.lfFaceName(0)), ByVal StrPtr(Value), lb
 End Sub
 
 'Private Function Font_FromLogFont(lf As LOGFONT, dC) As Font
