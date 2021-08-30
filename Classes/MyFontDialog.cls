@@ -448,7 +448,7 @@ Public Function ShowDialog(ByVal hwndOwner As LongPtr) As VbMsgBoxResult 'Boolea
     '}
     'UnsafeNativeMethods.ReleaseDC(NativeMethods.NullHandleRef, new HandleRef(null, dC))
     'ReleaseDC dC
-Try: On Error GoTo Finally
+Try: On Error GoTo Catch
 '{
     Dim lpfnHook As LongPtr: lpfnHook = FncPtr(AddressOf MFontDialog.FontDialog_HookProc)
     Set MFontDialog.FontDialog = Me
@@ -501,10 +501,21 @@ Try: On Error GoTo Finally
         CoTaskMemFree ByVal pCF
     'End If
     ShowDialog = vbOK 'return true
+    GoTo Finally
+Catch:
+    ShowDialog = vbCancel
+    'ShowDialog = vbAbort
+    CheckMessVBError
+    CheckMessDllError
+    CheckMessCommDlgError
 Finally:
     If IntPtr_LF <> 0 Then  ' IntPtr.Zero)
         GlobalUnlock ByVal IntPtr_LF
         CoTaskMemFree ByVal IntPtr_LF
+    End If
+    If pCF <> 0 Then
+        GlobalUnlock ByVal pCF
+        CoTaskMemFree ByVal pCF
     End If
 End Function
 
@@ -601,8 +612,13 @@ Private Sub Font_FromLogFont(lf As LOGFONT) ', dC) 'As StdFont
     End With
     Dim FontName As String: FontName = String(LF_FACESIZE, vbNullChar)
     RtlMoveMemory ByVal StrPtr(FontName), ByVal VarPtr(lf.lfFaceName(0)), LF_FACESIZE * 2
-    mFont.Name = Trim(FontName)
+    mFont.Name = Trim0(FontName)
 End Sub
+
+Private Function Trim0(ByVal s As String) As String
+    Trim = VBA.Strings.Trim$(Left(s, lstrlenW(ByVal StrPtr(s))))
+End Function
+
 Private Function Min(V1, V2)
     If V1 < V2 Then Min = V1 Else Min = V2
 End Function
@@ -617,7 +633,21 @@ Private Function H2S(aHeight As Long) As Long
     H2S = -MulDiv(aHeight, mPT2Px, mDPI)
 End Function
 
-Private Sub CheckMessError()
+Private Sub CheckMessVBError()
+    Dim e As Long: e = Err.Number
+    If e = 0 Then Exit Sub
+    Select Case e
+    Case Else: MsgBox "Error: " & e & vbCrLf & Err.Description
+    End Select
+End Sub
+Private Sub CheckMessDllError()
+    Dim e As Long: e = Err.LastDllError
+    If e = 0 Then Exit Sub
+    Select Case e
+    Case Else: MsgBox "Error: " & e & vbCrLf & Err.Description
+    End Select
+End Sub
+Private Sub CheckMessCommDlgError()
     Dim hr As Long: hr = CommDlgExtendedError
     If hr = 0 Then Exit Sub
     Dim s As String

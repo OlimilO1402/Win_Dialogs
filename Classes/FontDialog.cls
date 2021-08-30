@@ -265,7 +265,7 @@ Private Sub Class_Initialize()
     Reset
 End Sub
 
-Private Function Trim(ByVal s As String) As String
+Private Function Trim0(ByVal s As String) As String
     Trim = VBA.Strings.Trim$(Left(s, lstrlenW(ByVal StrPtr(s))))
 End Function
 
