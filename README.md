@@ -13,7 +13,7 @@ The classes are running in VB6 (aka VBC) as well as in VBA6 or VBA7 x86 or Win64
 You may also have a look at the tutorial: [XL_VBanywhere](https://github.com/OlimilO1402/XL_VBanywhere)  
 Project started in may 2006  
   
-Special thanks goes to [Frank Schüler](http://foren.activevb.de/community/mitglieder/details/d32526d3b730ccd55be4fb3b72de8e03/forum/vb-classic/) for his great efforts on OpenFolderDialog  
+Special thanks goes to [Frank Schüler](http://foren.activevb.de/community/mitglieder/details/d32526d3b730ccd55be4fb3b72de8e03) for his great efforts on OpenFolderDialog  
   
 ![WinDialogs Image](Resources/WinDialogs.png "Windialogs Image")  
 ![OpenFileDialog Image](Resources/Pictures/OpenFileDialog.png "OpenFileDialog Image")  
