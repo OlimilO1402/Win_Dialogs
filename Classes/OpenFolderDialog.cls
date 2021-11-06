@@ -13,17 +13,17 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-' Many thanks to Frank Schüler for the great efforts he makes every day for ActiveVB
+' Many thanks to Frank Schüler for the great efforts on this class and every day for ActiveVB
 
-Private Const S_OK As Long = &H0&
-Private Const FOS_PICKFOLDERS  As Long = &H20&
-Private Const SIGDN_FILESYSPATH  As Long = &H80058000
-Private Const CC_STDCALL As Long = &H4&
-Private Const IID_Release As Long = &H8&
-Private Const CLSCTX_INPROC As Long = &H1&
+Private Const S_OK              As Long = &H0&
+Private Const FOS_PICKFOLDERS   As Long = &H20&
+Private Const SIGDN_FILESYSPATH As Long = &H80058000
+Private Const CC_STDCALL        As Long = &H4&
+Private Const IID_Release       As Long = &H8&
+Private Const CLSCTX_INPROC     As Long = &H1&
 Private Const CLSID_FileOpenDialog As String = "{DC1C5A9C-E88A-4DDE-A5A1-60F82A20AEF7}"
-Private Const IID_IFileDialog As String = "{42F85136-DB7E-439C-85F1-E4075D135FC8}"
-Private Const IID_IShellItem As String = "{43826D1E-E718-42EE-BC55-A1E261C37BFE}"
+Private Const IID_IFileDialog      As String = "{42F85136-DB7E-439C-85F1-E4075D135FC8}"
+Private Const IID_IShellItem       As String = "{43826D1E-E718-42EE-BC55-A1E261C37BFE}"
 
 ' ----==== Enums ====----
 Private Enum vtb_Interfaces
@@ -37,10 +37,10 @@ Private Enum vtb_Interfaces
     SetFolder_ = 12
     SetTitle_ = 17
     GetResult_ = 20
-
+    
     'IShellItem
     GetDisplayName_ = 5
-
+    
 End Enum
 
 ' ----==== Type ====----
@@ -53,21 +53,22 @@ End Type
 
 ' ----==== Kernel32.dll Deklarationen ====----
 Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal ByteLen As Long)
-Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Long) As Long
+Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
 
 ' ----==== Shell32.dll Deklarationen ====----
-Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As Long, ByVal pbc As Long, ByVal riid As Long, ByRef ppv As Long) As Long
+'Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As Long, ByVal pbc As Long, ByVal riid As Long, ByRef ppv As Long) As Long
+Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As LongPtr, ByVal pbc As LongPtr, ByVal riid As Long, ByRef ppv As LongPtr) As Long
 
 ' ----==== Ole32.dll Deklarationen ====----
-Private Declare Function CLSIDFromString Lib "Ole32" (ByVal pString As Long, ByRef pCLSID As GUID) As Long
-Private Declare Function CoCreateInstance Lib "Ole32" (ByVal rclsid As Long, ByVal pUnkOuter As Long, ByVal dwClsContext As Long, ByVal riid As Long, ByRef ppv As Long) As Long
-Private Declare Sub CoTaskMemFree Lib "Ole32" (ByVal hMem As Long)
+Private Declare Function CLSIDFromString Lib "Ole32" (ByVal pString As LongPtr, ByRef pCLSID As GUID) As Long
+Private Declare Function CoCreateInstance Lib "Ole32" (ByVal rclsid As Long, ByVal pUnkOuter As LongPtr, ByVal dwClsContext As Long, ByVal riid As Long, ByRef ppv As LongPtr) As Long
+Private Declare Sub CoTaskMemFree Lib "Ole32" (ByVal hMem As LongPtr)
 
 ' ----==== Oleaut32.dll Deklarationen ====----
-Private Declare Function DispCallFunc Lib "Oleaut32" (ByVal pvInstance As Long, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
+Private Declare Function DispCallFunc Lib "Oleaut32" (ByVal pvInstance As LongPtr, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
 
 ' ----==== Variablen ====----
-Private m_pIPickFolderDialog As Long
+Private m_pIPickFolderDialog As LongPtr
 
 Private Sub Class_Initialize()
     Dim lngOptions As Long
@@ -119,8 +120,8 @@ End Property
 
 Public Property Get Folder() As String
     Dim strRet As String
-    Dim pszName As Long
-    Dim pIShellItem As Long
+    Dim pszName As LongPtr
+    Dim pIShellItem As LongPtr
     If Invoke(m_pIPickFolderDialog, GetResult_, VarPtr(pIShellItem)) = S_OK Then
         If Invoke(pIShellItem, GetDisplayName_, SIGDN_FILESYSPATH, VarPtr(pszName)) = S_OK Then
             strRet = Ptr2String(pszName)
@@ -173,7 +174,7 @@ Private Function Str2Guid(ByVal str As String) As GUID
     CLSIDFromString StrPtr(str), Str2Guid
 End Function
 
-Private Function Ptr2String(ByVal lpStrPointer As Long) As String
+Private Function Ptr2String(ByVal lpStrPointer As LongPtr) As String
     Dim lLen As Long
     Dim bBuffer() As Byte
     If lpStrPointer = 0 Then Exit Function

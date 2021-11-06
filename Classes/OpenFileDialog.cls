@@ -476,7 +476,7 @@ End Property
 
 Private Function GethWnd(Frm As Variant) As LongPtr
 Try: On Error GoTo Catch
-    GethWnd = Frm.hwnd
+    GethWnd = Frm.hWnd
     Exit Function
 Catch:
     GethWnd = GetActiveWindow
