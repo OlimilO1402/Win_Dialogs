@@ -51,26 +51,48 @@ Private Type GUID
     data4(0 To 7) As Byte
 End Type
 
-' ----==== Kernel32.dll Deklarationen ====----
-Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal ByteLen As Long)
-Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
-
-' ----==== Shell32.dll Deklarationen ====----
-'Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As Long, ByVal pbc As Long, ByVal riid As Long, ByRef ppv As Long) As Long
-Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As LongPtr, ByVal pbc As LongPtr, ByVal riid As Long, ByRef ppv As LongPtr) As Long
-
-' ----==== Ole32.dll Deklarationen ====----
-Private Declare Function CLSIDFromString Lib "Ole32" (ByVal pString As LongPtr, ByRef pCLSID As GUID) As Long
-Private Declare Function CoCreateInstance Lib "Ole32" (ByVal rclsid As Long, ByVal pUnkOuter As LongPtr, ByVal dwClsContext As Long, ByVal riid As Long, ByRef ppv As LongPtr) As Long
-Private Declare Sub CoTaskMemFree Lib "Ole32" (ByVal hMem As LongPtr)
-
-' ----==== Oleaut32.dll Deklarationen ====----
-Private Declare Function DispCallFunc Lib "Oleaut32" (ByVal pvInstance As LongPtr, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
-
+#If VBA7 Then
+    ' ----==== Kernel32.dll Deklarationen ====----
+    Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal ByteLen As Long)
+    Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    
+    ' ----==== Shell32.dll Deklarationen ====----
+    'Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As Long, ByVal pbc As Long, ByVal riid As Long, ByRef ppv As Long) As Long
+    Private Declare PtrSafe Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As LongPtr, ByVal pbc As LongPtr, ByVal riid As LongPtr, ByRef ppv As LongPtr) As Long
+    
+    ' ----==== Ole32.dll Deklarationen ====----
+    Private Declare PtrSafe Function CLSIDFromString Lib "Ole32" (ByVal pString As LongPtr, ByRef pCLSID As GUID) As Long
+    Private Declare PtrSafe Function CoCreateInstance Lib "Ole32" (ByVal rclsid As LongPtr, ByVal pUnkOuter As LongPtr, ByVal dwClsContext As Long, ByVal riid As LongPtr, ByRef ppv As LongPtr) As Long
+    Private Declare PtrSafe Sub CoTaskMemFree Lib "Ole32" (ByVal hMem As LongPtr)
+    
+    ' ----==== Oleaut32.dll Deklarationen ====----
+    Private Declare PtrSafe Function DispCallFunc Lib "Oleaut32" (ByVal pvInstance As LongPtr, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
+#Else
+    Private Enum LongPtr
+        [_]
+    End Enum
+    ' ----==== Kernel32.dll Deklarationen ====----
+    Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal ByteLen As Long)
+    Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    
+    ' ----==== Shell32.dll Deklarationen ====----
+    'Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As Long, ByVal pbc As Long, ByVal riid As Long, ByRef ppv As Long) As Long
+    Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As LongPtr, ByVal pbc As LongPtr, ByVal riid As LongPtr, ByRef ppv As LongPtr) As Long
+    
+    ' ----==== Ole32.dll Deklarationen ====----
+    Private Declare Function CLSIDFromString Lib "Ole32" (ByVal pString As LongPtr, ByRef pCLSID As GUID) As Long
+    Private Declare Function CoCreateInstance Lib "Ole32" (ByVal rclsid As LongPtr, ByVal pUnkOuter As LongPtr, ByVal dwClsContext As Long, ByVal riid As LongPtr, ByRef ppv As LongPtr) As Long
+    Private Declare Sub CoTaskMemFree Lib "Ole32" (ByVal hMem As LongPtr)
+    
+    ' ----==== Oleaut32.dll Deklarationen ====----
+    Private Declare Function DispCallFunc Lib "Oleaut32" (ByVal pvInstance As LongPtr, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
+#End If
 ' ----==== Variablen ====----
 Private m_pIPickFolderDialog As LongPtr
+Private SizeOfPtr As Long
 
 Private Sub Class_Initialize()
+    Dim p As LongPtr: SizeOfPtr = LenB(p)
     Dim lngOptions As Long
     If CoCreateInstance(VarPtr(Str2Guid(CLSID_FileOpenDialog)), 0&, CLSCTX_INPROC, VarPtr(Str2Guid(IID_IFileDialog)), m_pIPickFolderDialog) = S_OK Then
         lngOptions = Me.Options
@@ -80,10 +102,10 @@ Private Sub Class_Initialize()
 End Sub
 
 Private Sub Class_Terminate()
-    Release m_pIPickFolderDialog
+    Release_ m_pIPickFolderDialog
 End Sub
 
-Private Sub Release(ByRef pInterface As Long)
+Private Sub Release_(ByRef pInterface As LongPtr)
     Dim vRet As Variant
     If pInterface = 0& Then Exit Sub
     If DispCallFunc(pInterface, IID_Release, CC_STDCALL, vbLong, 0&, 0&, 0&, vRet) = S_OK Then
@@ -93,13 +115,13 @@ End Sub
 
 Public Property Let Title(ByVal sTitle As String)
     If Len(sTitle) = 0 Then Exit Property
-    If Invoke(m_pIPickFolderDialog, SetTitle_, StrPtr(sTitle)) = S_OK Then
+    If Invoke_(m_pIPickFolderDialog, SetTitle_, StrPtr(sTitle)) = S_OK Then
         'bolRet = True
     End If
 End Property
 
 Public Function ShowDialog(Optional ByVal hwndOwner As Long) As VbMsgBoxResult
-    If Invoke(m_pIPickFolderDialog, Show_, hwndOwner) = S_OK Then
+    If Invoke_(m_pIPickFolderDialog, Show_, hwndOwner) = S_OK Then
         'bolRet = True
         ShowDialog = vbOK
     Else
@@ -109,12 +131,12 @@ End Function
 
 Public Property Let Folder(ByVal sStartFolder As String)
     'Create an IShellItem-object and destroy it afterwards
-    Dim pIShellItem As Long
+    Dim pIShellItem As LongPtr
     If SHCreateItemFromParsingName(StrPtr(sStartFolder), 0&, VarPtr(Str2Guid(IID_IShellItem)), pIShellItem) = S_OK Then
-        If Invoke(m_pIPickFolderDialog, SetFolder_, pIShellItem) = S_OK Then
+        If Invoke_(m_pIPickFolderDialog, SetFolder_, pIShellItem) = S_OK Then
             'bolRet = True
         End If
-        Call Release(pIShellItem)
+        Release_ pIShellItem
     End If
 End Property
 
@@ -122,36 +144,36 @@ Public Property Get Folder() As String
     Dim strRet As String
     Dim pszName As LongPtr
     Dim pIShellItem As LongPtr
-    If Invoke(m_pIPickFolderDialog, GetResult_, VarPtr(pIShellItem)) = S_OK Then
-        If Invoke(pIShellItem, GetDisplayName_, SIGDN_FILESYSPATH, VarPtr(pszName)) = S_OK Then
+    If Invoke_(m_pIPickFolderDialog, GetResult_, VarPtr(pIShellItem)) = S_OK Then
+        If Invoke_(pIShellItem, GetDisplayName_, SIGDN_FILESYSPATH, VarPtr(pszName)) = S_OK Then
             strRet = Ptr2String(pszName)
         End If
-        Call Release(pIShellItem)
+        Release_ pIShellItem
     End If
     Folder = strRet
 End Property
 
 Public Property Get Options() As Long
-    If Invoke(m_pIPickFolderDialog, vtb_Interfaces.GetOptions_, VarPtr(Options)) = S_OK Then
+    If Invoke_(m_pIPickFolderDialog, vtb_Interfaces.GetOptions_, VarPtr(Options)) = S_OK Then
         'bolRet = True
     End If
 End Property
 
 Public Property Let Options(ByVal Value As Long) 'As Boolean
-    If Invoke(m_pIPickFolderDialog, vtb_Interfaces.SetOptions_, Value) = S_OK Then
+    If Invoke_(m_pIPickFolderDialog, vtb_Interfaces.SetOptions_, Value) = S_OK Then
         'bolRet = True
     End If
 End Property
 
-Private Function Invoke(ByVal pInterface As Long, ByVal vtb As vtb_Interfaces, ParamArray var()) As Variant
+Private Function Invoke_(ByVal pInterface As LongPtr, ByVal vtb As vtb_Interfaces, ParamArray var()) As Variant
     If pInterface = 0& Then Exit Function
-    Invoke = OleInvoke(pInterface, vtb, var)
+    Invoke_ = OleInvoke(pInterface, vtb, var)
     'End If
 End Function
 
-Private Function OleInvoke(ByVal pInterface As Long, ByVal lCmd As Long, ParamArray aParam()) As Variant
+Private Function OleInvoke(ByVal pInterface As LongPtr, ByVal lCmd As Long, ParamArray aParam()) As Variant
     If pInterface = 0& Then Exit Function
-    Dim olePtr(10) As Long
+    Dim olePtr(10) As LongPtr
     Dim oleTyp(10) As Integer
     If UBound(aParam) >= 0 Then
         Dim vParam As Variant:  vParam = aParam
@@ -164,7 +186,8 @@ Private Function OleInvoke(ByVal pInterface As Long, ByVal lCmd As Long, ParamAr
         Next
     End If
     Dim vRet As Variant
-    If DispCallFunc(pInterface, lCmd * 4, CC_STDCALL, vbLong, lItem, VarPtr(oleTyp(0)), VarPtr(olePtr(0)), vRet) <> S_OK Then
+    Debug.Print lCmd
+    If DispCallFunc(pInterface, lCmd * SizeOfPtr, CC_STDCALL, vbLong, lItem, VarPtr(oleTyp(0)), VarPtr(olePtr(0)), vRet) <> S_OK Then
         Debug.Print "Error calling the Interface-function: " & Vtb2FunctionName(lCmd)
     End If
     OleInvoke = vRet
@@ -182,7 +205,7 @@ Private Function Ptr2String(ByVal lpStrPointer As LongPtr) As String
     If lLen > 0& Then
         ReDim bBuffer(lLen)
         RtlMoveMemory bBuffer(0), ByVal lpStrPointer, lLen
-        Call CoTaskMemFree(lpStrPointer)
+        CoTaskMemFree lpStrPointer
         Ptr2String = bBuffer
     End If
 End Function
@@ -203,3 +226,6 @@ Private Function Vtb2FunctionName(f As vtb_Interfaces) As String
     End Select
     Vtb2FunctionName = s
 End Function
+
+
+

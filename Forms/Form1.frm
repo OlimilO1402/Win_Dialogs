@@ -12,12 +12,12 @@ Begin VB.Form Form1
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command5 
-      Caption         =   "Command5"
-      Height          =   615
-      Left            =   2520
+      Caption         =   "Test MyFontDialog"
+      Height          =   375
+      Left            =   2760
       TabIndex        =   19
-      Top             =   720
-      Width           =   1455
+      Top             =   1440
+      Width           =   1935
    End
    Begin VB.CommandButton BtnTestMessageBox 
       Caption         =   "Test MessageBox"
@@ -285,7 +285,7 @@ Private Sub BtnAllDialogs_Click()
     Me.CommonDialog.ShowFont
     'Me.CommonDialog.ShowHelp
     Me.CommonDialog.ShowOpen
-    Me.CommonDialog.ShowPrinter 'sill missing here
+    Me.CommonDialog.ShowPrinter 'still missing here
     Me.CommonDialog.ShowSave
 End Sub
 

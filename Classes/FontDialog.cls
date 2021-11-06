@@ -220,31 +220,31 @@ Private Type ChooseFontW
 End Type
 
 #If VBA7 Then
-Private Declare PtrSafe Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
-Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
-Private Declare PtrSafe Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
-Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
-Private Declare PtrSafe Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
-Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
-Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
-Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
-Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
-Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
-Private Declare PtrSafe Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As LongPtr
-Private Declare PtrSafe Sub CoTaskMemFree Lib "ole32" (ByRef pv As Any)
+    Private Declare PtrSafe Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
+    Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
+    Private Declare PtrSafe Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
+    Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
+    Private Declare PtrSafe Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
+    Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
+    Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
+    Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
+    Private Declare PtrSafe Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As LongPtr
+    Private Declare PtrSafe Sub CoTaskMemFree Lib "ole32" (ByRef pv As Any)
 #Else
-Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
-Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
-Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
-Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
-Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
-Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
-Private Declare Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
-Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
-Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
-Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
-Private Declare Function CoTaskMemAlloc Lib "Ole32" (ByVal cb As Long) As LongPtr
-Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+    Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
+    Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
+    Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As ChooseFontW) As Long
+    Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
+    Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
+    Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
+    Private Declare Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
+    Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
+    Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
+    Private Declare Function CoTaskMemAlloc Lib "Ole32" (ByVal cb As Long) As LongPtr
+    Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
 #End If
 Private Const LOGPIXELSY As Long = 90
 Private mDPI      As Long
@@ -266,7 +266,7 @@ Private Sub Class_Initialize()
 End Sub
 
 Private Function Trim0(ByVal s As String) As String
-    Trim = VBA.Strings.Trim$(Left(s, lstrlenW(ByVal StrPtr(s))))
+    Trim0 = VBA.Strings.Trim$(Left$(s, lstrlenW(ByVal StrPtr(s))))
 End Function
 
 'Public Overrides Sub Reset()

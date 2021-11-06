@@ -131,35 +131,35 @@ Private Type ChooseFont
 End Type
 
 #If VBA7 Then
-Private Declare PtrSafe Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
-Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
-Private Declare PtrSafe Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As Any) As Long
-Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
-Private Declare PtrSafe Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
-Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
-Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
-Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
-Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
-Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
-Private Declare PtrSafe Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As LongPtr
-Private Declare PtrSafe Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
-Private Declare PtrSafe Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
-Private Declare PtrSafe Sub CoTaskMemFree Lib "ole32" (ByRef pv As Any)
+    Private Declare PtrSafe Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
+    Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
+    Private Declare PtrSafe Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As Any) As Long
+    Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
+    Private Declare PtrSafe Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
+    Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
+    Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
+    Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
+    Private Declare PtrSafe Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As LongPtr
+    Private Declare PtrSafe Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+    Private Declare PtrSafe Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+    Private Declare PtrSafe Sub CoTaskMemFree Lib "ole32" (ByRef pv As Any)
 #Else
-Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
-Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
-Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As Any) As Long
-Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
-Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
-Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
-Private Declare Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
-Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
-Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
-Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
-Private Declare Function CoTaskMemAlloc Lib "Ole32" (ByVal cb As Long) As LongPtr
-Private Declare Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
-Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
-Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+    Private Declare Sub RtlZeroMemory Lib "kernel32" (ByRef pDst As Any, ByVal bytLen As Long)
+    Private Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLen As Long)
+    Private Declare Function ChooseFontW Lib "comdlg32" (ByRef pChoosefont As Any) As Long
+    Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
+    Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
+    Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
+    Private Declare Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As Long
+    Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
+    Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As LongPtr
+    Private Declare Function CoTaskMemAlloc Lib "Ole32" (ByVal cb As Long) As LongPtr
+    Private Declare Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+    Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+    Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
 #End If
 
 Private Const defaultMinSize As Long = 0
@@ -487,7 +487,7 @@ Try: On Error GoTo Catch
     If ChooseFontW(ByVal pCF) = 0 Then
         'return false
         ShowDialog = vbCancel ' False
-        CheckMessError
+        CheckMessAllErrors
         Exit Function
     End If
     Dim alOGFONT2 As LOGFONT: RtlMoveMemory alOGFONT2, ByVal IntPtr_LF, LenB(alOGFONT2) 'aLOGFONT2 = (NativeMethods.LOGFONT)UnsafeNativeMethods.PtrToStructure(intPtr, typeof(NativeMethods.LOGFONT))
@@ -505,9 +505,7 @@ Try: On Error GoTo Catch
 Catch:
     ShowDialog = vbCancel
     'ShowDialog = vbAbort
-    CheckMessVBError
-    CheckMessDllError
-    CheckMessCommDlgError
+    CheckMessAllErrors
 Finally:
     If IntPtr_LF <> 0 Then  ' IntPtr.Zero)
         GlobalUnlock ByVal IntPtr_LF
@@ -616,7 +614,7 @@ Private Sub Font_FromLogFont(lf As LOGFONT) ', dC) 'As StdFont
 End Sub
 
 Private Function Trim0(ByVal s As String) As String
-    Trim = VBA.Strings.Trim$(Left(s, lstrlenW(ByVal StrPtr(s))))
+    Trim0 = VBA.Strings.Trim$(Left(s, lstrlenW(ByVal StrPtr(s))))
 End Function
 
 Private Function Min(V1, V2)
@@ -633,18 +631,23 @@ Private Function H2S(aHeight As Long) As Long
     H2S = -MulDiv(aHeight, mPT2Px, mDPI)
 End Function
 
+Private Sub CheckMessAllErrors()
+    CheckMessVBError
+    CheckMessDllError
+    CheckMessCommDlgError
+End Sub
 Private Sub CheckMessVBError()
-    Dim e As Long: e = Err.Number
-    If e = 0 Then Exit Sub
-    Select Case e
-    Case Else: MsgBox "Error: " & e & vbCrLf & Err.Description
+    Dim E As Long: E = Err.Number
+    If E = 0 Then Exit Sub
+    Select Case E
+    Case Else: MsgBox "Error: " & E & vbCrLf & Err.Description
     End Select
 End Sub
 Private Sub CheckMessDllError()
-    Dim e As Long: e = Err.LastDllError
-    If e = 0 Then Exit Sub
-    Select Case e
-    Case Else: MsgBox "Error: " & e & vbCrLf & Err.Description
+    Dim E As Long: E = Err.LastDllError
+    If E = 0 Then Exit Sub
+    Select Case E
+    Case Else: MsgBox "Error: " & E & vbCrLf & Err.Description
     End Select
 End Sub
 Private Sub CheckMessCommDlgError()

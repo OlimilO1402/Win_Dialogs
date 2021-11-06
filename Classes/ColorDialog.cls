@@ -50,7 +50,6 @@ Private Const CDERR_DIALOGFAILURE   As Long = &HFFFF&
         [_]
     End Enum
 #End If
-
 'typedef struct tagCHOOSECOLORW {
 '  DWORD        lStructSize;
 '  HWND         hwndOwner;
@@ -76,13 +75,13 @@ Private Type ChooseColorW     '      x86 '     x64
     lpTemplateName As LongPtr 'String  4 '       8
 End Type                      '  Sum: 36 ' Sum: 72
 #If VBA7 Then
-Private Declare PtrSafe Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
-Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As Long
-Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
+    Private Declare PtrSafe Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
+    Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As Long
+    Private Declare PtrSafe Function CommDlgExtendedError Lib "comdlg32" () As Long
 #Else
-Private Declare Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
-Private Declare Function GetActiveWindow Lib "user32" () As Long
-Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
+    Private Declare Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColorW) As Long
+    Private Declare Function GetActiveWindow Lib "user32" () As Long
+    Private Declare Function CommDlgExtendedError Lib "comdlg32" () As Long
 #End If
 
 Private mFlags As Long

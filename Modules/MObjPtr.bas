@@ -1,6 +1,12 @@
 Attribute VB_Name = "MObjPtr"
 Option Explicit
 
+#If VBA7 = 0 Then
+    Public Enum LongPtr
+        [_]
+    End Enum
+#End If
+
 Public Declare Sub RtlMoveMemory Lib "kernel32" (ByRef Dst As Any, ByRef src As Any, ByVal bytLength As Long)
 
 Public Declare Sub RtlZeroMemory Lib "kernel32" (ByRef Dst As Any, ByVal bytLength As Long)

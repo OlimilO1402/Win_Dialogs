@@ -113,23 +113,23 @@ Private Type OPENFILENAMEW                 ' x86    ' x64
 End Type                               ' Sum: 76    ' 136
 
 #If VBA7 Then
-Private Declare PtrSafe Function GetSaveFileNameW Lib "comdlg32" (ByRef pOpenfilename As OPENFILENAMEW) As Long
-Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
-'Private Declare PtrSafe Function GetDesktopWindow Lib "user32" () As LongPtr
-'Private Declare Function GetOpenFileNamePreview Lib "msvfw32" (ByRef lpofn As OPENFILENAME) As Long
-'Private Declare PtrSafe Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As LongPtr, ByVal lpWindowName As LongPtr, ByVal dwStyle As Long, ByVal X As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As LongPtr, ByVal hMenu As LongPtr, ByVal hInstance As LongPtr, ByRef lpParam As Any) As Long
-'Private Declare PtrSafe Function DestroyWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
-'Private Declare PtrSafe Function GetWindowRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
-Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
+    Private Declare PtrSafe Function GetSaveFileNameW Lib "comdlg32" (ByRef pOpenfilename As OPENFILENAMEW) As Long
+    Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
+    'Private Declare PtrSafe Function GetDesktopWindow Lib "user32" () As LongPtr
+    'Private Declare Function GetOpenFileNamePreview Lib "msvfw32" (ByRef lpofn As OPENFILENAME) As Long
+    'Private Declare PtrSafe Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As LongPtr, ByVal lpWindowName As LongPtr, ByVal dwStyle As Long, ByVal X As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As LongPtr, ByVal hMenu As LongPtr, ByVal hInstance As LongPtr, ByRef lpParam As Any) As Long
+    'Private Declare PtrSafe Function DestroyWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
+    'Private Declare PtrSafe Function GetWindowRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
+    Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
 #Else
-Private Declare Function GetSaveFileNameW Lib "comdlg32" (ByRef pOpenfilename As OPENFILENAMEW) As Long
-Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
-'Private Declare Function GetDesktopWindow Lib "user32" () As Long
-'Private Declare Function GetOpenFileNamePreview Lib "msvfw32" (ByRef lpofn As OPENFILENAME) As Long
-'Private Declare Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As LongPtr, ByVal lpWindowName As LongPtr, ByVal dwStyle As Long, ByVal X As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As LongPtr, ByVal hMenu As LongPtr, ByVal hInstance As LongPtr, ByRef lpParam As Any) As Long
-'Private Declare Function DestroyWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
-'Private Declare Function GetWindowRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
-Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
+    Private Declare Function GetSaveFileNameW Lib "comdlg32" (ByRef pOpenfilename As OPENFILENAMEW) As Long
+    Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
+    'Private Declare Function GetDesktopWindow Lib "user32" () As Long
+    'Private Declare Function GetOpenFileNamePreview Lib "msvfw32" (ByRef lpofn As OPENFILENAME) As Long
+    'Private Declare Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As LongPtr, ByVal lpWindowName As LongPtr, ByVal dwStyle As Long, ByVal X As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As LongPtr, ByVal hMenu As LongPtr, ByVal hInstance As LongPtr, ByRef lpParam As Any) As Long
+    'Private Declare Function DestroyWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
+    'Private Declare Function GetWindowRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
+    Private Declare Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
 #End If
 
 'Private Base As New FileDialog
