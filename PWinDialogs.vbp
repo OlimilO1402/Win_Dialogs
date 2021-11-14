@@ -17,6 +17,7 @@ Class=OpenFolderDialog; Classes\OpenFolderDialog.cls
 Class=MessageBox; Classes\MessageBox.cls
 Class=MyFontDialog; Classes\MyFontDialog.cls
 Module=MFontDialog; Modules\MFontDialog.bas
+Class=PrintDialog; Classes\PrintDialog.cls
 ResFile32="Resources\MyRes.RES"
 IconForm="Form1"
 Startup="Sub Main"
