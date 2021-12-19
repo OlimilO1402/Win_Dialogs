@@ -219,8 +219,8 @@ End Sub
 Friend Property Get flags() As Long
     flags = mFlags
 End Property
-Friend Property Let flags(ByVal Value As Long)
-    mFlags = Value
+Friend Property Let flags(ByVal value As Long)
+    mFlags = value
 End Property
 
 'Protected Overrides Function HookProc(ByVal hWnd As System.IntPtr, ByVal msg As Integer, ByVal wparam As System.IntPtr, ByVal lparam As System.IntPtr) As System.IntPtr
@@ -239,25 +239,25 @@ End Property
 Public Property Get AddExtension() As Boolean
     AddExtension = mAddExtension
 End Property
-Public Property Let AddExtension(ByVal Value As Boolean)
-    mAddExtension = Value
+Public Property Let AddExtension(ByVal value As Boolean)
+    mAddExtension = value
 End Property
 
 'Public Overridable Property CheckFileExists() As Boolean
 Public Property Get CheckFileExists() As Boolean               'OFN_FILEMUSTEXIST
     CheckFileExists = mFlags And OFN_FILEMUSTEXIST
 End Property
-Public Property Let CheckFileExists(ByVal Value As Boolean)    'OFN_FILEMUSTEXIST
+Public Property Let CheckFileExists(ByVal value As Boolean)    'OFN_FILEMUSTEXIST
     mFlags = mFlags Or OFN_FILEMUSTEXIST
-    If Not Value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
+    If Not value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
 End Property
 
 Public Property Get CheckPathExists() As Boolean               'OFN_PATHMUSTEXIST
     CheckPathExists = mFlags And OFN_PATHMUSTEXIST
 End Property
-Public Property Let CheckPathExists(ByVal Value As Boolean)    'OFN_PATHMUSTEXIST
+Public Property Let CheckPathExists(ByVal value As Boolean)    'OFN_PATHMUSTEXIST
     mFlags = mFlags Or OFN_PATHMUSTEXIST
-    If Not Value Then mFlags = mFlags Xor OFN_PATHMUSTEXIST
+    If Not value Then mFlags = mFlags Xor OFN_PATHMUSTEXIST
 End Property
 
 'Public Property DefaultExt() As String
@@ -272,9 +272,9 @@ End Property
 Public Property Get DereferenceLinks() As Boolean              'OFN_NODEREFERENCELINKS
     DereferenceLinks = mFlags And OFN_NODEREFERENCELINKS
 End Property
-Public Property Let DereferenceLinks(ByVal Value As Boolean)   'OFN_NODEREFERENCELINKS
+Public Property Let DereferenceLinks(ByVal value As Boolean)   'OFN_NODEREFERENCELINKS
     mFlags = mFlags Or OFN_NODEREFERENCELINKS
-    If Value Then mFlags = mFlags Xor OFN_NODEREFERENCELINKS
+    If value Then mFlags = mFlags Xor OFN_NODEREFERENCELINKS
 End Property
 'Private Sub mDereferenceLinks_OnLet(ByVal sender As Object)
 '    Dim Value As Boolean: b = sender '???
@@ -287,8 +287,8 @@ End Property
 Public Property Get FileName() As String
     FileName = mFileName
 End Property
-Public Property Let FileName(ByVal Value As String)
-    mFileName = Value
+Public Property Let FileName(ByVal value As String)
+    mFileName = value
 End Property
 
 'Public ReadOnly Property FileNames() As String()
@@ -367,9 +367,9 @@ Public Property Get Filter() As String
 '    Next
 '    Filter = StrFlt
 End Property
-Public Property Let Filter(ByVal Value As String)
+Public Property Let Filter(ByVal value As String)
     'Debug.Print Value
-    mFilter = Replace(Value, "|", vbNullChar)
+    mFilter = Replace(value, "|", vbNullChar)
     'Debug.Print mFilter
 'Dim i As Integer
 'Dim StrFlt As String
@@ -386,16 +386,16 @@ End Property
 Public Property Get FilterIndex() As Long
     FilterIndex = mFilterIndex
 End Property
-Public Property Let FilterIndex(ByVal Value As Long)
-    mFilterIndex = Value
+Public Property Let FilterIndex(ByVal value As Long)
+    mFilterIndex = value
 End Property
 
 'Ruft das Ausgangsverzeichnis ab, oder legt dieses fest
 Public Property Get InitialDirectory() As String       'lpstrInitialDir
     InitialDirectory = mInitialDirectory
 End Property
-Public Property Let InitialDirectory(ByVal Value As String) 'lpstrInitialDir
-    mInitialDirectory = Value
+Public Property Let InitialDirectory(ByVal value As String) 'lpstrInitialDir
+    mInitialDirectory = value
 End Property
 
 'MultiSelect hat nur der Opendialog nicht im Savedialog möglich
@@ -420,17 +420,17 @@ End Property
 Public Property Get RestoreDirectory() As Boolean            'OFN_NOCHANGEDIR
     RestoreDirectory = mFlags And OFN_NOCHANGEDIR
 End Property
-Public Property Let RestoreDirectory(ByVal Value As Boolean) 'OFN_NOCHANGEDIR
+Public Property Let RestoreDirectory(ByVal value As Boolean) 'OFN_NOCHANGEDIR
     mFlags = mFlags Or OFN_NOCHANGEDIR
-    If Not Value Then mFlags = mFlags Xor OFN_NOCHANGEDIR
+    If Not value Then mFlags = mFlags Xor OFN_NOCHANGEDIR
 End Property
 
 Public Property Get ShowHelp() As Boolean                    'OFN_SHOWHELP
     ShowHelp = mFlags And OFN_SHOWHELP
 End Property
-Public Property Let ShowHelp(ByVal Value As Boolean)         'OFN_SHOWHELP
+Public Property Let ShowHelp(ByVal value As Boolean)         'OFN_SHOWHELP
     mFlags = mFlags Or OFN_SHOWHELP
-    If Not Value Then mFlags = mFlags Xor OFN_SHOWHELP
+    If Not value Then mFlags = mFlags Xor OFN_SHOWHELP
 End Property
 
 'ShowReadOnly hat nur der Opendialog nicht im Savedialog möglich
@@ -447,8 +447,8 @@ End Property
 Public Property Get Tag() As Variant
     Tag = mTag
 End Property
-Public Property Let Tag(Value As Variant)
-    mTag = Value
+Public Property Let Tag(value As Variant)
+    mTag = value
 End Property
 
 Public Function ToString() As String
@@ -466,9 +466,9 @@ End Property
 Public Property Get ValidateNames() As Boolean            'OFN_NOVALIDATE
     ValidateNames = mFlags And OFN_NOVALIDATE
 End Property
-Public Property Let ValidateNames(ByVal Value As Boolean) 'OFN_NOVALIDATE
+Public Property Let ValidateNames(ByVal value As Boolean) 'OFN_NOVALIDATE
     mFlags = mFlags Or OFN_NOVALIDATE
-    If Value Then mFlags = mFlags Xor OFN_NOVALIDATE
+    If value Then mFlags = mFlags Xor OFN_NOVALIDATE
 End Property
 
 Private Function GethWnd(Frm As Variant) As LongPtr
