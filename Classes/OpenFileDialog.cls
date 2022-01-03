@@ -485,7 +485,7 @@ End Function
 Private Function GethInst() As LongPtr
 Try: On Error GoTo Finally
 #If VBA6 Or VBA7 Then
-    GethInst = Application.hInstance 'Ptr
+    GethInst = MApp.hInstance 'Ptr
 #Else
     GethInst = App.hInstance
 #End If
