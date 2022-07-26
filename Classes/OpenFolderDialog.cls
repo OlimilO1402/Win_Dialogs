@@ -80,9 +80,9 @@ End Type
     Private Declare Function SHCreateItemFromParsingName Lib "Shell32" (ByVal pszPath As LongPtr, ByVal pbc As LongPtr, ByVal riid As LongPtr, ByRef ppv As LongPtr) As Long
     
     ' ----==== Ole32.dll Deklarationen ====----
-    Private Declare Function CLSIDFromString Lib "Ole32" (ByVal pString As LongPtr, ByRef pCLSID As GUID) As Long
-    Private Declare Function CoCreateInstance Lib "Ole32" (ByVal rclsid As LongPtr, ByVal pUnkOuter As LongPtr, ByVal dwClsContext As Long, ByVal riid As LongPtr, ByRef ppv As LongPtr) As Long
-    Private Declare Sub CoTaskMemFree Lib "Ole32" (ByVal hMem As LongPtr)
+    Private Declare Function CLSIDFromString Lib "ole32" (ByVal pString As LongPtr, ByRef pCLSID As GUID) As Long
+    Private Declare Function CoCreateInstance Lib "ole32" (ByVal rclsid As LongPtr, ByVal pUnkOuter As LongPtr, ByVal dwClsContext As Long, ByVal riid As LongPtr, ByRef ppv As LongPtr) As Long
+    Private Declare Sub CoTaskMemFree Lib "ole32" (ByVal hMem As LongPtr)
     
     ' ----==== Oleaut32.dll Deklarationen ====----
     Private Declare Function DispCallFunc Lib "Oleaut32" (ByVal pvInstance As LongPtr, ByVal oVft As Long, ByVal cc As Long, ByVal vtReturn As VbVarType, ByVal cActuals As Long, ByVal prgvt As Any, ByVal prgpvarg As Any, ByRef pvargResult As Variant) As Long
@@ -186,7 +186,7 @@ Private Function OleInvoke(ByVal pInterface As LongPtr, ByVal lCmd As Long, Para
         Next
     End If
     Dim vRet As Variant
-    Debug.Print lCmd
+    'Debug.Print lCmd
     If DispCallFunc(pInterface, lCmd * SizeOfPtr, CC_STDCALL, vbLong, lItem, VarPtr(oleTyp(0)), VarPtr(olePtr(0)), vRet) <> S_OK Then
         Debug.Print "Error calling the Interface-function: " & Vtb2FunctionName(lCmd)
     End If
