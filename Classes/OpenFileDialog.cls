@@ -17,16 +17,10 @@ Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 '          Inherits System.Windows.Forms.FileDialog
 '     Member von: System.Windows.Forms
 Option Explicit '490 Zeilen   '2021-08-07: 613 Zeilen
-'Diese Klasse funktioniert unter VB6 genauso wie die
-'Klasse OpenFileDialog von .NET
-'also die wichtigsten Sachen
-'CommonDialog
-'Microsoft Common Dialog Control 6.0 (SP6)
-'in: \System32\COMDLG32.OCX
-'ist nur eine dünne Kapselung der dll "comdlg32.dll"
-'deshalb lieber gleich die dll-verwenden, hat den Vorteil, daß comdlg32.ocx
-'nicht mit dem Programm ausgeliefert werden muß,
-'da die comdlg32.dll Bestandteil des Betriebssystems ist
+'This class works in VB6 the same as the class OpenFileDialog from .NET at least the main parts of it.
+'CommonDialog=Microsoft Common Dialog Control 6.0 (SP6)=\System32\COMDLG32.OCX
+'is only a thin encapsulation of the dll "comdlg32.dll" which is part of the os
+'so better use the comdlg32.dll only, so you don't have to ship comdlg32.ocx
 
 Private Const OFN_SHAREWARN             As Long = 0&
 Private Const OFN_SHARENOWARN           As Long = 1&
