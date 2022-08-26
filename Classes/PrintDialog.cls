@@ -69,7 +69,7 @@ End Type
 '  DWORD            dwResultAction;
 '} PRINTDLGEXW, *LPPRINTDLGEXW;
 
-Public Type PRINTDLGEXW
+Private Type PRINTDLGEXW
     lStructSize      As Long
     hwndOwner        As LongPtr '  HWND
     hdevmode         As LongPtr '  HGLOBAL
@@ -112,9 +112,9 @@ Private Type PROPSHEETPAGEW_V4
 '    LPCWSTR pszbmHeader;
 '  } DUMMYUNIONNAME3;
 End Type
-Private Declare Function PrintDlgW Lib "comdlg32.dll" (ByRef pPrintdlg As PRINTDLG) As Long
-Private Declare Function PRINTDLGEXW Lib "comdlg32.dll" Alias "PrintDlgExW" (ByRef TLPPRINTDLGEXA As PRINTDLGEXA) As Long
-Private Declare Function PrinterMessageBoxW Lib "winspool.drv" Alias "PrinterMessageBoxA" ( _
+Private Declare Function PrintDlgW Lib "comdlg32" (ByRef pPrintdlg As PRINTDLG) As Long
+Private Declare Function PRINTDLGEXW Lib "comdlg32" Alias "PrintDlgExW" (ByRef TLPPRINTDLGEXW As PRINTDLGEXW) As Long
+Private Declare Function PrinterMessageBoxW Lib "winspool.drv" ( _
     ByVal hPrinter As Long, _
     ByVal error As Long, _
     ByVal hwnd As Long, _
@@ -145,12 +145,12 @@ End Property
 Public Property Get ShowNetwork() As Boolean
     '
 End Property
-Public Property Get Container() As IContainer
-    '
-End Property
-Public Property Get Document_DefaultPageSettings() As PageSettings
-    '
-End Property
+'Public Property Get Container() As IContainer
+'    '
+'End Property
+'Public Property Get Document_DefaultPageSettings() As PageSettings
+'    '
+'End Property
 Public Property Get Document_DocumentName() As String
     '
 End Property
@@ -163,42 +163,42 @@ End Sub
 Public Property Get Document_PrintController_IsPreview() As Boolean
     '
 End Property
-Public Property Get Document_PrinterSettings() As PrinterSettings
-    '
-End Property
-Public Property Get Document_Site() As ISite
-    '
-End Property
+'Public Property Get Document_PrinterSettings() As PrinterSettings
+'    '
+'End Property
+'Public Property Get Document_Site() As ISite
+'    '
+'End Property
 Public Function Document_ToString() As String
     '
 End Function
-Public Property Get PrinterSettings() As PrinterSettings
-    '
-End Property
+'Public Property Get PrinterSettings() As PrinterSettings
+'    '
+'End Property
 Public Property Get PrinterSettings_CanDuplex() As Boolean
     '
 End Property
 Public Property Get PrinterSettings_Collate() As Boolean
     '
 End Property
-Public Property Get PrinterSettings_Copies() As Short
+Public Property Get PrinterSettings_Copies() As Integer
     '
 End Property
-Public Property Get PrinterSettings_DefaultPageSettings_Bounds() As Rectangle
-    '
-End Property
+'Public Property Get PrinterSettings_DefaultPageSettings_Bounds() As Rectangle
+'    '
+'End Property
 Public Property Get PrinterSettings_DefaultPageSettings_Clone() As Object
     '
 End Property
 Public Property Get PrinterSettings_DefaultPageSettings_Color() As Boolean
     '
 End Property
-Public Property Get PrinterSettings_DefaultPageSettings_CopyToHdevmode(hdevmode As IntPtr)
-    '
-End Property
-Public Property Get PrinterSettings_Duplex() As Duplex 'Enum
-    '
-End Property
+'Public Property Get PrinterSettings_DefaultPageSettings_CopyToHdevmode(hdevmode As IntPtr)
+'    '
+'End Property
+'Public Property Get PrinterSettings_Duplex() As Duplex 'Enum
+'    '
+'End Property
 Public Property Get PrinterSettings_Duplex_CompareTo()
     '
 End Property
@@ -249,24 +249,24 @@ End Property
 Public Property Get PrinterSettings_MinimumPage() As Long
     '
 End Property
-Public Property Get PrinterSettings_PaperSizes() As PaperSizeCollection
-    '
-End Property
-Public Property Get PrinterSettings_PaperSources() As PaperSourceCollection
-    '
-End Property
+'Public Property Get PrinterSettings_PaperSizes() As PaperSizeCollection
+'    '
+'End Property
+'Public Property Get PrinterSettings_PaperSources() As PaperSourceCollection
+'    '
+'End Property
 Public Property Get PrinterSettings_PrinterName() As String
     '
 End Property
-Public Property Get PrinterSettings_PrinterResolutions() As PrinterResolutionCollection
-    '
-End Property
+'Public Property Get PrinterSettings_PrinterResolutions() As PrinterResolutionCollection
+'    '
+'End Property
 Public Property Get PrinterSettings_PrintFileName() As String
     '
 End Property
-Public Property Get PrinterSettings_PrintRange() As PrintRange
-    '
-End Property
+'Public Property Get PrinterSettings_PrintRange() As PrintRange
+'    '
+'End Property
 Public Property Get PrinterSettings_PrintToFile() As Boolean
     '
 End Property
@@ -274,10 +274,10 @@ Public Property Get PrinterSettings_SupportsColor() As Boolean
     '
 End Property
 Public Property Get PrinterSettings_ToPage() As Long
-
+    '
 End Property
 Public Property Get PrintToFile() As Boolean
-    
+    '
 End Property
 Public Sub Reset()
     '
@@ -288,9 +288,9 @@ End Function
 Public Property Get ShowHelp() As Boolean
     '
 End Property
-Public Property Get ShowNetwork() As Boolean
-    '
-End Property
+'Public Property Get ShowNetwork() As Boolean
+'    '
+'End Property
 Public Property Get Site()
     '
 End Property
@@ -300,7 +300,7 @@ End Property
 Public Function ToString() As String
     '
 End Function
-Public Property Get UseEXDialog() As Boolean
-    '
-End Property
-
+'Public Property Get UseEXDialog() As Boolean
+'    '
+'End Property
+'

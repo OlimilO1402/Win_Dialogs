@@ -19,34 +19,6 @@ Attribute VB_Exposed = False
 ' Stellt ein Standarddialogfeld dar, in dem Benutzer einen Ordner auswählen können.
 Option Explicit
 Implements ICallBack
-
-Private Const WM_USER              As Long = &H400
-Public Enum BrowseInfoFlags 'ulFlags:
-    BIF_RETURNONLYFSDIRS = &H1        ': Gestattet nur Dateisystemordner als Auswahl.
-    BIF_DONTGOBELOWDOMAIN = &H2       ': Der Dialog zeigt keine Netzwerkordner unterhalb der aktuellen Domain.
-    BIF_STATUSTEXT = &H4              ': Der Dialog enthält eine Statuszeile. Die Rückruffunktion kann die Statuszeile ausfüllen.
-    BIF_RETURNFSANCESTORS = &H8       ': Gestattet nur Dateisystemobjekte als Auswahl
-    BIF_EDITBOX = &H10
-    BIF_VALIDATE = &H20
-    BIF_NEWDIALOGSTYLE = &H40
-    BIF_USENEWUI = &H40
-    BIF_BROWSEINCLUDEURLS = &H80
-    BIF_DONTSHOWNEWFOLDERBUTTON = &H200  '512
-    BFFM_SETSTATUSTEXTA = (WM_USER + 100)
-    BFFM_ENABLEOK = (WM_USER + 101)      '1125
-    BFFM_SETSELECTIONA = (WM_USER + 102) '1126
-    BFFM_SETSELECTIONW = (WM_USER + 103)
-    BFFM_SETSTATUSTEXTW = (WM_USER + 104)
-    BIF_BROWSEFORCOMPUTER = &H1000       ': Als Auswahl sind nur Computer erlaubt. Wenn der Anwender andere Objekte, also Ordner oder Laufwerke markiert, kann der OK-Button nicht ausgewählt werden.
-    BIF_BROWSEFORPRINTER = &H2000        ': Gestattet nur Drucker als Auswahl.
-    BIF_BROWSEINCLUDEFILES = &H4000      ': Der Dialog zeigt neben Computern, Laufwerken und Ordnern auch Dateien an.
-    BIF_SHAREABLE = &H8000
-End Enum
-Private Const BFFM_INITIALIZED     As Long = 1
-Private Const BFFM_SELCHANGED      As Long = 2
-'Private Const BFFM_VALIDATEFAILEDA As Long = 3
-'Private Const BFFM_VALIDATEFAILEDW As Long = 4
-'
 'Private Const CSIDL_DESKTOP                 As Long = &H0
 'Private Const CSIDL_INTERNET                As Long = &H1
 'Private Const CSIDL_PROGRAMS                As Long = &H2
@@ -103,6 +75,11 @@ Private Const BFFM_SELCHANGED      As Long = 2
 'Private Const CSIDL_FLAG_MASK As Long = &HFF00&
 'Private Const CSIDL_FLAG_PFTI_TRACKTARGET As Long = CSIDL_FLAG_DONT_VERIFY
 '
+#If VBA7 = 0 Then
+    Private Enum LongPtr
+        [_]
+    End Enum
+#End If
 'im .NET-FX gibt es auch ein Enum Environment.SpecialFolder
 Public Enum Environment_SpecialFolder
     SpecialFolder_Desktop = &H0    ' = CSIDL_DESKTOP
@@ -160,7 +137,17 @@ Public Enum Environment_SpecialFolder
     CSIDL_FLAG_PFTI_TRACKTARGET = CSIDL_FLAG_DONT_VERIFY
 End Enum
 
-'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/ns-shlobj_core-browseinfow
+Public Enum DialogResult
+    DialogResult_None = 0
+    DialogResult_OK = VbMsgBoxResult.vbOK
+    DialogResult_Cancel = VbMsgBoxResult.vbCancel
+    DialogResult_Abort = VbMsgBoxResult.vbAbort
+    DialogResult_Retry = VbMsgBoxResult.vbRetry
+    DialogResult_Ignore = VbMsgBoxResult.vbIgnore
+    DialogResult_Yes = VbMsgBoxResult.vbYes
+    DialogResult_No = VbMsgBoxResult.vbNo
+End Enum
+
 Private Type BrowseInfoW
     hwndOwner      As LongPtr
     pidlRoot       As Long
@@ -178,13 +165,43 @@ Private mRootFolder   As Long
 Private mSelectedPath As String
 Private mTag          As Variant
 
-Private Declare Function SHBrowseForFolderW Lib "Shell32" (pBrowseInfo As BrowseInfoW) As Long
-Private Declare Function SHGetSpecialFolderLocation Lib "Shell32" (ByVal hwndOwner As LongPtr, ByVal csidl As Long, ByRef pidl_out As Long) As Long      'HRESULT
-Private Declare Function SHGetPathFromIDListW Lib "Shell32" (ByVal pidList As Long, ByVal lpBuffer As LongPtr) As Long
-Private Declare Function SendMessageW Lib "user32" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As Long, ByRef lParam As Any) As Long
-Private Declare Function GetActiveWindow Lib "user32" () As Long
-Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Any) As Long
-Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+Private Const WM_USER              As Long = &H400
+Public Enum BrowseInfoFlags 'ulFlags:
+    BIF_RETURNONLYFSDIRS = &H1        ': Gestattet nur Dateisystemordner als Auswahl.
+    BIF_DONTGOBELOWDOMAIN = &H2       ': Der Dialog zeigt keine Netzwerkordner unterhalb der aktuellen Domain.
+    BIF_STATUSTEXT = &H4              ': Der Dialog enthält eine Statuszeile. Die Rückruffunktion kann die Statuszeile ausfüllen.
+    BIF_RETURNFSANCESTORS = &H8       ': Gestattet nur Dateisystemobjekte als Auswahl
+    BIF_EDITBOX = &H10
+    BIF_VALIDATE = &H20
+    BIF_NEWDIALOGSTYLE = &H40
+    BIF_USENEWUI = &H40
+    BIF_BROWSEINCLUDEURLS = &H80
+    BIF_DONTSHOWNEWFOLDERBUTTON = &H200  '512
+    BFFM_SETSTATUSTEXTA = (WM_USER + 100)
+    BFFM_ENABLEOK = (WM_USER + 101)      '1125
+    BFFM_SETSELECTIONA = (WM_USER + 102) '1126
+    BFFM_SETSELECTIONW = (WM_USER + 103)
+    BFFM_SETSTATUSTEXTW = (WM_USER + 104)
+    BIF_BROWSEFORCOMPUTER = &H1000       ': Als Auswahl sind nur Computer erlaubt. Wenn der Anwender andere Objekte, also Ordner oder Laufwerke markiert, kann der OK-Button nicht ausgewählt werden.
+    BIF_BROWSEFORPRINTER = &H2000        ': Gestattet nur Drucker als Auswahl.
+    BIF_BROWSEINCLUDEFILES = &H4000      ': Der Dialog zeigt neben Computern, Laufwerken und Ordnern auch Dateien an.
+    BIF_SHAREABLE = &H8000
+End Enum
+Private Const BFFM_INITIALIZED     As Long = 1
+Private Const BFFM_SELCHANGED      As Long = 2
+'Private Const BFFM_VALIDATEFAILEDA As Long = 3
+'Private Const BFFM_VALIDATEFAILEDW As Long = 4
+'
+Private Declare Function SHGetSpecialFolderLocation Lib "shell32.dll" (ByVal hwnd As LongPtr, ByVal csidl As Long, ByRef ppidl_out As Long) As Long      'HRESULT
+Private Declare Function SHBrowseForFolder Lib "shell32.dll" (pBrowseInfo As BrowseInfoW) As Long
+Private Declare Function SHGetPathFromIDList Lib "shell32.dll" (ByVal pidList As Long, ByVal lpBuffer As LongPtr) As Long
+Private Declare Function SendMessageW Lib "user32.dll" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
+
+Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
+
+Private Declare Function lstrlenW Lib "kernel32.dll" (ByVal lpString As LongPtr) As Long
+
+Private Declare Sub CoTaskMemFree Lib "ole32.dll" (ByRef pv As Any)
 
 Public Event HelpRequest(ByVal sender As FolderBrowserDialog)
 
@@ -264,17 +281,18 @@ End Property
 Public Property Get Tag() As Variant
     Tag = mTag
 End Property
-Public Property Let Tag(Value As Variant)
-    mTag = Value
+Public Property Let Tag(VarVal As Variant)
+    mTag = VarVal
 End Property
 
 Public Function ToString() As String
     ToString = "Windows.Forms.FolderBrowserDialog"
 End Function
 
-Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
+Public Function ShowDialog(Optional Frm As Variant) As DialogResult
+    Dim BI         As BrowseInfoW
+    Dim hhwndOwner As LongPtr
   
-    Dim hhwndOwner As Long
     If IsMissing(Frm) Then
         hhwndOwner = GetActiveWindow
     Else
@@ -282,13 +300,10 @@ Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
     End If
     
 Try: On Error GoTo Catch
-    Dim pRoot As Long
+    Dim pRoot      As Long
     Call SHGetSpecialFolderLocation(hhwndOwner, mRootFolder, pRoot)
     If (pRoot = 0&) Then
-        If SHGetSpecialFolderLocation(hhwndOwner, 0, pRoot) <> 0 Then
-            'Show dll error here
-            Exit Function
-        End If
+        Call SHGetSpecialFolderLocation(hhwndOwner, 0, pRoot)
         If (pRoot = 0&) Then
             'Throw New InvalidOperationException(SR.GetString("FolderBrowserDialogNoRootFolder"))
             MsgBox "FolderBrowserDialogNoRootFolder"
@@ -296,61 +311,65 @@ Try: On Error GoTo Catch
         End If
     End If
     Dim descr As String: descr = mDescription & vbNullChar
-    Dim BI As BrowseInfoW
+    Dim pDescr As LongPtr: pDescr = StrPtr(descr)
     With BI
         .hwndOwner = hhwndOwner
         .pidlRoot = pRoot
-        '.pszDisplayName = StrPtr("Select a Folder")
+        '.pszDisplayName = ""
         'Beschreibung im Dialog 'als nullterminierter String
-        .lpszTitle = StrPtr(descr)
+        .lpszTitle = pDescr 'mDescription  '& vbNullChar
         .ulFlags = mFlags
-        .lpfn = FncPtr(AddressOf MCallBack.FolderBrowserDialogCallBack)
+        .lpfn = FncPtr(AddressOf ModCallBack.FolderBrowserDialogCallBack)
         .lParam = ObjPtr(Me)
         .iImage = 0&
     End With
     
     'Anzeigen des Dialogs und Übergabe an eine IID-Liste
-    Dim IDList As Long:  IDList = SHBrowseForFolderW(BI)
+    Dim IDList As Long
+    IDList = SHBrowseForFolder(BI)
     If IDList <> 0 Then
         Dim Buffer As String: Buffer = String$(1024, vbNullChar)
-        Call SHGetPathFromIDListW(IDList, ByVal StrPtr(Buffer))
-        mSelectedPath = Left$(Buffer, lstrlenW(ByVal StrPtr(Buffer)))
-        ShowDialog = vbOK
+        Dim pBuffer As LongPtr: pBuffer = StrPtr(pBuffer)
+        Call SHGetPathFromIDList(IDList, ByVal pBuffer)
+        mSelectedPath = Left$(Buffer, lstrlenW(pBuffer))
+        ShowDialog = DialogResult_OK
         'Free the IDList Memory !
         Call CoTaskMemFree(IDList)
     Else
-        ShowDialog = vbCancel
+        ShowDialog = DialogResult_Cancel
     End If
     Exit Function
 Catch:
     If Err.Number > 0 Then MsgBox Err.Description
-    ShowDialog = vbAbort
+    ShowDialog = DialogResult_Abort
 End Function
 
-Private Function FncPtr(ByVal p As LongPtr) As LongPtr
+Private Function FncPtr(p As Long) As Long
     FncPtr = p
 End Function
 
 ' Callbackfunction ->>>
-Private Sub ICallBack_CallBack(ByVal hhwnd As LongPtr, ByVal msg As Long, ByVal lParam As Long)
+Private Sub ICallBack_CallBack(ByVal hhwnd As Long, ByVal msg As Long, ByVal lParam As Long)
     Dim rv     As Long
     Dim lflag  As Long
     Dim Buffer As String
     Select Case msg
     Case BFFM_INITIALIZED
         If (Len(mSelectedPath) > 0) Then
-            rv = SendMessageW(hhwnd, BFFM_SETSELECTIONW, 1&, ByVal StrPtr(mSelectedPath))
+            Dim SelPath As String: SelPath = mSelectedPath
+            Dim pSelPath As Long: pSelPath = StrPtr(SelPath)
+            rv = SendMessageW(hhwnd, BFFM_SETSELECTIONW, 1&, ByVal pSelPath)
         End If
     Case BFFM_SELCHANGED
         If (lParam <> 0&) Then
             Buffer = String$(1024, vbNullChar)
-            lflag = SHGetPathFromIDListW(lParam, ByVal StrPtr(Buffer))
+            lflag = SHGetPathFromIDList(lParam, Buffer)
             If lflag = 1 Then
-                SendMessageW hhwnd, BFFM_ENABLEOK, 0, ByVal 1
+                Call SendMessageW(hhwnd, BFFM_ENABLEOK, 0, ByVal 1)
             ElseIf lflag = 0 Then
-                SendMessageW hhwnd, BFFM_ENABLEOK, 0, ByVal 0
+                Call SendMessageW(hhwnd, BFFM_ENABLEOK, 0, ByVal 0)
             End If
-            CoTaskMemFree lParam
+            Call CoTaskMemFree(lParam)
         End If
     End Select
 End Sub

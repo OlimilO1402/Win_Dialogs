@@ -1,12 +1,8 @@
 Type=Exe
-Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\system32\stdole2.tlb#OLE Automation
 Form=Form1.frm
-Module=ModCallBack; ModCallBack.bas
-Class=FolderBrowserDialog; FolderBrowserDialog.cls
-Class=ICallBack; ICallBack.cls
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\SysWow64\stdole2.tlb#OLE Automation
 IconForm="Form1"
 Startup="Form1"
-ExeName32="TestFolderBrowserDialog.exe"
 Command32=""
 Name="Projekt1"
 HelpContextID="0"
@@ -16,7 +12,6 @@ MinorVer=0
 RevisionVer=0
 AutoIncrementVer=0
 ServerSupportFiles=0
-VersionCompanyName="MBO-Ing.com"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
@@ -32,6 +27,3 @@ Unattended=0
 Retained=0
 ThreadPerObject=0
 MaxNumberOfThreads=1
-
-[MS Transaction Server]
-AutoRefresh=1

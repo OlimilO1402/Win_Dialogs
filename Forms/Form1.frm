@@ -389,12 +389,12 @@ Private Function FileOpenOld() As String
 Try: On Error GoTo Catch
     With Me.CommonDialog
         .Filter = MApp.FileExtFilter
-        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
-        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
+        .Flags = .Flags Or FileOpenConstants.cdlOFNFileMustExist
+        .Flags = .Flags Or FileOpenConstants.cdlOFNPathMustExist
         .DefaultExt = ".htm"
         .CancelError = True
-        .flags = .flags Or FileOpenConstants.cdlOFNAllowMultiselect
-        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
+        .Flags = .Flags Or FileOpenConstants.cdlOFNAllowMultiselect
+        .Flags = .Flags Or FileOpenConstants.cdlOFNReadOnly
         .ShowOpen
         FileOpenOld = .FileName
     End With
@@ -421,11 +421,11 @@ Private Function FileSaveOld() As String
 Try: On Error GoTo Catch
     With Me.CommonDialog
         .Filter = MApp.FileExtFilter
-        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
-        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
+        .Flags = .Flags Or FileOpenConstants.cdlOFNFileMustExist
+        .Flags = .Flags Or FileOpenConstants.cdlOFNPathMustExist
         .DefaultExt = ".htm"
         .CancelError = True
-        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
+        .Flags = .Flags Or FileOpenConstants.cdlOFNReadOnly
         .ShowOpen
         FileSaveOld = .FileName
     End With
@@ -589,23 +589,23 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         .RootFolder = spf
         Select Case spf
         Case SpecialFolder_MyComputer
-                              .flags = .flags Or BIF_RETURNONLYFSDIRS
+                              .Flags = .Flags Or BIF_RETURNONLYFSDIRS
         Case CSIDL_NETWORK
-                              .flags = 0 'set to 0 before!
-                              .flags = .flags Or BIF_BROWSEFORCOMPUTER
+                              .Flags = 0 'set to 0 before!
+                              .Flags = .Flags Or BIF_BROWSEFORCOMPUTER
         Case CSIDL_PRINTERS
-                              .flags = .flags Or BIF_BROWSEFORPRINTER
+                              .Flags = .Flags Or BIF_BROWSEFORPRINTER
         Case SpecialFolder_Personal
                               '.Flags = .Flags Or BIF_DONTGOBELOWDOMAIN
-                              .flags = 0 'set to 0 before!
-                              .flags = .flags Or BIF_RETURNFSANCESTORS
+                              .Flags = 0 'set to 0 before!
+                              .Flags = .Flags Or BIF_RETURNFSANCESTORS
         End Select
         
         If ChkShowEditBox.Value = vbChecked Then
-            .flags = .flags Or BIF_EDITBOX
+            .Flags = .Flags Or BIF_EDITBOX
         End If
         If Me.ChkShowNewFolderButton = vbUnchecked Then
-            .flags = .flags Or BIF_DONTSHOWNEWFOLDERBUTTON
+            .Flags = .Flags Or BIF_DONTSHOWNEWFOLDERBUTTON
         End If
         'maximal 3 Zeilen Beschreibungstext
         .Description = "Hier sollte ein Hinweis stehen für den Benutzer was er hier tun soll. " & _
@@ -615,7 +615,13 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
             .SelectedPath = TxtSelectedPath.Text
         End If
         If .ShowDialog(Me) = vbOK Then
-            TxtSelectedPath.Text = .SelectedPath
+            Dim s As String: s = .SelectedPath
+            TxtSelectedPath.Text = s
+            Dim t As String: t = TxtSelectedPath.Text
+            Dim p As Long: p = InStr(1, t, "?")
+            If p > 0 Then
+                MsgBox s
+            End If
         End If
     End With
 
