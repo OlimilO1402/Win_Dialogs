@@ -68,8 +68,8 @@ End Function
 '    App_EXEName = App.EXEName
 '#End If
 'End Property
-'Public Function MsgBoxW(Prompt, Optional ByVal Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title) As VbMsgBoxResult
-''Public Function MsgBoxW(Prompt, Optional ByVal Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title, Optional Helpfile, Optional Context) As VbMsgBoxResult
+'Public Function MsgBox(Prompt, Optional ByVal Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title) As VbMsgBoxResult
+''Public Function MsgBox(Prompt, Optional ByVal Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title, Optional Helpfile, Optional Context) As VbMsgBoxResult
 '    Title = IIf(IsMissing(Title), App_EXEName, CStr(Title))
-'    MsgBoxW = MessageBoxW(0, StrPtr(Prompt), StrPtr(Title), Buttons)
+'    MsgBox = MessageBoxW(0, StrPtr(Prompt), StrPtr(Title), Buttons)
 'End Function

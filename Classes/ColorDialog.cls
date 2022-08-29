@@ -69,7 +69,7 @@ Private Type ChooseColorW     '      x86 '     x64
     hInstance      As LongPtr '        4 '       8
     rgbResult      As Long    '        4 '       4 + 4pads
     lpCustColors   As LongPtr '        4 '       8
-    flags          As Long    '        4 '       4 + 4pads
+    Flags          As Long    '        4 '       4 + 4pads
     lCustData      As LongPtr '        4 '       8
     lpfnHook       As LongPtr '        4 '       8
     lpTemplateName As LongPtr 'String  4 '       8
@@ -203,19 +203,14 @@ End Function
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
     ReDim CancelColors(0 To MaxCustomColors - 1) As Long
-    Dim i As Long
 Try: On Error GoTo Catch
-    'die Custom Farbtabelle sichern 'falls Abbrechen geklickt wurde
-    'For i = 0 To MaxCustomColors - 1
-    '    CancelColors(i) = mCustomColors(i)
-    'Next
     CancelColors() = mCustomColors()
     Dim ahWndOwner As Long
-'    If IsMissing(Frm) Then
-'        ahWndOwner = GetActiveWindow
-'    Else
-'        ahWndOwner = Frm.hwnd
-'    End If
+    If IsMissing(Frm) Then
+        ahWndOwner = GetActiveWindow
+    Else
+        ahWndOwner = Frm.hwnd
+    End If
     Dim ChCl As ChooseColorW
     With ChCl
         .lStructSize = LenB(ChCl)
@@ -228,7 +223,7 @@ Try: On Error GoTo Catch
 '#End If
         .rgbResult = mColor 'RGB(0, 255, 0) 'Farbe voreinstellen
         .lpCustColors = VarPtr(mCustomColors(0)) 'Benutzerdefinierte Farben zuweisen
-        .flags = mFlags
+        .Flags = mFlags
         .lCustData = 0&
         .lpfnHook = 0&
         .lpTemplateName = StrPtr(mTemplateName) '"" '0&

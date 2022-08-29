@@ -214,6 +214,9 @@ Begin VB.Form Form1
       Begin VB.Menu mnuFileSaveAs 
          Caption         =   "Save &As..."
       End
+      Begin VB.Menu mnuFilePrinter 
+         Caption         =   "Printer"
+      End
       Begin VB.Menu mnuFileSep1 
          Caption         =   "-"
       End
@@ -241,7 +244,7 @@ Begin VB.Form Form1
    End
    Begin VB.Menu mnuOption 
       Caption         =   "&Option"
-      Begin VB.Menu mnuUseOldComDlg 
+      Begin VB.Menu mnuOptionUseOldComDlg 
          Caption         =   "Use old CommonDialog-control"
       End
    End
@@ -277,6 +280,7 @@ Private Sub Command5_Click()
 End Sub
 
 Private Sub Form_Load()
+    mnuFilePrinter.Visible = False
     PrepareSpecialFolder
 End Sub
 
@@ -359,7 +363,7 @@ End Sub
 
 Private Sub mnuFileOpen_Click()
     Dim FNm As String
-    If mnuUseOldComDlg.Checked Then FNm = FileOpenOld Else FNm = FileOpenNew
+    If mnuOptionUseOldComDlg.Checked Then FNm = FileOpenOld Else FNm = FileOpenNew
     If Len(FNm) Then
         MsgBox FNm
         LblOFD.Caption = FNm
@@ -406,7 +410,7 @@ End Function
 
 Private Sub mnuFileSaveAs_Click()
     Dim FNm As String
-    If mnuUseOldComDlg.Checked Then FNm = FileSaveOld Else FNm = FileSaveNew
+    If mnuOptionUseOldComDlg.Checked Then FNm = FileSaveOld Else FNm = FileSaveNew
     If Len(FNm) Then LblSFD.Caption = FNm
 End Sub
 Private Function FileSaveNew() As String
@@ -430,13 +434,107 @@ Try: On Error GoTo Catch
         FileSaveOld = .FileName
     End With
 Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
+End Function
+
+Private Sub mnuFilePrinter_Click()
+    Dim PNm As String
+    If mnuOptionUseOldComDlg.Checked Then PNm = FilePrinterOld Else PNm = FilePrinterNew
+    If Len(PNm) Then MsgBox PNm
+End Sub
+
+Private Function FilePrinterNew() As String
+    FilePrinterNew = Printer.DeviceName
+End Function
+Private Function FilePrinterOld() As String
+Try: On Error GoTo Catch
+    With Me.CommonDialog
+        .CancelError = True
+        .ShowPrinter
+        FilePrinterOld = Printer.DeviceName
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
 End Function
 
 '--------------------------------------------------
 Private Sub mnuFileExit_Click()
     Unload Me
 End Sub
+
 '==================================================
+Private Sub mnuEditColorChoose_Click()
+    Dim col As Long
+    If mnuOptionUseOldComDlg.Checked Then col = ColorChooseOld Else col = ColorChooseNew
+    If col = -1 Then Exit Sub
+    LblCD.BackColor = col
+End Sub
+Private Function ColorChooseNew() As Long
+    ColorChooseNew = -1
+    With CD
+        .Color = LblCD.BackColor
+        .SolidColorOnly = True
+        If .ShowDialog = vbCancel Then Exit Function
+        ColorChooseNew = .Color
+    End With
+End Function
+Private Function ColorChooseOld() As Long
+    ColorChooseOld = -1
+Try: On Error GoTo Catch
+    With CommonDialog
+        .Color = LblCD.BackColor
+        .CancelError = True
+        .ShowColor
+        ColorChooseOld = .Color
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
+End Function
+
+Private Sub mnuEditFontChoose_Click()
+    Dim F As StdFont: Set F = LblFD.Font
+    Dim C As Long:        C = LblFD.ForeColor
+    If mnuOptionUseOldComDlg.Checked Then Set F = FontDialogOld(F, C) Else Set F = FontDialogNew(F, C)
+    Set LblFD.Font = F
+    LblFD.ForeColor = C
+End Sub
+
+Private Function FontDialogNew(Font_in As StdFont, ByRef Color_inout As Long) As StdFont
+    With New FontDialog
+        Set .Font = Font_in
+        .Color = Color_inout
+        If .ShowDialog = vbCancel Then Exit Function
+        Set FontDialogNew = .Font
+        Color_inout = .Color
+    End With
+End Function
+Private Function FontDialogOld(Font_in As StdFont, ByRef Color_inout As Long) As StdFont
+Try: On Error GoTo Catch
+    Dim Font As StdFont
+    With CommonDialog
+        .CancelError = True
+        .Color = Color_inout
+        .FontName = Font_in.Name
+        .FontSize = Font_in.Size
+        .FontBold = Font_in.Bold
+        .FontItalic = Font_in.Italic
+        .FontUnderline = Font_in.Underline
+        .FontStrikethru = Font_in.Strikethrough
+        .ShowFont
+    End With
+Catch:
+    FontDialogOld = Font_in
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
+End Function
+
 Private Sub mnuEditFolderChoose_Click()
     With New OpenFolderDialog
         '.Title = "Select a folder"
@@ -470,24 +568,21 @@ Private Sub mnuEditPathChoose_Click()
     End With
 End Sub
 
-Private Sub mnuEditColorChoose_Click()
-    With CD
-        .Color = LblCD.BackColor
-        .SolidColorOnly = True
-        If .ShowDialog = vbOK Then
-            LblCD.BackColor = .Color
-        End If
-    End With
+'--------------------------------------
+Private Sub mnuOptionUseOldComDlg_Click()
+    mnuOptionUseOldComDlg.Checked = Not mnuOptionUseOldComDlg.Checked
+    Dim bUseOldComDlg As Boolean: bUseOldComDlg = mnuOptionUseOldComDlg.Checked
+    mnuFilePrinter.Visible = bUseOldComDlg
 End Sub
-
-Private Sub mnuEditFontChoose_Click()
-    With New FontDialog
-        Set .Font = LblFD.Font
-        .Color = LblFD.ForeColor
-        If .ShowDialog = vbCancel Then Exit Sub
-        Set LblFD.Font = .Font
-        LblFD.ForeColor = .Color
+'--------------------------------------
+Private Sub mnuHelpInfo_Click()
+    Dim s As String
+    With App
+        s = s & .CompanyName & " " & .ProductName & vbCrLf
+        s = s & .FileDescription & vbCrLf
+        s = s & "Version: " & MApp.Version
     End With
+    MsgBox s
 End Sub
 
 ' v ############################## v ' based on SHBrowseForFolder deprecated ' v ############################## v '
@@ -625,18 +720,4 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         End If
     End With
 
-End Sub
-
-Private Sub mnuHelpInfo_Click()
-    Dim s As String
-    With App
-        s = s & .CompanyName & " " & .ProductName & vbCrLf
-        s = s & .FileDescription & vbCrLf
-        s = s & "Version: " & MApp.Version
-    End With
-    MsgBox s
-End Sub
-
-Private Sub mnuUseOldComDlg_Click()
-    mnuUseOldComDlg.Checked = Not mnuUseOldComDlg.Checked
 End Sub

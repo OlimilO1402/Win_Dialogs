@@ -104,9 +104,9 @@ End Type
 '} PROPSHEETPAGEW_V4, *LPPROPSHEETPAGEW_V4;
 
 Private Type PROPSHEETPAGEW_V4
-    pszHeaderTitle As LongPtr 'LPCWSTR
+    pszHeaderTitle    As LongPtr 'LPCWSTR
     pszHeaderSubTitle As LongPtr '  LPCWSTR
-    hActCtx As LongPtr '  HANDLE
+    hActCtx           As LongPtr '  HANDLE
 '  union {
 '    HBITMAP hbmHeader;
 '    LPCWSTR pszbmHeader;
