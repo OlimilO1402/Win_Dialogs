@@ -3,7 +3,8 @@ Option Explicit
 
 'Extensions to the class VBA.StdFont
 Public Function StdFont_Clone(this As StdFont) As StdFont
-    Set StdFont_Clone = StdFont_Copy(New StdFont, this)
+    Dim DstF As New StdFont: StdFont_Copy DstF, this
+    Set StdFont_Clone = DstF 'StdFont_Copy(New StdFont, this)
 End Function
 
 Public Sub StdFont_Copy(DstFont As StdFont, SrcFont As StdFont)

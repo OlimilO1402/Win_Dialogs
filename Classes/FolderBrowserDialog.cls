@@ -163,12 +163,12 @@ End Enum
 'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/ns-shlobj_core-browseinfow
 Private Type BrowseInfoW
     hwndOwner      As LongPtr
-    pidlRoot       As Long
+    pidlRoot       As LongPtr
     pszDisplayName As LongPtr 'String
     lpszTitle      As LongPtr 'String
     ulFlags        As Long
     lpfn           As LongPtr
-    lParam         As Long
+    lParam         As LongPtr
     iImage         As Long
 End Type
 
@@ -178,13 +178,25 @@ Private mRootFolder   As Long
 Private mSelectedPath As String
 Private mTag          As Variant
 
-Private Declare Function SHBrowseForFolderW Lib "Shell32" (pBrowseInfo As BrowseInfoW) As Long
-Private Declare Function SHGetSpecialFolderLocation Lib "Shell32" (ByVal hwndOwner As LongPtr, ByVal csidl As Long, ByRef pidl_out As Long) As Long      'HRESULT
-Private Declare Function SHGetPathFromIDListW Lib "Shell32" (ByVal pidList As Long, ByVal lpBuffer As LongPtr) As Long
-Private Declare Function SendMessageW Lib "user32" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As Long, ByRef lParam As Any) As Long
-Private Declare Function GetActiveWindow Lib "user32" () As Long
-Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As Any) As Long
-Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+
+#If VBA7 Then
+    Private Declare PtrSafe Function SHBrowseForFolderW Lib "Shell32" (pBrowseInfo As BrowseInfoW) As LongPtr
+    Private Declare PtrSafe Function SHGetSpecialFolderLocation Lib "Shell32" (ByVal hwndOwner As LongPtr, ByVal csidl As Long, ByRef pidl_out As LongPtr) As Long      'HRESULT
+    Private Declare PtrSafe Function SHGetPathFromIDListW Lib "Shell32" (ByVal pidList As LongPtr, ByVal lpBuffer As LongPtr) As Long
+    Private Declare PtrSafe Function SendMessageW Lib "user32" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr) As Long
+    Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
+    Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    Private Declare PtrSafe Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+#Else
+    Private Declare Function SHBrowseForFolderW Lib "Shell32" (pBrowseInfo As BrowseInfoW) As LongPtr
+    Private Declare Function SHGetSpecialFolderLocation Lib "Shell32" (ByVal hwndOwner As LongPtr, ByVal csidl As Long, ByRef pidl_out As LongPtr) As Long      'HRESULT
+    Private Declare Function SHGetPathFromIDListW Lib "Shell32" (ByVal pidList As LongPtr, ByVal lpBuffer As LongPtr) As Long
+    Private Declare Function SendMessageW Lib "user32" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr) As Long
+    Private Declare Function GetActiveWindow Lib "user32" () As LongPtr
+    Private Declare Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
+    'Private Declare Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+    Private Declare Sub CoTaskMemFree Lib "Ole32" (ByVal pv As LongPtr) 'Any)
+#End If
 
 Public Event HelpRequest(ByVal sender As FolderBrowserDialog)
 
@@ -201,10 +213,10 @@ Public Property Let Description(StrVal As String)
     mDescription = StrVal
 End Property
 
-Public Property Get Flags() As BrowseInfoFlags
-    Flags = mFlags
+Public Property Get flags() As BrowseInfoFlags
+    flags = mFlags
 End Property
-Public Property Let Flags(FVal As BrowseInfoFlags)
+Public Property Let flags(FVal As BrowseInfoFlags)
     mFlags = FVal
 End Property
 
@@ -274,7 +286,7 @@ End Function
 
 Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
   
-    Dim hhwndOwner As Long
+    Dim hhwndOwner As LongPtr
     If IsMissing(Frm) Then
         hhwndOwner = GetActiveWindow
     Else
@@ -282,8 +294,8 @@ Public Function ShowDialog(Optional Frm As Variant) As VbMsgBoxResult
     End If
     
 Try: On Error GoTo Catch
-    Dim pRoot As Long
-    Call SHGetSpecialFolderLocation(hhwndOwner, mRootFolder, pRoot)
+    Dim pRoot As LongPtr
+    Call SHGetSpecialFolderLocation(hhwndOwner, mRootFolder, ByVal VarPtr(pRoot))
     If (pRoot = 0&) Then
         If SHGetSpecialFolderLocation(hhwndOwner, 0, pRoot) <> 0 Then
             'Show dll error here
@@ -310,7 +322,7 @@ Try: On Error GoTo Catch
     End With
     
     'Anzeigen des Dialogs und Übergabe an eine IID-Liste
-    Dim IDList As Long:  IDList = SHBrowseForFolderW(BI)
+    Dim IDList As LongPtr:  IDList = SHBrowseForFolderW(BI)
     If IDList <> 0 Then
         Dim Buffer As String: Buffer = String$(1024, vbNullChar)
         Call SHGetPathFromIDListW(IDList, ByVal StrPtr(Buffer))
@@ -332,10 +344,9 @@ Private Function FncPtr(ByVal p As LongPtr) As LongPtr
 End Function
 
 ' Callbackfunction ->>>
-Private Sub ICallBack_CallBack(ByVal hhwnd As LongPtr, ByVal msg As Long, ByVal lParam As Long)
+Private Sub ICallBack_CallBack(ByVal hhwnd As LongPtr, ByVal msg As Long, ByVal lParam As LongPtr)
     Dim rv     As Long
     Dim lflag  As Long
-    Dim Buffer As String
     Select Case msg
     Case BFFM_INITIALIZED
         If (Len(mSelectedPath) > 0) Then
@@ -343,14 +354,14 @@ Private Sub ICallBack_CallBack(ByVal hhwnd As LongPtr, ByVal msg As Long, ByVal 
         End If
     Case BFFM_SELCHANGED
         If (lParam <> 0&) Then
-            Buffer = String$(1024, vbNullChar)
+            Dim Buffer As String: Buffer = String$(1024, vbNullChar)
             lflag = SHGetPathFromIDListW(lParam, ByVal StrPtr(Buffer))
             If lflag = 1 Then
                 SendMessageW hhwnd, BFFM_ENABLEOK, 0, ByVal 1
             ElseIf lflag = 0 Then
                 SendMessageW hhwnd, BFFM_ENABLEOK, 0, ByVal 0
             End If
-            CoTaskMemFree lParam
+            CoTaskMemFree VarPtr(lParam)
         End If
     End Select
 End Sub

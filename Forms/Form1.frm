@@ -1,7 +1,7 @@
 VERSION 5.00
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
-Begin VB.Form Form1 
-   Caption         =   "Form1"
+Begin VB.Form FMain 
+   Caption         =   "WinDialogs"
    ClientHeight    =   6015
    ClientLeft      =   225
    ClientTop       =   870
@@ -255,7 +255,7 @@ Begin VB.Form Form1
       End
    End
 End
-Attribute VB_Name = "Form1"
+Attribute VB_Name = "FMain"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -280,6 +280,7 @@ Private Sub Command5_Click()
 End Sub
 
 Private Sub Form_Load()
+    Me.Caption = Me.Caption & " v" & MApp.Version
     mnuFilePrinter.Visible = False
     PrepareSpecialFolder
 End Sub
@@ -352,9 +353,9 @@ Private Sub mnuEditFolderSelectOFD_Click()
         .CheckPathExists = True
         If .ShowDialog(Me) = vbOK Then
             Dim FNm As String: FNm = .FileName
-            Dim Pos As Long: Pos = InStrRev(FNm, "\")
-            If Pos > 3 Then
-                FNm = Left(FNm, Pos)
+            Dim pos As Long: pos = InStrRev(FNm, "\")
+            If pos > 3 Then
+                FNm = Left(FNm, pos)
                 LblFBD.Caption = FNm
             End If
         End If
@@ -416,9 +417,10 @@ End Sub
 Private Function FileSaveNew() As String
     With New SaveFileDialog
         .Filter = MApp.FileExtFilter
-        If .ShowDialog = vbOK Then
-            FileSaveNew = .FileName
-        End If
+        'Debug.Print .Filter
+        '.ShowHelp = True
+        If .ShowDialog = vbCancel Then Exit Function
+        FileSaveNew = .FileName
     End With
 End Function
 Private Function FileSaveOld() As String
@@ -498,10 +500,10 @@ Catch:
 End Function
 
 Private Sub mnuEditFontChoose_Click()
-    Dim F As StdFont: Set F = LblFD.Font
+    Dim f As StdFont: Set f = LblFD.Font
     Dim C As Long:        C = LblFD.ForeColor
-    If mnuOptionUseOldComDlg.Checked Then Set F = FontDialogOld(F, C) Else Set F = FontDialogNew(F, C)
-    Set LblFD.Font = F
+    If mnuOptionUseOldComDlg.Checked Then Set f = FontDialogOld(f, C) Else Set f = FontDialogNew(f, C)
+    Set LblFD.Font = f
     LblFD.ForeColor = C
 End Sub
 

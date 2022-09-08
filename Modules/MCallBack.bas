@@ -2,7 +2,7 @@ Attribute VB_Name = "MCallBack"
 Option Explicit
 
 'Public Function FolderBrowserDialogCallBack(ByVal hwnd As Long, ByVal msg As Long, ByVal lParam As Long, ByVal lpData As Object) As Long
-Public Function FolderBrowserDialogCallBack(ByVal hwnd As LongPtr, ByVal msg As Long, ByVal lParam As Long, ByVal lpData As Object) As Long
+Public Function FolderBrowserDialogCallBack(ByVal hwnd As LongPtr, ByVal msg As Long, ByVal lParam As LongPtr, ByVal lpData As Object) As Long
     'If lpData = 0 Then Exit Function 'Is Nothing Then
     'Dim fbd As FolderBrowserDialog: Set fbd = MObjPtr.CObj(lpData)
     'Dim icb As ICallBack: Set icb = fbd

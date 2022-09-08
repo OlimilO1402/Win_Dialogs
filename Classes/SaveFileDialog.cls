@@ -30,7 +30,7 @@ Private Const OFN_SHAREWARN             As Long = 0&
 Private Const OFN_SHARENOWARN           As Long = 1&
 Private Const OFN_SHAREFALLTHROUGH      As Long = 2&
 
-Private Const OFN_EX_NOPLACESBAR        As Long = &H1
+Private Const OFN_EX_NOPLACESBAR        As Long = &H1 'For FlagsEx only
 
 Private Const OFN_READONLY              As Long = &H1&
 Private Const OFN_OVERWRITEPROMPT       As Long = &H2&
@@ -66,6 +66,8 @@ Private Const OFN_USEMONIKERS           As Long = &H1000000
 Private Const OFN_DONTADDTORECENT       As Long = &H2000000
 Private Const OFN_FORCESHOWHIDDEN       As Long = &H10000000
 
+Private Const OPTION_ADDEXTENSION       As Long = &H80000000 '-2147483648
+
 'Private Const WS_CHILD   As Long = &H40000000
 'Private Const WS_VISIBLE As Long = &H10000000
 'Public Enum DialogResult 'auch in OpenFileDialog hier aktivieren wenn nur SaveFileDialog gebraucht wird
@@ -89,28 +91,33 @@ Private Const OFN_FORCESHOWHIDDEN       As Long = &H10000000
         [_]
     End Enum
 #End If
-Private Type OPENFILENAMEW                 ' x86    ' x64
-    lStructSize       As Long              '   4    '   4 + 4Padb
-    hwndOwner         As LongPtr ' Long    '   4    '   8
-    hInstance         As LongPtr ' Long    '   4    '   8
-    lpstrFilter       As LongPtr ' String  '   4    '   8
-    lpstrCustomFilter As LongPtr ' String  '   4    '   8
-    nMaxCustFilter    As Long              '   4    '   4
-    nFilterIndex      As Long              '   4    '   4
-    lpstrFile         As LongPtr ' String  '   4    '   8
-    nMaxFile          As Long              '   4    '   4 + 4Padb
-    lpstrFileTitle    As LongPtr ' String  '   4    '   8
-    nMaxFileTitle     As Long              '   4    '   4 + 4Padb
-    lpstrInitialDir   As LongPtr ' String  '   4    '   8
-    lpstrTitle        As LongPtr ' String  '   4    '   8
-    flags             As Long              '   4    '   4
-    nFileOffset       As Integer           '   2    '   2
-    nFileExtension    As Integer           '   2    '   2
-    lpstrDefExt       As LongPtr ' String  '   4    '   8
-    lCustData         As LongPtr ' Long    '   4    '   8
-    lpfnHook          As LongPtr ' Long    '   4    '   8
-    lpTemplateName    As LongPtr ' String  '   4    '   8
-End Type                               ' Sum: 76    ' 136
+Private Type OPENFILENAMEW                    ' x86    ' x64
+    lStructSize       As Long                 '   4    '   4 + 4Padb
+    hwndOwner         As LongPtr ' Long       '   4    '   8
+    hInstance         As LongPtr ' Long       '   4    '   8
+    lpstrFilter       As LongPtr ' String     '   4    '   8
+    lpstrCustomFilter As LongPtr ' String     '   4    '   8
+    nMaxCustFilter    As Long                 '   4    '   4
+    nFilterIndex      As Long                 '   4    '   4
+    lpstrFile         As LongPtr ' String     '   4    '   8
+    nMaxFile          As Long                 '   4    '   4 + 4Padb
+    lpstrFileTitle    As LongPtr ' String     '   4    '   8
+    nMaxFileTitle     As Long                 '   4    '   4 + 4Padb
+    lpstrInitialDir   As LongPtr ' String     '   4    '   8
+    lpstrTitle        As LongPtr ' String     '   4    '   8
+    Flags             As Long                 '   4    '   4
+    nFileOffset       As Integer              '   2    '   2
+    nFileExtension    As Integer              '   2    '   2
+    lpstrDefExt       As LongPtr ' String     '   4    '   8
+    lCustData         As LongPtr ' Long       '   4    '   8
+    lpfnHook          As LongPtr ' Long       '   4    '   8
+    lpTemplateName    As LongPtr ' String     '   4    '   8
+    'lpEditInfo        As LongPtr ' LPEDITMENU '   4    '   8
+    'lpstrPrompt       As LongPtr ' LPCSTR     '   4    '   8
+    'pvReserved        As LongPtr ' void       '   4    '   8
+    'dwReserved        As Long    ' DWORD      '   4    '   4
+    'FlagsEx           As Long    ' DWORD      '   4    '   4
+End Type                                  ' Sum: 96    ' 168
 
 #If VBA7 Then
     Private Declare PtrSafe Function GetSaveFileNameW Lib "comdlg32" (ByRef pOpenfilename As OPENFILENAMEW) As Long
@@ -119,7 +126,7 @@ End Type                               ' Sum: 76    ' 136
     'Private Declare Function GetOpenFileNamePreview Lib "msvfw32" (ByRef lpofn As OPENFILENAME) As Long
     'Private Declare PtrSafe Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As LongPtr, ByVal lpWindowName As LongPtr, ByVal dwStyle As Long, ByVal X As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As LongPtr, ByVal hMenu As LongPtr, ByVal hInstance As LongPtr, ByRef lpParam As Any) As Long
     'Private Declare PtrSafe Function DestroyWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
-    'Private Declare PtrSafe Function GetWindowRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
+    'Private Declare PtrSafe Function GetWindowRect Lib "use r32" (ByVal hwnd As Long, ByRef lpRect As WinRect) As Long
     Private Declare PtrSafe Function GetModuleHandleW Lib "kernel32" (ByVal lpModuleName As LongPtr) As Long
 #Else
     Private Declare Function GetSaveFileNameW Lib "comdlg32" (ByRef pOpenfilename As OPENFILENAMEW) As Long
@@ -156,6 +163,7 @@ Private mValidateNames    As Boolean
 Attribute mValidateNames.VB_VarHelpID = -1
 Private mFlags            As Long
 Private mTag              As Variant
+Private mExts()           As String
 
 'Public Event FileOk(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs)
 'Public Event FileOk(ByVal sender As Object, ByVal e As System.CancelEventArgs)
@@ -172,6 +180,7 @@ Public Sub Reset()
     mFlags = mFlags Or OFN_FILEMUSTEXIST
     mFlags = mFlags Or OFN_HIDEREADONLY
     mFlags = mFlags Or OFN_PATHMUSTEXIST
+    'mFlags = mFlags Or OPTION_ADDEXTENSION
     
     mAddExtension = True
     FileNames_Clear
@@ -214,13 +223,14 @@ Private Sub InitFlags() 'in Modul ModCommonDialogs.bas
     'mFlags = mFlags Or OFN_SHAREWARN
     'mFlags = mFlags Or OFN_SHOWHELP
     'mFlags = mFlags Or OFN_USEMONIKERS
+    'mFlags = mFlags Or OPTION_ADDEXTENSION
 End Sub
 
-Friend Property Get flags() As Long
-    flags = mFlags
+Friend Property Get Flags() As Long
+    Flags = mFlags
 End Property
-Friend Property Let flags(ByVal value As Long)
-    mFlags = value
+Friend Property Let Flags(ByVal Value As Long)
+    mFlags = Value
 End Property
 
 'Protected Overrides Function HookProc(ByVal hWnd As System.IntPtr, ByVal msg As Integer, ByVal wparam As System.IntPtr, ByVal lparam As System.IntPtr) As System.IntPtr
@@ -239,25 +249,25 @@ End Property
 Public Property Get AddExtension() As Boolean
     AddExtension = mAddExtension
 End Property
-Public Property Let AddExtension(ByVal value As Boolean)
-    mAddExtension = value
+Public Property Let AddExtension(ByVal Value As Boolean)
+    mAddExtension = Value
 End Property
 
 'Public Overridable Property CheckFileExists() As Boolean
 Public Property Get CheckFileExists() As Boolean               'OFN_FILEMUSTEXIST
     CheckFileExists = mFlags And OFN_FILEMUSTEXIST
 End Property
-Public Property Let CheckFileExists(ByVal value As Boolean)    'OFN_FILEMUSTEXIST
+Public Property Let CheckFileExists(ByVal Value As Boolean)    'OFN_FILEMUSTEXIST
     mFlags = mFlags Or OFN_FILEMUSTEXIST
-    If Not value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
+    If Not Value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
 End Property
 
 Public Property Get CheckPathExists() As Boolean               'OFN_PATHMUSTEXIST
     CheckPathExists = mFlags And OFN_PATHMUSTEXIST
 End Property
-Public Property Let CheckPathExists(ByVal value As Boolean)    'OFN_PATHMUSTEXIST
+Public Property Let CheckPathExists(ByVal Value As Boolean)    'OFN_PATHMUSTEXIST
     mFlags = mFlags Or OFN_PATHMUSTEXIST
-    If Not value Then mFlags = mFlags Xor OFN_PATHMUSTEXIST
+    If Not Value Then mFlags = mFlags Xor OFN_PATHMUSTEXIST
 End Property
 
 'Public Property DefaultExt() As String
@@ -272,9 +282,9 @@ End Property
 Public Property Get DereferenceLinks() As Boolean              'OFN_NODEREFERENCELINKS
     DereferenceLinks = mFlags And OFN_NODEREFERENCELINKS
 End Property
-Public Property Let DereferenceLinks(ByVal value As Boolean)   'OFN_NODEREFERENCELINKS
+Public Property Let DereferenceLinks(ByVal Value As Boolean)   'OFN_NODEREFERENCELINKS
     mFlags = mFlags Or OFN_NODEREFERENCELINKS
-    If value Then mFlags = mFlags Xor OFN_NODEREFERENCELINKS
+    If Value Then mFlags = mFlags Xor OFN_NODEREFERENCELINKS
 End Property
 'Private Sub mDereferenceLinks_OnLet(ByVal sender As Object)
 '    Dim Value As Boolean: b = sender '???
@@ -287,8 +297,8 @@ End Property
 Public Property Get FileName() As String
     FileName = mFileName
 End Property
-Public Property Let FileName(ByVal value As String)
-    mFileName = value
+Public Property Let FileName(ByVal Value As String)
+    mFileName = Value
 End Property
 
 'Public ReadOnly Property FileNames() As String()
@@ -311,16 +321,16 @@ Private Sub FileNames_Parse(FNs As String)
     Call TrimVBNullchar(FNs)
     If InStr(FNs, vbNullChar) <> 0 Then
         aa = FNs & vbNullChar
-        Dim Pos As Long: Pos = 1
+        Dim pos As Long: pos = 1
         
         Do
             'Chr$(0) ist Trennzeichen
-            X = InStr(Pos, aa, vbNullChar)
+            X = InStr(pos, aa, vbNullChar)
             'zwei vbnullchar hintereinander, dann aufhören
             If X = xOld + 1 Then Exit Do
             xOld = X
             If X = 0 Then Exit Do
-            bb = Mid(aa, Pos, X - Pos)
+            bb = Mid(aa, pos, X - pos)
                
             If Not PathFirst Then
                 'Im ersten Teil befindet sich immer der Pfad
@@ -335,16 +345,16 @@ Private Sub FileNames_Parse(FNs As String)
                 End If
                 Call mFileNames.Add(Path & bb)
             End If
-            Pos = X + 1
+            pos = X + 1
         Loop
     Else
         'Es wurde nur eine Datei ausgewählt
         'Call mFileNames.Add(FNs)
-        FN = FNs
+        If mFilterIndex > 0 Then mFilterIndex = mFilterIndex - 1
+        FN = FNs & IIf(AddExtension, "." & mExts(mFilterIndex), "")
         mFileName = FN
     End If
 End Sub
-
 
 Private Sub TrimVBNullchar(ByRef Value_out As String) 'As String
     Dim sSep As String: sSep = vbNullChar + vbNullChar
@@ -367,9 +377,18 @@ Public Property Get Filter() As String
 '    Next
 '    Filter = StrFlt
 End Property
-Public Property Let Filter(ByVal value As String)
+Public Property Let Filter(ByVal Value As String)
     'Debug.Print Value
-    mFilter = Replace(value, "|", vbNullChar)
+    mFilter = Replace(Value, "|", vbNullChar)
+    Dim sa() As String: sa = Split(mFilter, vbNullChar)
+    Dim s As String, i As Long, u As Long: u = UBound(sa) / 2
+    ReDim mExts(0 To u)
+    For i = 0 To u
+        s = sa(i * 2 + 1)
+        s = Replace(s, "*", "")
+        s = Replace(s, ".", "")
+        mExts(i) = s
+    Next
     'Debug.Print mFilter
 'Dim i As Integer
 'Dim StrFlt As String
@@ -386,16 +405,16 @@ End Property
 Public Property Get FilterIndex() As Long
     FilterIndex = mFilterIndex
 End Property
-Public Property Let FilterIndex(ByVal value As Long)
-    mFilterIndex = value
+Public Property Let FilterIndex(ByVal Value As Long)
+    mFilterIndex = Value
 End Property
 
 'Ruft das Ausgangsverzeichnis ab, oder legt dieses fest
 Public Property Get InitialDirectory() As String       'lpstrInitialDir
     InitialDirectory = mInitialDirectory
 End Property
-Public Property Let InitialDirectory(ByVal value As String) 'lpstrInitialDir
-    mInitialDirectory = value
+Public Property Let InitialDirectory(ByVal Value As String) 'lpstrInitialDir
+    mInitialDirectory = Value
 End Property
 
 'MultiSelect hat nur der Opendialog nicht im Savedialog möglich
@@ -420,17 +439,17 @@ End Property
 Public Property Get RestoreDirectory() As Boolean            'OFN_NOCHANGEDIR
     RestoreDirectory = mFlags And OFN_NOCHANGEDIR
 End Property
-Public Property Let RestoreDirectory(ByVal value As Boolean) 'OFN_NOCHANGEDIR
+Public Property Let RestoreDirectory(ByVal Value As Boolean) 'OFN_NOCHANGEDIR
     mFlags = mFlags Or OFN_NOCHANGEDIR
-    If Not value Then mFlags = mFlags Xor OFN_NOCHANGEDIR
+    If Not Value Then mFlags = mFlags Xor OFN_NOCHANGEDIR
 End Property
 
 Public Property Get ShowHelp() As Boolean                    'OFN_SHOWHELP
     ShowHelp = mFlags And OFN_SHOWHELP
 End Property
-Public Property Let ShowHelp(ByVal value As Boolean)         'OFN_SHOWHELP
+Public Property Let ShowHelp(ByVal Value As Boolean)         'OFN_SHOWHELP
     mFlags = mFlags Or OFN_SHOWHELP
-    If Not value Then mFlags = mFlags Xor OFN_SHOWHELP
+    If Not Value Then mFlags = mFlags Xor OFN_SHOWHELP
 End Property
 
 'ShowReadOnly hat nur der Opendialog nicht im Savedialog möglich
@@ -447,8 +466,8 @@ End Property
 Public Property Get Tag() As Variant
     Tag = mTag
 End Property
-Public Property Let Tag(value As Variant)
-    mTag = value
+Public Property Let Tag(Value As Variant)
+    mTag = Value
 End Property
 
 Public Function ToString() As String
@@ -466,9 +485,9 @@ End Property
 Public Property Get ValidateNames() As Boolean            'OFN_NOVALIDATE
     ValidateNames = mFlags And OFN_NOVALIDATE
 End Property
-Public Property Let ValidateNames(ByVal value As Boolean) 'OFN_NOVALIDATE
+Public Property Let ValidateNames(ByVal Value As Boolean) 'OFN_NOVALIDATE
     mFlags = mFlags Or OFN_NOVALIDATE
-    If value Then mFlags = mFlags Xor OFN_NOVALIDATE
+    If Value Then mFlags = mFlags Xor OFN_NOVALIDATE
 End Property
 
 Private Function GethWnd(Frm As Variant) As LongPtr
@@ -502,20 +521,20 @@ Try: On Error GoTo Catch
     Dim aFilter As String: aFilter = mFilter & vbNullChar & vbNullChar
     Dim OFN As OPENFILENAMEW
     With OFN
-        .lStructSize = LenB(OFN)
+        .lStructSize = LenB(OFN) '76
         .hwndOwner = aOwnerhWnd
         .hInstance = aOwnerhInst
         .lpstrFilter = StrPtr(aFilter)
         '.lpstrCustomFilter = mDefaultExt
         '.nMaxCustFilter
-        .nFilterIndex = CLng(FilterIndex)
+        .nFilterIndex = mFilterIndex
         .lpstrFile = StrPtr(Buffer)
         .nMaxFile = Len(Buffer) '32767
         '.lpstrFileTitle
         '.nMaxFileTitle
         .lpstrInitialDir = StrPtr(mInitialDirectory)
         .lpstrTitle = StrPtr(Title)
-        .flags = mFlags
+        .Flags = mFlags
         'nFileOffset
         'nFileExtension = 1
         If mAddExtension Then
@@ -530,6 +549,8 @@ Try: On Error GoTo Catch
     End With
     Dim hr As Long: hr = GetSaveFileNameW(OFN) '<<<<<<------ here Get_*_SAVE_*_FileNameW
     'hr = GetSaveFileNamePreview(OFN)
+    'Debug.Print OFN.nFilterIndex
+    mFilterIndex = OFN.nFilterIndex
     If hr Then
         'man muß am String erkennen, ob nur eine oder mehrere Dateien ausgewählt wurden
         FileNames_Parse Buffer 'OFN.lpstrFile)
