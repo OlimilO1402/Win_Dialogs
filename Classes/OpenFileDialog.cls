@@ -99,7 +99,7 @@ Private Type OPENFILENAMEW                 ' x86    ' x64
     nMaxFileTitle     As Long              '   4    '   4 + 4Padb
     lpstrInitialDir   As LongPtr ' String  '   4    '   8
     lpstrTitle        As LongPtr ' String  '   4    '   8
-    flags             As Long              '   4    '   4
+    Flags             As Long              '   4    '   4
     nFileOffset       As Integer           '   2    '   2
     nFileExtension    As Integer           '   2    '   2
     lpstrDefExt       As LongPtr ' String  '   4    '   8
@@ -214,11 +214,11 @@ Private Sub InitFlags() 'in Modul ModCommonDialogs.bas
     'mFlags = mFlags Or OFN_USEMONIKERS
 End Sub
 
-Friend Property Get flags() As Long
-    flags = mFlags
+Friend Property Get Flags() As Long
+    Flags = mFlags
 End Property
-Friend Property Let flags(ByVal value As Long)
-    mFlags = value
+Friend Property Let Flags(ByVal Value As Long)
+    mFlags = Value
 End Property
 
 'Protected Overrides Function HookProc(ByVal hWnd As System.IntPtr, ByVal msg As Integer, ByVal wparam As System.IntPtr, ByVal lparam As System.IntPtr) As System.IntPtr
@@ -237,25 +237,25 @@ End Property
 Public Property Get AddExtension() As Boolean
     AddExtension = mAddExtension
 End Property
-Public Property Let AddExtension(ByVal value As Boolean)
-    mAddExtension = value
+Public Property Let AddExtension(ByVal Value As Boolean)
+    mAddExtension = Value
 End Property
 
 'Public Overrides Property CheckFileExists() As Boolean
 Public Property Get CheckFileExists() As Boolean              'OFN_FILEMUSTEXIST
     CheckFileExists = mFlags And OFN_FILEMUSTEXIST
 End Property
-Public Property Let CheckFileExists(ByVal value As Boolean)   'OFN_FILEMUSTEXIST
+Public Property Let CheckFileExists(ByVal Value As Boolean)   'OFN_FILEMUSTEXIST
     mFlags = mFlags Or OFN_FILEMUSTEXIST
-    If Not value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
+    If Not Value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
 End Property
 
 Public Property Get CheckPathExists() As Boolean              'OFN_PATHMUSTEXIST
     CheckPathExists = mFlags And OFN_PATHMUSTEXIST
 End Property
-Public Property Let CheckPathExists(ByVal value As Boolean)   'OFN_PATHMUSTEXIST
+Public Property Let CheckPathExists(ByVal Value As Boolean)   'OFN_PATHMUSTEXIST
     mFlags = mFlags Or OFN_PATHMUSTEXIST
-    If Not value Then mFlags = mFlags Xor OFN_PATHMUSTEXIST
+    If Not Value Then mFlags = mFlags Xor OFN_PATHMUSTEXIST
 End Property
 
 'Public Property DefaultExt() As String
@@ -270,9 +270,9 @@ End Property
 Public Property Get DereferenceLinks() As Boolean             'OFN_NODEREFERENCELINKS
     DereferenceLinks = mFlags And OFN_NODEREFERENCELINKS
 End Property
-Public Property Let DereferenceLinks(ByVal value As Boolean)  'OFN_NODEREFERENCELINKS
+Public Property Let DereferenceLinks(ByVal Value As Boolean)  'OFN_NODEREFERENCELINKS
     mFlags = mFlags Or OFN_NODEREFERENCELINKS
-    If value Then mFlags = mFlags Xor OFN_NODEREFERENCELINKS
+    If Value Then mFlags = mFlags Xor OFN_NODEREFERENCELINKS
 End Property
 'Private Sub mDereferenceLinks_OnLet(ByVal sender As Object)
 '    Dim Value As Boolean: b = sender '???
@@ -285,8 +285,8 @@ End Property
 Public Property Get FileName() As String
     FileName = mFileName
 End Property
-Public Property Let FileName(ByVal value As String)
-    mFileName = value
+Public Property Let FileName(ByVal Value As String)
+    mFileName = Value
 End Property
 
 'Public ReadOnly Property FileNames() As String()
@@ -299,7 +299,7 @@ Private Sub FileNames_Parse(FNs As String)
 Dim aa As String, bb As String, Path As String
 Dim PathFirst As Boolean
 Dim FirstFile As Boolean
-Dim Pos As Long, X As Long, xOld As Long
+Dim pos As Long, X As Long, xOld As Long
 Dim FN As String
   PathFirst = False
   FirstFile = True
@@ -309,17 +309,17 @@ Dim FN As String
   Call TrimVBNullchar(FNs)
   If InStr(FNs, vbNullChar) <> 0 Then
     aa = FNs & vbNullChar
-    Pos = 1
+    pos = 1
     
     Do
       'Chr$(0) ist Trennzeichen
-      X = InStr(Pos, aa, vbNullChar)
+      X = InStr(pos, aa, vbNullChar)
       If X = xOld + 1 Then 'zwei vbnullchar hintereinander, dann aufhören
         Exit Do
       End If
       xOld = X
       If X = 0 Then Exit Do
-      bb = Mid(aa, Pos, X - Pos)
+      bb = Mid(aa, pos, X - pos)
          
       If Not PathFirst Then
         'Im ersten Teil befindet sich immer der Pfad
@@ -334,7 +334,7 @@ Dim FN As String
         End If
         Call mFileNames.Add(Path & bb)
       End If
-      Pos = X + 1
+      pos = X + 1
     Loop
   Else
     'Es wurde nur eine Datei ausgewählt
@@ -364,9 +364,9 @@ Public Property Get Filter() As String
 '    Next
 '    Filter = StrFlt
 End Property
-Public Property Let Filter(ByVal value As String)
+Public Property Let Filter(ByVal Value As String)
     'Debug.Print Value
-    mFilter = Replace(value, "|", vbNullChar) '& vbNullChar & vbNullChar
+    mFilter = Replace(Value, "|", vbNullChar) '& vbNullChar & vbNullChar
     'Debug.Print mFilter
 'Dim i As Integer
 'Dim StrFlt As String
@@ -383,8 +383,8 @@ End Property
 Public Property Get FilterIndex() As Long
     FilterIndex = mFilterIndex
 End Property
-Public Property Let FilterIndex(ByVal value As Long)
-    mFilterIndex = value
+Public Property Let FilterIndex(ByVal Value As Long)
+    mFilterIndex = Value
 End Property
 
 'Ruft das Ausgangsverzeichnis ab, oder legt dieses fest
@@ -400,16 +400,16 @@ End Property
 Public Property Get MultiSelect() As Boolean                 'OFN_ALLOWMULTISELECT
     MultiSelect = mFlags And OFN_ALLOWMULTISELECT
 End Property
-Public Property Let MultiSelect(ByVal value As Boolean)      'OFN_ALLOWMULTISELECT
+Public Property Let MultiSelect(ByVal Value As Boolean)      'OFN_ALLOWMULTISELECT
     mFlags = mFlags Or OFN_ALLOWMULTISELECT
-    If Not value Then mFlags = mFlags Xor OFN_ALLOWMULTISELECT
+    If Not Value Then mFlags = mFlags Xor OFN_ALLOWMULTISELECT
 End Property
 Public Property Get ReadOnlyChecked() As Boolean             'OFN_READONLY
     ReadOnlyChecked = mFlags And OFN_READONLY
 End Property
-Public Property Let ReadOnlyChecked(ByVal value As Boolean)  'OFN_READONLY
+Public Property Let ReadOnlyChecked(ByVal Value As Boolean)  'OFN_READONLY
     mFlags = mFlags Or OFN_READONLY
-    If Not value Then mFlags = mFlags Xor OFN_READONLY
+    If Not Value Then mFlags = mFlags Xor OFN_READONLY
 End Property
 
 'ruft einen Wert ab, oder legt diesen fest, der angibt,
@@ -417,26 +417,26 @@ End Property
 Public Property Get RestoreDirectory() As Boolean            'OFN_NOCHANGEDIR
     RestoreDirectory = mFlags And OFN_NOCHANGEDIR
 End Property
-Public Property Let RestoreDirectory(ByVal value As Boolean) 'OFN_NOCHANGEDIR
+Public Property Let RestoreDirectory(ByVal Value As Boolean) 'OFN_NOCHANGEDIR
     mFlags = mFlags Or OFN_NOCHANGEDIR
-    If Not value Then mFlags = mFlags Xor OFN_NOCHANGEDIR
+    If Not Value Then mFlags = mFlags Xor OFN_NOCHANGEDIR
 End Property
 
 Public Property Get ShowHelp() As Boolean                    'OFN_SHOWHELP
     ShowHelp = mFlags And OFN_SHOWHELP
 End Property
-Public Property Let ShowHelp(ByVal value As Boolean)         'OFN_SHOWHELP
+Public Property Let ShowHelp(ByVal Value As Boolean)         'OFN_SHOWHELP
     mFlags = mFlags Or OFN_SHOWHELP
-    If Not value Then mFlags = mFlags Xor OFN_SHOWHELP
+    If Not Value Then mFlags = mFlags Xor OFN_SHOWHELP
 End Property
 
 'ShowReadOnly hat nur der Opendialog nicht im Savedialog möglich
 Public Property Get ShowReadOnly() As Boolean       'OFN_HIDEREADONLY
     ShowReadOnly = mFlags And OFN_HIDEREADONLY
 End Property
-Public Property Let ShowReadOnly(ByVal value As Boolean) 'OFN_HIDEREADONLY
+Public Property Let ShowReadOnly(ByVal Value As Boolean) 'OFN_HIDEREADONLY
     mFlags = mFlags Or OFN_HIDEREADONLY
-    If value Then mFlags = mFlags Xor OFN_HIDEREADONLY
+    If Value Then mFlags = mFlags Xor OFN_HIDEREADONLY
 End Property
 
 'wie hinlänglich bekannt, füg einfach irgendwas hinzu
@@ -444,12 +444,12 @@ End Property
 Public Property Get Tag() As Variant
     Tag = mTag
 End Property
-Public Property Let Tag(value As Variant)
-    mTag = value
+Public Property Let Tag(Value As Variant)
+    mTag = Value
 End Property
 
 Public Function ToString() As String
-    ToString = "MBO.Windows.Forms.OpenFileDialog: " & "Title: " & mTitle & " , FileName: " & mFileName
+    ToString = "MBO.Windows.Forms." & TypeName(Me) & ": " & "Title: " & mTitle & " , FileName: " & mFileName
 End Function
 
 Public Property Get Title() As String       'lpstrTitle
@@ -463,9 +463,9 @@ End Property
 Public Property Get ValidateNames() As Boolean            'OFN_NOVALIDATE
     ValidateNames = mFlags And OFN_NOVALIDATE
 End Property
-Public Property Let ValidateNames(ByVal value As Boolean) 'OFN_NOVALIDATE
+Public Property Let ValidateNames(ByVal Value As Boolean) 'OFN_NOVALIDATE
     mFlags = mFlags Or OFN_NOVALIDATE
-    If value Then mFlags = mFlags Xor OFN_NOVALIDATE
+    If Value Then mFlags = mFlags Xor OFN_NOVALIDATE
 End Property
 
 Private Function GethWnd(Frm As Variant) As LongPtr
@@ -512,7 +512,7 @@ Try: On Error GoTo Catch
         'nMaxFileTitle
         .lpstrInitialDir = StrPtr(mInitialDirectory)
         .lpstrTitle = StrPtr(mTitle)
-        .flags = mFlags
+        .Flags = mFlags
         'nFileOffset
         'nFileExtension = 1
         If mAddExtension Then

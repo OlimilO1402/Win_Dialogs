@@ -351,10 +351,28 @@ Private Sub FileNames_Parse(FNs As String)
         'Es wurde nur eine Datei ausgewählt
         'Call mFileNames.Add(FNs)
         If mFilterIndex > 0 Then mFilterIndex = mFilterIndex - 1
-        FN = FNs & IIf(AddExtension, "." & mExts(mFilterIndex), "")
+        Dim ext As String: ext = mExts(mFilterIndex)
+        If mAddExtension Then
+            FN = EnsureExtension(FNs, ext)
+        End If
         mFileName = FN
     End If
 End Sub
+
+Public Function EnsureExtension(ByVal F_in As String, ByVal ext As String)
+    If Left(ext, 1) = "." Then ext = Mid(ext, 2)
+    If Right(F_in, 1) = "." Then F_in = Left(F_in, Len(F_in) - 1)
+    Dim pos As Long: pos = InStrRev(F_in, ".")
+    Dim e As String
+    If pos > 0 Then
+        e = Right(F_in, Len(F_in) - pos)
+        If LCase(e) = LCase(ext) Then
+            EnsureExtension = F_in
+            Exit Function
+        End If
+    End If
+    EnsureExtension = F_in & "." & ext
+End Function
 
 Private Sub TrimVBNullchar(ByRef Value_out As String) 'As String
     Dim sSep As String: sSep = vbNullChar + vbNullChar
