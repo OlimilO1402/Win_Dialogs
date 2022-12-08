@@ -104,7 +104,7 @@ Private Type OPENFILENAMEW                 ' x86    ' x64
     nFileExtension    As Integer           '   2    '   2
     lpstrDefExt       As LongPtr ' String  '   4    '   8
     lCustData         As LongPtr ' Long    '   4    '   8
-    lpfnHook          As LongPtr ' Long    '   4    '   8
+    lPFNHook          As LongPtr ' Long    '   4    '   8
     lpTemplateName    As LongPtr ' String  '   4    '   8
 End Type                               ' Sum: 76    ' 136
 
@@ -522,7 +522,7 @@ Try: On Error GoTo Catch
             .lpstrDefExt = StrPtr(mDefaultExt)
         End If
         '.lCustData
-        '.lpfnHook
+        '.lPFNHook
         '.lpTemplateName
     End With
     Dim hr As Long: hr = GetOpenFileNameW(OFN) '<<<<<<------ here Get_*_OPEN_*_FileNameW
