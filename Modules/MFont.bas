@@ -2,6 +2,33 @@ Attribute VB_Name = "MFont"
 Option Explicit
 
 'Extensions to the class VBA.StdFont
+Function New_StdFont(s As String) As StdFont
+    Set New_StdFont = New StdFont
+    Dim sLines() As String: sLines = Split(s, "{")
+    If LCase(Strings.Trim(sLines(0))) <> "stdfont" Then Exit Function
+    sLines = Split(sLines(1), vbCrLf)
+    Dim i As Long, sElems() As String, sKey As String, sVal As String
+    For i = LBound(sLines) + 1 To UBound(sLines) - 1
+        sElems() = Split(sLines(i), "=")
+        sKey = LCase(Trim(sElems(0)))
+        If UBound(sElems) > 0 Then
+            sVal = Trim(sElems(1))
+            With New_StdFont
+                Select Case sKey
+                Case "name":                   .Name = sVal
+                Case "bold":                   .Bold = Boolean_Parse(sVal)
+                Case "charset":             .Charset = CInt(sVal)
+                Case "italic":               .Italic = Boolean_Parse(sVal)
+                Case "size":                   .Size = CCur(sVal)
+                Case "strikethrough": .Strikethrough = Boolean_Parse(sVal)
+                Case "underline":         .Underline = Boolean_Parse(sVal)
+                Case "weight":               .Weight = CInt(sVal)
+                End Select
+            End With
+        End If
+    Next
+End Function
+
 Public Function StdFont_Clone(this As StdFont) As StdFont
     Dim DstF As New StdFont: StdFont_Copy DstF, this
     Set StdFont_Clone = DstF 'StdFont_Copy(New StdFont, this)
@@ -49,3 +76,20 @@ Public Function StdFont_ToStr(this As StdFont) As String
     End With
     StdFont_ToStr = s & "}"
 End Function
+
+Function Boolean_Parse(ByVal sVal As String) As Boolean
+    Dim b As Boolean
+    sVal = LCase(sVal)
+    Select Case True
+    Case sVal = "falsch": b = False
+    Case sVal = "false":  b = False
+    Case sVal = "nein":   b = False
+    Case sVal = "no":     b = False
+    Case sVal = "wahr":   b = True
+    Case sVal = "true":   b = True
+    Case sVal = "yes":    b = True
+    Case sVal = "ja":     b = True
+    End Select
+    Boolean_Parse = b
+End Function
+
