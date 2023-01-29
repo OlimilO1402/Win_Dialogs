@@ -1,0 +1,13 @@
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\bin\Debug\VBN_IFileDialog.exe.config
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\bin\Debug\VBN_IFileDialog.exe
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\bin\Debug\VBN_IFileDialog.pdb
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\bin\Debug\VBN_IFileDialog.xml
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.vbproj.AssemblyReference.cache
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.vbproj.SuggestedBindingRedirects.cache
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.Form1.resources
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.Resources.resources
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.vbproj.GenerateResource.cache
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.vbproj.CoreCompileInputs.cache
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.exe
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.xml
+\\SOLS_DS\Daten\GitHubRepos\VB\Win_Dialogs\archiv\VBN_IFileDialog\VBN_IFileDialog\obj\Debug\VBN_IFileDialog.pdb
