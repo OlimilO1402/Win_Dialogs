@@ -281,7 +281,7 @@ End Sub
 
 Private Sub Form_Load()
     Me.Caption = Me.Caption & " v" & MApp.Version
-    mnuFilePrinter.Visible = False
+    'mnuFilePrinter.Visible = False
     PrepareSpecialFolder
 End Sub
 

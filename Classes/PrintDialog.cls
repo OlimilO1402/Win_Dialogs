@@ -114,16 +114,8 @@ Private Type PROPSHEETPAGEW_V4
 End Type
 Private Declare Function PrintDlgW Lib "comdlg32" (ByRef pPrintdlg As PRINTDLG) As Long
 Private Declare Function PRINTDLGEXW Lib "comdlg32" Alias "PrintDlgExW" (ByRef TLPPRINTDLGEXW As PRINTDLGEXW) As Long
-Private Declare Function PrinterMessageBoxW Lib "winspool.drv" ( _
-    ByVal hPrinter As Long, _
-    ByVal error As Long, _
-    ByVal hwnd As Long, _
-    ByVal pText As String, _
-    ByVal pCaption As String, _
-    ByVal dwType As Long) As Long
-Private Declare Function PrinterProperties Lib "winspool.drv" ( _
-    ByVal hwnd As Long, _
-    ByVal hPrinter As Long) As Long
+Private Declare Function PrinterMessageBoxW Lib "winspool.drv" (ByVal hPrinter As Long, ByVal error As Long, ByVal hwnd As Long, ByVal pText As String, ByVal pCaption As String, ByVal dwType As Long) As Long
+Private Declare Function PrinterProperties Lib "winspool.drv" (ByVal hwnd As Long, ByVal hPrinter As Long) As Long
 
 
 'Properties of Windows.Forms.PrintDialog
