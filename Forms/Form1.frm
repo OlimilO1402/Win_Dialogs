@@ -449,11 +449,11 @@ End Sub
 
 Private Function FilePrinterNew() As String
     Dim pp As New PrintDialog
-    If pp.ShowDialog = vbCancel Then
+    If pp.ShowDialog(Me) = vbCancel Then
         MsgBox "Cancel"
         FilePrinterNew = pp.PrinterSettings_PrinterName ' Printer.DeviceName
     End If
-    'FilePrinterNew = Printer.DeviceName
+    FilePrinterNew = pp.PrinterSettings_PrinterName
 End Function
 Private Function FilePrinterOld() As String
 Try: On Error GoTo Catch
@@ -579,7 +579,6 @@ End Sub
 Private Sub mnuOptionUseOldComDlg_Click()
     mnuOptionUseOldComDlg.Checked = Not mnuOptionUseOldComDlg.Checked
     Dim bUseOldComDlg As Boolean: bUseOldComDlg = mnuOptionUseOldComDlg.Checked
-    mnuFilePrinter.Visible = bUseOldComDlg
 End Sub
 '--------------------------------------
 Private Sub mnuHelpInfo_Click()
