@@ -448,12 +448,10 @@ Private Sub mnuFilePrinter_Click()
 End Sub
 
 Private Function FilePrinterNew() As String
-    Dim pp As New PrintDialog
-    If pp.ShowDialog(Me) = vbCancel Then
-        MsgBox "Cancel"
-        FilePrinterNew = pp.PrinterSettings_PrinterName ' Printer.DeviceName
-    End If
-    FilePrinterNew = pp.PrinterSettings_PrinterName
+    Dim PDlg As New PrintDialog
+    PDlg.ShowHelp = True
+    If PDlg.ShowDialog(Me) = vbCancel Then Exit Function
+    FilePrinterNew = PDlg.PrinterSettings_PrinterName
 End Function
 Private Function FilePrinterOld() As String
 Try: On Error GoTo Catch

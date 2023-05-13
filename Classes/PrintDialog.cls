@@ -269,6 +269,47 @@ Private Const GPTR                 As Long = &H42 ' kombiniert GMEM_FIXED und GE
 
 'Oh wowo if you deal with PrintDialog you come across a whole new universe of printer settings and print settings, paper size and so many more other stuff
 
+
+#If VBA7 Then
+    Private Declare PtrSafe Function GlobalAlloc Lib "kernel32" (ByVal wFlags As Long, ByVal dwBytes As Long) As LongPtr
+    Private Declare PtrSafe Function GlobalFree Lib "kernel32" (ByVal hMem As LongPtr) As Long
+    Private Declare PtrSafe Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+    Private Declare PtrSafe Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
+    
+    Private Declare PtrSafe Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
+    Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal BytLen As Long)
+    
+    #If IsUnicode Then
+        Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (pPrintDlg As TPrintDialog) As Long
+    #Else
+        Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (pPrintDlg As TPrintDialog) As Long
+    #End If
+    'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
+    Private Declare PtrSafe Function PrintDlgExW Lib "comdlg32" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
+    Private Declare PtrSafe Function PrinterMessageBoxW Lib "winspool" (ByVal hPrinter As LongPtr, ByVal error As Long, ByVal hwnd As LongPtr, ByVal pText As LongPtr, ByVal pCaption As LongPtr, ByVal dwType As Long) As Long
+    Private Declare PtrSafe Function PrinterProperties Lib "winspool" (ByVal hwnd As LongPtr, ByVal hPrinter As LongPtr) As Long
+    Private Declare Ptrsafe Function GetDesktopWindow Lib "user32" () As LongPtr
+#Else
+    Private Declare Function GlobalAlloc Lib "kernel32" (ByVal wFlags As Long, ByVal dwBytes As Long) As LongPtr
+    Private Declare Function GlobalFree Lib "kernel32" (ByVal hMem As LongPtr) As Long
+    Private Declare Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+    Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
+    
+    Private Declare Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
+    Private Declare Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal BytLen As Long)
+    
+    #If IsUnicode Then
+        Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (pPrintDlg As TPrintDialog) As Long
+    #Else
+        Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (pPrintDlg As TPrintDialog) As Long
+    #End If
+    'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
+    Private Declare Function PrintDlgExW Lib "comdlg32" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
+    Private Declare Function PrinterMessageBoxW Lib "winspool" (ByVal hPrinter As LongPtr, ByVal error As Long, ByVal hwnd As LongPtr, ByVal pText As LongPtr, ByVal pCaption As LongPtr, ByVal dwType As Long) As Long
+    Private Declare Function PrinterProperties Lib "winspool" (ByVal hwnd As LongPtr, ByVal hPrinter As LongPtr) As Long
+    Private Declare Function GetDesktopWindow Lib "user32" () As LongPtr
+#End If
+
 'https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646942(v=vs.85)
 'https://docs.microsoft.com/de-de/windows/win32/api/commdlg/ns-commdlg-printdlgexw
 
@@ -432,33 +473,17 @@ Private Type TDeviceMode
     dmPanningHeight  As Long        '  4
 End Type                      ' Sum: 154
 
-Private Declare Function GlobalAlloc Lib "kernel32" (ByVal wFlags As Long, ByVal dwBytes As Long) As LongPtr
-Private Declare Function GlobalFree Lib "kernel32" (ByVal hMem As LongPtr) As Long
-Private Declare Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As Long
-Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
-
-Private Declare Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
-Private Declare Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal BytLen As Long)
-
-#If IsUnicode Then
-    Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (pPrintDlg As TPrintDialog) As Long
-#Else
-    Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (pPrintDlg As TPrintDialog) As Long
-#End If
-'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
-Private Declare Function PrintDlgExW Lib "comdlg32" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
-Private Declare Function PrinterMessageBoxW Lib "winspool" (ByVal hPrinter As LongPtr, ByVal error As Long, ByVal hwnd As LongPtr, ByVal pText As LongPtr, ByVal pCaption As LongPtr, ByVal dwType As Long) As Long
-Private Declare Function PrinterProperties Lib "winspool" (ByVal hwnd As LongPtr, ByVal hPrinter As LongPtr) As Long
-
 Private m_PrintDialog   As TPrintDialog
 Private m_UseEXDialog   As Boolean
 Private m_PrintDialogEx As TPrintDialogEx
 Private m_DeviceMode    As TDeviceMode
 Private m_DeviceNames   As TDeviceNames
+Private m_Flags         As Long
 
 Private Sub Class_Initialize()
     m_PrintDialog.lStructSize = Len(m_PrintDialog)
     m_PrintDialogEx.lStructSize = Len(m_PrintDialogEx)
+    m_Flags = PD_DISABLEPRINTTOFILE Or PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
 End Sub
 
 'Properties of Windows.Forms.PrintDialog
@@ -466,15 +491,29 @@ Public Property Get AllowCurrentPage() As Boolean
     'm_PrintDlg.flags and
 End Property
 Public Property Get AllowPrintToFile() As Boolean
-    AllowPrintToFile = m_PrintDialog.flags And PD_DISABLEPRINTTOFILE = 0
+    AllowPrintToFile = (m_Flags And PD_DISABLEPRINTTOFILE) <> PD_DISABLEPRINTTOFILE
 End Property
 Public Property Let AllowPrintToFile(ByVal Value As Boolean)
-    AllowPrintToFile = m_PrintDialog.flags Or PD_DISABLEPRINTTOFILE
+    m_Flags = m_Flags Or PD_DISABLEPRINTTOFILE
+    If Value Then m_Flags = m_Flags Xor PD_DISABLEPRINTTOFILE
 End Property
 
+'Public Property Get CheckFileExists() As Boolean              'OFN_FILEMUSTEXIST
+'    CheckFileExists = mFlags And OFN_FILEMUSTEXIST
+'End Property
+'Public Property Let CheckFileExists(ByVal Value As Boolean)   'OFN_FILEMUSTEXIST
+'    mFlags = mFlags Or OFN_FILEMUSTEXIST
+'    If Not Value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
+'End Property
+
 Public Property Get AllowSelection() As Boolean
-    
+    AllowSelection = (m_Flags And PD_NOSELECTION) <> PD_NOSELECTION
 End Property
+Public Property Let AllowSelection(ByVal Value As Boolean)
+    m_Flags = m_Flags Or PD_NOSELECTION
+    If Value Then m_Flags = m_Flags Xor PD_NOSELECTION
+End Property
+
 Public Property Get AllowSomePages() As Boolean
     '
 End Property
@@ -623,9 +662,25 @@ End Property
 'Public Property Get PrinterSettings_PrintRange() As PrintRange
 '    '
 'End Property
+
+'Public Property Get CheckFileExists() As Boolean              'OFN_FILEMUSTEXIST
+'    CheckFileExists = mFlags And OFN_FILEMUSTEXIST
+'End Property
+'Public Property Let CheckFileExists(ByVal Value As Boolean)   'OFN_FILEMUSTEXIST
+'    mFlags = mFlags Or OFN_FILEMUSTEXIST
+'    If Not Value Then mFlags = mFlags Xor OFN_FILEMUSTEXIST
+'End Property
+
+
 Public Property Get PrinterSettings_PrintToFile() As Boolean
-    '
+    PrinterSettings_PrintToFile = (m_PrintDialog.flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
 End Property
+Public Property Get PrinterSettings_PrintToFile(ByVal Value As Boolean)
+    '
+    PrinterSettings_PrintToFile = (m_PrintDialog.flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
+End Property
+
+
 Public Property Get PrinterSettings_SupportsColor() As Boolean
     '
 End Property
@@ -644,7 +699,23 @@ Public Sub Reset()
     '
 End Sub
 
-Public Function ShowDialog(FOwner As Form) As VbMsgBoxResult
+Private Function App_hInstance() As LongPtr
+#If VBA Then
+    App_hInstance = Excel.Application.hInstance
+#Else
+    App_hInstance = App.hInstance
+#End If
+End Function
+
+Private Function GetHWND(FOwner) As LongPtr
+#If VBA Then
+    GetHWND = GetDesktopWindow
+#Else
+    GetHWND = FOwner.hwnd
+#End If
+End Function
+Public Function ShowDialog(Optional FOwner) As VbMsgBoxResult
+'Public Function ShowDialog() As VbMsgBoxResult
 
 'https://microsoft.public.de.vb.narkive.com/wz5CVka1/druckereinstellung-mit-printdialog-oder-commondialog-showprinter
 Try: On Error GoTo Catch
@@ -657,9 +728,9 @@ Try: On Error GoTo Catch
     End With
     
     ' Speicherblock erstellen und Dev_Mode hineinkopieren
-    Dim hMemMode As Long: hMemMode = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(m_DeviceMode)) 'Len(Dev_Mode)=154
+    Dim hMemMode As LongPtr: hMemMode = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(m_DeviceMode)) 'Len(Dev_Mode)=154
     ' Speicherblock erstellen
-    Dim pMemMode  As Long: pMemMode = GlobalLock(hMemMode) ' Speicherblock sperren und Pointer ermitteln
+    Dim pMemMode As LongPtr: pMemMode = GlobalLock(hMemMode) ' Speicherblock sperren und Pointer ermitteln
     RtlMoveMemory ByVal pMemMode, m_DeviceMode, Len(m_DeviceMode)  ' Struktur in den Speicherblock kopieren
     GlobalUnlock hMemMode ' Speicherblock entsperren
     
@@ -676,9 +747,9 @@ Try: On Error GoTo Catch
     End With
     
     ' Speicherblock erstellen und Dev_Names hineinkopieren
-    Dim hMemName As Long: hMemName = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(m_DeviceNames))
+    Dim hMemName As LongPtr: hMemName = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(m_DeviceNames))
     ' Speicherblock erstellen
-    Dim pMemName As Long: pMemName = GlobalLock(hMemName) ' Speicherblock sperren und Pointer ermitteln
+    Dim pMemName As LongPtr: pMemName = GlobalLock(hMemName) ' Speicherblock sperren und Pointer ermitteln
     RtlMoveMemory ByVal pMemName, m_DeviceNames, Len(m_DeviceNames) ' Struktur in den Speicherblock kopieren
     GlobalUnlock hMemName ' Speicherblock entsperren
 
@@ -691,18 +762,17 @@ Try: On Error GoTo Catch
         hr = PrintDlgExW(m_PrintDialogEx)
     Else
         With m_PrintDialog
-            .hwndOwner = FOwner.hwnd
-            .hInstance = App.hInstance
-            .hwndOwner = FOwner.hwnd
+            .hwndOwner = GetHWND(FOwner)
+            .hInstance = App_hInstance
             .hdevmode = hMemMode
             .hDevNames = hMemName
-            .flags = PD_DISABLEPRINTTOFILE Or PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
+            .flags = m_Flags
             '.flags = PD_USEDEVMODECOPIESANDCOLLATE Or PD_RETURNDC
             '.nCopies = 1
-            '.nFromPage = 10 '&HFFFF
-            '.nToPage = 2 '&HFFFF
+            '.nFromPage = 1 '0 '&HFFFF
+            '.nToPage = 100 '&HFFFF
             '.nMinPage = 1
-            '.nMaxPage = 10 '&HFFFF
+            '.nMaxPage = 100 '&HFFFF
         End With
         hr = PrintDlg(m_PrintDialog)
     End If
@@ -736,7 +806,12 @@ Finally:
 End Function
 
 Public Property Get ShowHelp() As Boolean
-    '
+    ShowHelp = (m_PrintDialog.flags And PD_SHOWHELP) = PD_SHOWHELP
+End Property
+Public Property Let ShowHelp(ByVal Value As Boolean)
+    With m_PrintDialog
+        .flags = .flags Or PD_SHOWHELP
+    End With
 End Property
 'Public Property Get ShowNetwork() As Boolean
 '    '
