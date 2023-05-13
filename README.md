@@ -32,3 +32,4 @@ Special thanks goes to [Frank Schüler](https://foren.activevb.de/community/mitg
 ![OpenFileFolderDialog Image](Resources/Pictures/OpenFileFolderDialog.png "OpenFileFolderDialog Image")
 ![FolderBrowserDialog Image](Resources/Pictures/FolderBrowserDialog.png "FolderBrowserDialog Image")
 ![PrintDialog Image](Resources/Pictures/PrintDialog.png "PrintDialog Image")
+![PrintDialogEx Image](Resources/Pictures/PrintDialogEx.png "PrintDialogEx Image")
