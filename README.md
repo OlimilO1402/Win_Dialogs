@@ -9,12 +9,13 @@
 Project started in may 2006  
 
 contains classes for the very often used typical windows dialogs:  
-* MessageBox  
 * ColorDialog  
 * FontDialog  
 * OpenFileDialog  
 * SaveFileDialog  
 * OpenFolderDialog (replaces FolderBrowserDialog)  
+* MessageBox  
+* PrintDialog (w/o unicode)
 
 they work mostly the same as the correspondent classes from System.Windows.Forms.  
 The classes are running in VB6 (aka VBC) as well as in VBA6 or VBA7 x86 or Win64.  

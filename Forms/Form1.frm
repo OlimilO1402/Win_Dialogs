@@ -449,9 +449,17 @@ End Sub
 
 Private Function FilePrinterNew() As String
     Dim PDlg As New PrintDialog
-    PDlg.ShowHelp = True
+    'PDlg.ShowHelp = True
+    'PDlg.AllowPrintToFile = True
+    PDlg.AllowSelection = True
+    'PDlg.PrinterSettings_MinimumPage = 1
+    'PDlg.PrinterSettings_MaximumPage = 20
+    'PDlg.ShowNetwork = True
     If PDlg.ShowDialog(Me) = vbCancel Then Exit Function
     FilePrinterNew = PDlg.PrinterSettings_PrinterName
+    'MsgBox PDlg.PrinterSettings_Copies
+    'MsgBox PDlg.PrinterSettings_PrintToFile
+    'MsgBox PDlg.PrintToFile
 End Function
 Private Function FilePrinterOld() As String
 Try: On Error GoTo Catch

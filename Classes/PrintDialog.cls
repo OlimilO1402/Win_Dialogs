@@ -248,6 +248,8 @@ Private Const DMDITHER_FINE        As Long = 3 ' Dithering mit feinem Brush
 Private Const DMDITHER_LINEART     As Long = 4 ' Linien mit schwarz, weiﬂ und grau
 Private Const DMDITHER_GRAYSCALE   As Long = 5  ' Grauskala
 
+'--------------------------------------------------------------------------------------------------------
+
 ' GlobalAlloc wFlags-Konstanten
 Private Const GHND                 As Long = &H40 ' Kombination von GMEM_MOVEABLE mit GMEM_ZEROINIT
 Private Const GMEM_DDESHARE        As Long = &H2000 ' optimiert den Speicher mit der DDE
@@ -296,7 +298,7 @@ Private Const GPTR                 As Long = &H42 ' kombiniert GMEM_FIXED und GE
     Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
     
     Private Declare Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
-    Private Declare Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal BytLen As Long)
+    Private Declare Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal bytLen As Long)
     
     #If IsUnicode Then
         Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (pPrintDlg As TPrintDialog) As Long
@@ -483,13 +485,19 @@ Private m_Flags         As Long
 Private Sub Class_Initialize()
     m_PrintDialog.lStructSize = Len(m_PrintDialog)
     m_PrintDialogEx.lStructSize = Len(m_PrintDialogEx)
-    m_Flags = PD_DISABLEPRINTTOFILE Or PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
+    'PD_DISABLEPRINTTOFILE Or
+    m_Flags = PD_COLLATE Or PD_NOSELECTION 'PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
 End Sub
 
 'Properties of Windows.Forms.PrintDialog
 Public Property Get AllowCurrentPage() As Boolean
-    'm_PrintDlg.flags and
+    'only togehter with UseExDialog = True
+    'AllowCurrentPage = (m_Flags And PD_ALLPAGES) = 0
 End Property
+Public Property Let AllowCurrentPage(ByVal Value As Boolean)
+    'm_flags and
+End Property
+
 Public Property Get AllowPrintToFile() As Boolean
     AllowPrintToFile = (m_Flags And PD_DISABLEPRINTTOFILE) <> PD_DISABLEPRINTTOFILE
 End Property
@@ -515,7 +523,11 @@ Public Property Let AllowSelection(ByVal Value As Boolean)
 End Property
 
 Public Property Get AllowSomePages() As Boolean
-    '
+    AllowSomePages = (m_Flags And PD_NOPAGENUMS) <> PD_NOPAGENUMS
+End Property
+Public Property Let AllowSomePages(ByVal Value As Boolean)
+    m_Flags = m_Flags Or PD_NOPAGENUMS
+    If Not Value Then m_Flags = m_Flags Xor PD_NOPAGENUMS
 End Property
 
 Public Property Get UseEXDialog() As Boolean
@@ -523,13 +535,6 @@ Public Property Get UseEXDialog() As Boolean
 End Property
 Public Property Let UseEXDialog(ByVal Value As Boolean)
     m_UseEXDialog = Value
-End Property
-
-Public Property Get ShowNetwork() As Boolean
-    ShowNetwork = (m_PrintDialog.flags And PD_NONETWORKBUTTON) = 0
-End Property
-Public Property Let ShowNetwork(ByVal Value As Boolean)
-    ShowNetwork = (m_PrintDialog.flags And PD_NONETWORKBUTTON) = 0
 End Property
 
 'Public Property Get Container() As IContainer
@@ -638,12 +643,21 @@ End Property
 Public Property Get PrinterSettings_MaximumCopies() As Long
     '
 End Property
-Public Property Get PrinterSettings_MaximumPage() As Long
-    '
+
+Public Property Get PrinterSettings_MaximumPage() As Integer
+    PrinterSettings_MaximumPage = m_PrintDialog.nMaxPage
 End Property
-Public Property Get PrinterSettings_MinimumPage() As Long
-    '
+Public Property Let PrinterSettings_MaximumPage(ByVal Value As Integer)
+    m_PrintDialog.nMaxPage = Value
 End Property
+
+Public Property Get PrinterSettings_MinimumPage() As Integer
+    PrinterSettings_MaximumPage = m_PrintDialog.nMinPage
+End Property
+Public Property Let PrinterSettings_MinimumPage(ByVal Value As Integer)
+    m_PrintDialog.nMinPage = Value
+End Property
+
 'Public Property Get PrinterSettings_PaperSizes() As PaperSizeCollection
 '    '
 'End Property
@@ -673,11 +687,12 @@ End Property
 
 
 Public Property Get PrinterSettings_PrintToFile() As Boolean
-    PrinterSettings_PrintToFile = (m_PrintDialog.flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
+    PrinterSettings_PrintToFile = (m_Flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
 End Property
-Public Property Get PrinterSettings_PrintToFile(ByVal Value As Boolean)
-    '
-    PrinterSettings_PrintToFile = (m_PrintDialog.flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
+
+Public Property Let PrinterSettings_PrintToFile(ByVal Value As Boolean)
+    m_Flags = m_Flags Or PD_PRINTTOFILE
+    If Not Value Then m_Flags = m_Flags Xor PD_PRINTTOFILE
 End Property
 
 
@@ -693,8 +708,9 @@ Public Property Let PrinterSettings_ToPage(ByVal Value As Integer)
 End Property
 
 Public Property Get PrintToFile() As Boolean
-    '
+    PrintToFile = (m_Flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
 End Property
+
 Public Sub Reset()
     '
 End Sub
@@ -707,11 +723,11 @@ Private Function App_hInstance() As LongPtr
 #End If
 End Function
 
-Private Function GetHWND(FOwner) As LongPtr
+Private Function GethWnd(FOwner) As LongPtr
 #If VBA Then
-    GetHWND = GetDesktopWindow
+    GethWnd = GetDesktopWindow
 #Else
-    GetHWND = FOwner.hwnd
+    GethWnd = FOwner.hwnd
 #End If
 End Function
 Public Function ShowDialog(Optional FOwner) As VbMsgBoxResult
@@ -762,7 +778,7 @@ Try: On Error GoTo Catch
         hr = PrintDlgExW(m_PrintDialogEx)
     Else
         With m_PrintDialog
-            .hwndOwner = GetHWND(FOwner)
+            .hwndOwner = GethWnd(FOwner)
             .hInstance = App_hInstance
             .hdevmode = hMemMode
             .hDevNames = hMemName
@@ -775,6 +791,7 @@ Try: On Error GoTo Catch
             '.nMaxPage = 100 '&HFFFF
         End With
         hr = PrintDlg(m_PrintDialog)
+        m_Flags = m_PrintDialog.flags
     End If
     ShowDialog = IIf(hr, vbOK, vbCancel)
     If ShowDialog = vbOK Then
@@ -806,16 +823,21 @@ Finally:
 End Function
 
 Public Property Get ShowHelp() As Boolean
-    ShowHelp = (m_PrintDialog.flags And PD_SHOWHELP) = PD_SHOWHELP
+    ShowHelp = (m_Flags And PD_SHOWHELP) = PD_SHOWHELP
 End Property
 Public Property Let ShowHelp(ByVal Value As Boolean)
-    With m_PrintDialog
-        .flags = .flags Or PD_SHOWHELP
-    End With
+    m_Flags = m_Flags Or PD_SHOWHELP
+    If Not Value Then m_Flags = m_Flags Xor PD_SHOWHELP
 End Property
-'Public Property Get ShowNetwork() As Boolean
-'    '
-'End Property
+
+Public Property Get ShowNetwork() As Boolean
+    ShowNetwork = (m_Flags And PD_NONETWORKBUTTON) = 0
+End Property
+Public Property Let ShowNetwork(ByVal Value As Boolean)
+    m_Flags = m_Flags Or PD_NONETWORKBUTTON
+    If Not Value Then m_Flags = m_Flags Xor PD_NONETWORKBUTTON
+End Property
+
 Public Property Get Site()
     '
 End Property
