@@ -20,6 +20,51 @@ Option Explicit
     End Enum
 #End If
 
+Public Enum PrintAction
+    PrintToFile    ' Die Druckausgabe erfolgt in eine Datei.
+    PrintToPreview ' Die Druckausgabe wird als Seitenansicht dargestellt.
+    PrintToPrinter ' Die Druckausgabe erfolgt auf den Drucker.
+End Enum
+
+Public Enum PrintRange
+    AllPages = 0           ' Alle Seiten werden gedruckt.
+    Selection = 1          ' Die ausgewählten Seiten werden gedruckt.
+    SomePages = 2          ' Die Seiten zwischen <see cref="P:System.Drawing.Printing.PrinterSettings.FromPage" /> und <see cref="P:System.Drawing.Printing.PrinterSettings.ToPage" /> werden gedruckt.
+    CurrentPage = &H400000 ' =4194304 ' Die derzeit angezeigte Seite wird gedruckt.
+End Enum
+
+
+Public Enum PrinterUnit     'Gibt verschiedene Maßeinheiten an, die zum Drucken verwendet werden.
+    Display                 ' Die Standardeinheit (0,01 Zoll).
+    ThousandthsOfAnInch     ' 1/1000 Zoll (0,001 Zoll).
+    HundredthsOfAMillimeter ' 1/100 Millimeter (0,01 mm).
+    TenthsOfAMillimeter     ' 1/10 Millimeter (0,1 mm).
+End Enum
+
+Public Enum PaperSourceKind ' Standardpapierzufuhren.
+    Upper = 1          ' Das obere Fach eines Druckers (oder das Standardfach bei einem Drucker mit nur einem Fach).
+    Lower = 2          ' Das untere Fach eines Druckers.
+    Middle = 3         ' Das mittlere Fach eines Druckers.
+    Manual = 4         ' Manuell zugeführtes Papier.
+    Envelope = 5       ' Ein Briefumschlag.
+    ManualFeed = 6     ' Manuell zugeführter Briefumschlag.
+    AutomaticFeed = 7  ' Automatischer Papiereinzug.
+    TractorFeed = 8    ' Ein Traktoreinzug.
+    SmallFormat = 9    ' Kleinformatiges Papier.
+    LargeFormat = 10   ' Großformatiges Papier.
+    LargeCapacity = 11 ' Das Druckerfach mit großer Kapazität.
+    Cassette = 14      ' Eine Papierkassette.
+    FormSource = 15    ' Das Standardzufuhrfach des Druckers.
+    Custom = 257       ' Druckerspezifische Papierzufuhr.
+End Enum
+
+Public Enum Duplex ' Gibt die Duplexeinstellungen des Druckers an.
+    Default = -1   ' Die Standardduplexeinstellungen für den Drucker.
+    Simplex = 1    ' Einseitiger Druck.
+    Horizontal = 3 ' Beidseitiger horizontaler Druck.
+    Vertical = 2   ' Beidseitiger vertikaler Druck.
+End Enum
+
 'Public Enum PrinterConstants
 '    cdlPDAllPages      = 0
 '    cdlPDSelection     = 1
@@ -38,6 +83,8 @@ Option Explicit
 '    cdlPDDisablePrintToFile = 524288  (&H80000)
 '    cdlPDHidePrintToFile    = 1048576 (&H100000)
 'End Enum
+
+Private Const maxPage As Long = 9999
 
 ' PRINTDLG_TYPE flags-Konstanten
 Private Const PD_ALLPAGES                   As Long = &H0&     ' cdlPDAllPages    = 0     ' Die Standardkennzeichnung, die angibt, dass das Optionsfeld "Alle " anfänglich ausgewählt ist. Dieses Kennzeichen wird als Platzhalter verwendet, um anzugeben, dass die PD_PAGENUMS und PD_SELECTION Flags nicht angegeben werden.
@@ -191,16 +238,17 @@ Private Const DMBIN_CASSETTE      As Long = 14 ' Blatt Kassette
 Private Const DMBIN_FORMSOURCE    As Long = 15  ' Form Papier Quelle
 
 ' DEVMODE dmPrintQuality-Konstanten
-Private Const DMRES_DRAFT          As Long = -1 ' Entwurf
-Private Const DMRES_LOW            As Long = -2 '  niedrig
-Private Const DMRES_MEDIUM         As Long = -3 ' mittel
 Private Const DMRES_HIGH           As Long = -4  ' hoch
+Private Const DMRES_MEDIUM         As Long = -3 ' mittel
+Private Const DMRES_LOW            As Long = -2 '  niedrig
+Private Const DMRES_DRAFT          As Long = -1 ' Entwurf
 
-Public Enum EPrintQuality
-    pqDraft = 1
-    pqLow = 2
-    pqMedium = 3
-    pqHigh = 4
+Public Enum PrinterResolutionKind
+    High = -4    '/// <summary>Hohe Auflösung.</summary>
+    Medium '= -3 '/// <summary>Mittlere Auflösung.</summary>
+    Low    '= -2 '/// <summary>Niedrige Auflösung.</summary>
+    Draft  '= -1 '/// <summary>Auflösung in Entwurfsqualität.</summary>
+    Custom '= 0  '/// <summary>Benutzerdefinierte Auflösung.</summary>
 End Enum
 
 ' DEVMODE dmColor-Konstanten
@@ -418,9 +466,9 @@ End Type
 '} PROPSHEETPAGEW_V4, *LPPROPSHEETPAGEW_V4;
 
 Private Type PROPSHEETPAGEW_V4
-    pszHeaderTitle    As LongPtr 'LPCWSTR
-    pszHeaderSubTitle As LongPtr '  LPCWSTR
-    hActCtx           As LongPtr '  HANDLE
+    pszHeaderTitle    As LongPtr ' LPCWSTR
+    pszHeaderSubTitle As LongPtr ' LPCWSTR
+    hActCtx           As LongPtr ' HANDLE
 '  union {
 '    HBITMAP hbmHeader;
 '    LPCWSTR pszbmHeader;
@@ -436,7 +484,7 @@ Private Type TDeviceNames
     'extra(0 To 99)   As Byte 'String * 100
     extra            As String * 100 ' 100
 End Type                        ' Sum: 108
- 
+
 Private Type TDeviceMode
     dmDeviceName     As String * 32 ' 32
     dmSpecVersion    As Integer     '  2
@@ -540,6 +588,8 @@ End Property
 'Public Property Get Container() As IContainer
 '    '
 'End Property
+
+' v ############################## v '        Document       ' v ############################## v '
 'Public Property Get Document_DefaultPageSettings() As PageSettings
 '    '
 'End Property
@@ -564,9 +614,14 @@ End Property
 Public Function Document_ToString() As String
     '
 End Function
+' ^ ############################## ^ '        Document       ' ^ ############################## ^ '
+
+' v ############################## v '    PrinterSettings    ' v ############################## v '
+
 'Public Property Get PrinterSettings() As PrinterSettings
 '    '
 'End Property
+
 Public Property Get PrinterSettings_CanDuplex() As Boolean
     '
 End Property
@@ -706,6 +761,7 @@ End Property
 Public Property Let PrinterSettings_ToPage(ByVal Value As Integer)
     m_PrintDialog.nToPage = Value
 End Property
+' ^ ############################## ^ '    PrinterSettings    ' ^ ############################## ^ '
 
 Public Property Get PrintToFile() As Boolean
     PrintToFile = (m_Flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
@@ -730,6 +786,7 @@ Private Function GethWnd(FOwner) As LongPtr
     GethWnd = FOwner.hwnd
 #End If
 End Function
+
 Public Function ShowDialog(Optional FOwner) As VbMsgBoxResult
 'Public Function ShowDialog() As VbMsgBoxResult
 

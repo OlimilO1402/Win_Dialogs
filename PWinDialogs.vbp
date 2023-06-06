@@ -20,6 +20,7 @@ Module=MFontDialog; Modules\MFontDialog.bas
 Class=PrintDialog; Classes\PrintDialog.cls
 Module=MFont; Modules\MFont.bas
 ResFile32="Resources\MyRes.RES"
+Module=MPrinter; Modules\MPrinter.bas
 IconForm="FMain"
 Startup="Sub Main"
 HelpFile=""
