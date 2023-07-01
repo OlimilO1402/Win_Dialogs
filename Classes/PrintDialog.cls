@@ -21,9 +21,9 @@ Option Explicit
 #End If
 
 Public Enum PrintAction
-    PrintToFile    ' Die Druckausgabe erfolgt in eine Datei.
-    PrintToPreview ' Die Druckausgabe wird als Seitenansicht dargestellt.
-    PrintToPrinter ' Die Druckausgabe erfolgt auf den Drucker.
+    PAPrintToFile    ' Die Druckausgabe erfolgt in eine Datei.
+    PAPrintToPreview ' Die Druckausgabe wird als Seitenansicht dargestellt.
+    PAPrintToPrinter ' Die Druckausgabe erfolgt auf den Drucker.
 End Enum
 
 Public Enum PrintRange
@@ -32,7 +32,6 @@ Public Enum PrintRange
     SomePages = 2          ' Die Seiten zwischen <see cref="P:System.Drawing.Printing.PrinterSettings.FromPage" /> und <see cref="P:System.Drawing.Printing.PrinterSettings.ToPage" /> werden gedruckt.
     CurrentPage = &H400000 ' =4194304 ' Die derzeit angezeigte Seite wird gedruckt.
 End Enum
-
 
 Public Enum PrinterUnit     'Gibt verschiedene Maﬂeinheiten an, die zum Drucken verwendet werden.
     Display                 ' Die Standardeinheit (0,01 Zoll).

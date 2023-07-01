@@ -542,7 +542,7 @@ Try: On Error GoTo Catch
         .ShowFont
     End With
 Catch:
-    FontDialogOld = Font_in
+    Set FontDialogOld = Font_in
     If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
         MComDlgCtrl.MessCommonDlgError Err.Number
     End If
