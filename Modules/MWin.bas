@@ -44,6 +44,25 @@ Public Function HelpInfo_ToStr() As String
     HelpInfo_ToStr = s
 End Function
 
+Public Function DialogResult_ToStr(ByVal VbMsgBoxOrDialogOrAnyOtherResult As Long) As String
+    Dim e As Long: e = VbMsgBoxOrDialogOrAnyOtherResult
+    Dim s As String
+    Select Case e
+    Case 1:  s = "OK"
+    Case 2:  s = "Cancel"
+    Case 3:  s = "Abort"
+    Case 4:  s = "Retry"
+    Case 5:  s = "Ignore"
+    Case 6:  s = "Yes"
+    Case 7:  s = "No"
+    Case 8:  s = "Close"
+    Case 9:  s = "9"
+    Case 10: s = "TryAgain"
+    Case 11: s = "Continue"
+    End Select
+    DialogResult_ToStr = s
+End Function
+
 Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Optional Title As Variant, Optional HelpFile As Variant, Optional Context As Variant) As VbMsgBoxResult
 '    Dim mb As MessageBox: Set mb = New MessageBox
 '    With mb

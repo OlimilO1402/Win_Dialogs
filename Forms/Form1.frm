@@ -2,22 +2,30 @@ VERSION 5.00
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form FMain 
    Caption         =   "WinDialogs"
-   ClientHeight    =   6015
+   ClientHeight    =   6705
    ClientLeft      =   225
    ClientTop       =   870
    ClientWidth     =   5295
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6015
+   ScaleHeight     =   6705
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton BtnTestTaskDialog 
+      Caption         =   "Test TaskDialog"
+      Height          =   375
+      Left            =   120
+      TabIndex        =   20
+      Top             =   6000
+      Width           =   2415
+   End
    Begin VB.CommandButton Command5 
       Caption         =   "Test MyFontDialog"
       Height          =   375
       Left            =   2760
       TabIndex        =   19
       Top             =   1440
-      Width           =   1935
+      Width           =   2415
    End
    Begin VB.CommandButton BtnTestMessageBox 
       Caption         =   "Test MessageBox"
@@ -262,6 +270,15 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 Private CD  As New ColorDialog
+
+Private Sub BtnTestTaskDialog_Click()
+    Dim vlg As String: vlg = ", we make it very long to see what happens if it is too long, maybe there are line breaks . . ."
+    Dim tit As String: tit = "This is the title" & vlg
+    Dim ins As String: ins = "This are the instructions" & vlg
+    Dim con As String: con = "This is the content" & vlg
+    Dim tdret As VbMsgBoxResult: tdret = MApp.TaskDialog(tit, ins, con, ETaskDialogIcon.tdIconWarning, tdButtonOK Or tdButtonCancel Or tdButtonClose).ShowDialog(Me)
+    MsgBox "tdret: " & MWin.DialogResult_ToStr(tdret)
+End Sub
 
 Private Sub Command5_Click()
     Dim FD As New MyFontDialog

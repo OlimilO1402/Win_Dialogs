@@ -9,3 +9,8 @@ End Sub
 Public Property Get Version() As String
     Version = App.Major & "." & App.Minor & "." & App.Revision
 End Property
+
+Public Function TaskDialog(Title As String, Instruction As String, Content As String, Optional ByVal Icon As ETaskDialogIcon, Optional ByVal Buttons As ETaskDialogButton) As TaskDialogSE
+    Set TaskDialog = New TaskDialogSE: TaskDialog.New_ Title, Instruction, Content, Icon, Buttons
+End Function
+
