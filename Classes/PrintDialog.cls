@@ -12,7 +12,7 @@ Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
-#Const IsUnicode = 0 ' sorry no unicode support until now
+#Const IsUnicode = 1 ' sorry no unicode support until now
 
 #If VBA7 = 0 Then
     Private Enum LongPtr
@@ -324,7 +324,8 @@ Private Const GPTR                 As Long = &H42 ' kombiniert GMEM_FIXED und GE
     Private Declare PtrSafe Function GlobalFree Lib "kernel32" (ByVal hMem As LongPtr) As Long
     Private Declare PtrSafe Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
     Private Declare PtrSafe Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
-    
+    Private Declare PtrSafe Function GlobalSize Lib "kernel32" (ByVal hMem As LongPtr) As Long
+
     Private Declare PtrSafe Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
     Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal BytLen As Long)
     
@@ -337,12 +338,13 @@ Private Const GPTR                 As Long = &H42 ' kombiniert GMEM_FIXED und GE
     Private Declare PtrSafe Function PrintDlgExW Lib "comdlg32" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
     Private Declare PtrSafe Function PrinterMessageBoxW Lib "winspool" (ByVal hPrinter As LongPtr, ByVal error As Long, ByVal hwnd As LongPtr, ByVal pText As LongPtr, ByVal pCaption As LongPtr, ByVal dwType As Long) As Long
     Private Declare PtrSafe Function PrinterProperties Lib "winspool" (ByVal hwnd As LongPtr, ByVal hPrinter As LongPtr) As Long
-    Private Declare Ptrsafe Function GetDesktopWindow Lib "user32" () As LongPtr
+    Private Declare PtrSafe Function GetDesktopWindow Lib "user32" () As LongPtr
 #Else
     Private Declare Function GlobalAlloc Lib "kernel32" (ByVal wFlags As Long, ByVal dwBytes As Long) As LongPtr
     Private Declare Function GlobalFree Lib "kernel32" (ByVal hMem As LongPtr) As Long
     Private Declare Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
     Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
+    Private Declare Function GlobalSize Lib "kernel32" (ByVal hMem As LongPtr) As Long
     
     Private Declare Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
     Private Declare Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal bytLen As Long)
@@ -387,7 +389,7 @@ Private Const GPTR                 As Long = &H42 ' kombiniert GMEM_FIXED und GE
 Private Type TPrintDialog
     lStructSize   As Long
     hwndOwner     As LongPtr
-    hdevmode      As LongPtr
+    hDevMode      As LongPtr
     hDevNames     As LongPtr
     hDC           As LongPtr
     flags         As Long
@@ -433,7 +435,7 @@ End Type
 Private Type TPrintDialogEx
     lStructSize      As Long
     hwndOwner        As LongPtr '  HWND
-    hdevmode         As LongPtr '  HGLOBAL
+    hDevMode         As LongPtr '  HGLOBAL
     hDevNames        As LongPtr '  HGLOBAL
     hDC              As LongPtr '  HDC
     flags            As Long    '  DWORD
@@ -474,14 +476,15 @@ Private Type PROPSHEETPAGEW_V4
 '  } DUMMYUNIONNAME3;
     union_hbmHeader_pszbmHeader As LongPtr
 End Type
- 
+
 Private Type TDeviceNames
     wDriverOffset    As Integer      '   2
     wDeviceOffset    As Integer      '   2
     wOutputOffset    As Integer      '   2
     wDefault         As Integer      '   2
     'extra(0 To 99)   As Byte 'String * 100
-    extra            As String * 100 ' 100
+    'extra            As String * 100 ' 100
+    extra(0 To 2 * 100 - 1) As Byte '* 100
 End Type                        ' Sum: 108
 
 Private Type TDeviceMode
@@ -527,30 +530,36 @@ Private m_UseEXDialog   As Boolean
 Private m_PrintDialogEx As TPrintDialogEx
 Private m_DeviceMode    As TDeviceMode
 Private m_DeviceNames   As TDeviceNames
-Private m_Flags         As Long
+
+Private m_DriverName  As String
+Private m_DeviceName  As String
+Private m_OutputName  As String
+Private m_DefaultName As String
+
+Private mFlags         As Long
 
 Private Sub Class_Initialize()
-    m_PrintDialog.lStructSize = Len(m_PrintDialog)
-    m_PrintDialogEx.lStructSize = Len(m_PrintDialogEx)
+    m_PrintDialog.lStructSize = LenB(m_PrintDialog)
+    m_PrintDialogEx.lStructSize = LenB(m_PrintDialogEx)
     'PD_DISABLEPRINTTOFILE Or
-    m_Flags = PD_COLLATE Or PD_NOSELECTION 'PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
+    mFlags = PD_COLLATE Or PD_NOSELECTION 'PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
 End Sub
 
 'Properties of Windows.Forms.PrintDialog
 Public Property Get AllowCurrentPage() As Boolean
     'only togehter with UseExDialog = True
-    'AllowCurrentPage = (m_Flags And PD_ALLPAGES) = 0
+    'AllowCurrentPage = (mFlags And PD_ALLPAGES) = 0
 End Property
 Public Property Let AllowCurrentPage(ByVal Value As Boolean)
-    'm_flags and
+    'mFlags and
 End Property
 
 Public Property Get AllowPrintToFile() As Boolean
-    AllowPrintToFile = (m_Flags And PD_DISABLEPRINTTOFILE) <> PD_DISABLEPRINTTOFILE
+    AllowPrintToFile = (mFlags And PD_DISABLEPRINTTOFILE) <> PD_DISABLEPRINTTOFILE
 End Property
 Public Property Let AllowPrintToFile(ByVal Value As Boolean)
-    m_Flags = m_Flags Or PD_DISABLEPRINTTOFILE
-    If Value Then m_Flags = m_Flags Xor PD_DISABLEPRINTTOFILE
+    mFlags = mFlags Or PD_DISABLEPRINTTOFILE
+    If Value Then mFlags = mFlags Xor PD_DISABLEPRINTTOFILE
 End Property
 
 'Public Property Get CheckFileExists() As Boolean              'OFN_FILEMUSTEXIST
@@ -562,19 +571,19 @@ End Property
 'End Property
 
 Public Property Get AllowSelection() As Boolean
-    AllowSelection = (m_Flags And PD_NOSELECTION) <> PD_NOSELECTION
+    AllowSelection = (mFlags And PD_NOSELECTION) <> PD_NOSELECTION
 End Property
 Public Property Let AllowSelection(ByVal Value As Boolean)
-    m_Flags = m_Flags Or PD_NOSELECTION
-    If Value Then m_Flags = m_Flags Xor PD_NOSELECTION
+    mFlags = mFlags Or PD_NOSELECTION
+    If Value Then mFlags = mFlags Xor PD_NOSELECTION
 End Property
 
 Public Property Get AllowSomePages() As Boolean
-    AllowSomePages = (m_Flags And PD_NOPAGENUMS) <> PD_NOPAGENUMS
+    AllowSomePages = (mFlags And PD_NOPAGENUMS) <> PD_NOPAGENUMS
 End Property
 Public Property Let AllowSomePages(ByVal Value As Boolean)
-    m_Flags = m_Flags Or PD_NOPAGENUMS
-    If Not Value Then m_Flags = m_Flags Xor PD_NOPAGENUMS
+    mFlags = mFlags Or PD_NOPAGENUMS
+    If Not Value Then mFlags = mFlags Xor PD_NOPAGENUMS
 End Property
 
 Public Property Get UseEXDialog() As Boolean
@@ -719,7 +728,12 @@ End Property
 '    '
 'End Property
 Public Property Get PrinterSettings_PrinterName() As String
-    '
+    PrinterSettings_PrinterName = m_DeviceName
+'Private m_DriverName  As String
+'Private m_DeviceName  As String
+'Private m_OutputName  As String
+'Private m_DefaultName As String
+
 End Property
 'Public Property Get PrinterSettings_PrinterResolutions() As PrinterResolutionCollection
 '    '
@@ -741,12 +755,12 @@ End Property
 
 
 Public Property Get PrinterSettings_PrintToFile() As Boolean
-    PrinterSettings_PrintToFile = (m_Flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
+    PrinterSettings_PrintToFile = (mFlags And PD_PRINTTOFILE) = PD_PRINTTOFILE
 End Property
 
 Public Property Let PrinterSettings_PrintToFile(ByVal Value As Boolean)
-    m_Flags = m_Flags Or PD_PRINTTOFILE
-    If Not Value Then m_Flags = m_Flags Xor PD_PRINTTOFILE
+    mFlags = mFlags Or PD_PRINTTOFILE
+    If Not Value Then mFlags = mFlags Xor PD_PRINTTOFILE
 End Property
 
 
@@ -763,7 +777,7 @@ End Property
 ' ^ ############################## ^ '    PrinterSettings    ' ^ ############################## ^ '
 
 Public Property Get PrintToFile() As Boolean
-    PrintToFile = (m_Flags And PD_PRINTTOFILE) = PD_PRINTTOFILE
+    PrintToFile = (mFlags And PD_PRINTTOFILE) = PD_PRINTTOFILE
 End Property
 
 Public Sub Reset()
@@ -786,7 +800,7 @@ Private Function GethWnd(FOwner) As LongPtr
 #End If
 End Function
 
-Public Function ShowDialog(Optional FOwner) As VbMsgBoxResult
+Public Function ShowDialog(Optional FOwner As Variant) As VbMsgBoxResult
 'Public Function ShowDialog() As VbMsgBoxResult
 
 'https://microsoft.public.de.vb.narkive.com/wz5CVka1/druckereinstellung-mit-printdialog-oder-commondialog-showprinter
@@ -794,13 +808,13 @@ Try: On Error GoTo Catch
 
     ' Drucker festlegen, der standardmässig ausgewählt sein soll
     With m_DeviceMode
-        .dmSize = Len(m_DeviceMode)
-        .dmDeviceName = Printer.DeviceName
+        .dmSize = LenB(m_DeviceMode)
+        '.dmDeviceName = Printer.DeviceName
         .dmFields = DM_PRINTQUALITY
     End With
     
     ' Speicherblock erstellen und Dev_Mode hineinkopieren
-    Dim hMemMode As LongPtr: hMemMode = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(m_DeviceMode)) 'Len(Dev_Mode)=154
+    Dim hMemMode As LongPtr: hMemMode = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, LenB(m_DeviceMode)) 'Len(Dev_Mode)=154
     ' Speicherblock erstellen
     Dim pMemMode As LongPtr: pMemMode = GlobalLock(hMemMode) ' Speicherblock sperren und Pointer ermitteln
     RtlMoveMemory ByVal pMemMode, m_DeviceMode, Len(m_DeviceMode)  ' Struktur in den Speicherblock kopieren
@@ -808,23 +822,22 @@ Try: On Error GoTo Catch
     
     ' Drucker-Eigenschaften zur Überprüfung festlegen
     With m_DeviceNames
-        .wDriverOffset = Len(Printer.DriverName)
-        .wDeviceOffset = .wDriverOffset + 1 + Len(Printer.DriverName)
-        .wOutputOffset = .wDeviceOffset + 1 + Len(Printer.Port)
-        Dim s As String: s = Printer.DriverName & vbNullChar & Printer.DeviceName & vbNullChar & Printer.Port & vbNullChar
+        '.wDriverOffset = Len(Printer.DriverName)
+        '.wDeviceOffset = .wDriverOffset + 1 + Len(Printer.DriverName)
+        '.wOutputOffset = .wDeviceOffset + 1 + Len(Printer.Port)
+        'Dim s As String: s = Printer.DriverName & vbNullChar & Printer.DeviceName & vbNullChar & Printer.Port & vbNullChar
         's = StrConv(s, vbNarrow)
         
-        .extra = s
+        '.extra = s
         'RtlMoveMemory VarPtr(Dev_Names) + 8, StrPtr(s), Len(s)
     End With
     
     ' Speicherblock erstellen und Dev_Names hineinkopieren
-    Dim hMemName As LongPtr: hMemName = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(m_DeviceNames))
+    Dim hMemName As LongPtr: hMemName = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, LenB(m_DeviceNames))
     ' Speicherblock erstellen
     Dim pMemName As LongPtr: pMemName = GlobalLock(hMemName) ' Speicherblock sperren und Pointer ermitteln
     RtlMoveMemory ByVal pMemName, m_DeviceNames, Len(m_DeviceNames) ' Struktur in den Speicherblock kopieren
     GlobalUnlock hMemName ' Speicherblock entsperren
-
 
     Dim hr As Long
     If m_UseEXDialog Then
@@ -836,9 +849,9 @@ Try: On Error GoTo Catch
         With m_PrintDialog
             .hwndOwner = GethWnd(FOwner)
             .hInstance = App_hInstance
-            .hdevmode = hMemMode
+            .hDevMode = hMemMode
             .hDevNames = hMemName
-            .flags = m_Flags
+            .flags = mFlags
             '.flags = PD_USEDEVMODECOPIESANDCOLLATE Or PD_RETURNDC
             '.nCopies = 1
             '.nFromPage = 1 '0 '&HFFFF
@@ -847,24 +860,25 @@ Try: On Error GoTo Catch
             '.nMaxPage = 100 '&HFFFF
         End With
         hr = PrintDlg(m_PrintDialog)
-        m_Flags = m_PrintDialog.flags
+        mFlags = m_PrintDialog.flags
     End If
     ShowDialog = IIf(hr, vbOK, vbCancel)
     If ShowDialog = vbOK Then
         ' Dev_Mode wieder aus dem Speicherblock in die Struktur kopieren und
         ' Speicherblock zerstören
-        pMemMode = GlobalLock(m_PrintDialog.hdevmode) ' Speicherblock sperren
+        pMemMode = GlobalLock(m_PrintDialog.hDevMode) ' Speicherblock sperren
         RtlMoveMemory m_DeviceMode, ByVal pMemMode, Len(m_DeviceMode) ' Daten aus dem
         ' Speicherblock in die Struktur kopieren
-        GlobalUnlock m_PrintDialog.hdevmode ' Speicherblock entsperren
+        GlobalUnlock m_PrintDialog.hDevMode ' Speicherblock entsperren
         'GlobalFree PD.hDevMode ' Speicherblock zerstören
-                
+        
+        GetNames m_PrintDialog.hDevNames
         ' Dev_Names wieder aus dem Speicherblock in die Struktur kopieren und
         ' Speicherblock zerstören
-        pMemName = GlobalLock(m_PrintDialog.hDevNames)  ' Speicherblock sperren
-        RtlMoveMemory m_DeviceNames, ByVal pMemName, Len(m_DeviceNames) ' Daten aus dem
+        'pMemName = GlobalLock(m_PrintDialog.hDevNames)  ' Speicherblock sperren
+        'RtlMoveMemory m_DeviceNames, ByVal pMemName, Len(m_DeviceNames) ' Daten aus dem
         ' Speicherblock in die Struktur kopieren
-        GlobalUnlock m_PrintDialog.hDevNames ' Speicherblock entsperren
+        'GlobalUnlock m_PrintDialog.hDevNames ' Speicherblock entsperren
         'GlobalFree PD.hDevNames ' Speicherblock zerstören
     End If
     
@@ -872,26 +886,64 @@ Try: On Error GoTo Catch
 Catch:
     MsgBox "Error calling PrintDialog"
 Finally:
-    GlobalFree m_PrintDialog.hdevmode  ' Speicher freigeben
+    GlobalFree m_PrintDialog.hDevMode  ' Speicher freigeben
     GlobalFree m_PrintDialog.hDevNames ' Speicher freigeben
     ' Device-Kontext freigeben
     DeleteObject m_PrintDialog.hDC
 End Function
 
+
+'Beispiel: Druckernamen der gewählten Einstellungen ermitteln
+' (Geht so auch bei hDevMode->DevMode-Struktur)
+Private Sub GetNames(ByVal hDevNames As LongPtr) 'As String
+    
+    'Struktur anhand des Handles füllen (Kopieren)
+    Dim LenDevNames As Long: LenDevNames = GlobalSize(hDevNames)
+    Dim pDevNames As LongPtr:  pDevNames = GlobalLock(hDevNames)
+    Dim DN As TDeviceNames 'DEVNAMES
+    RtlMoveMemory DN, ByVal pDevNames, LenDevNames
+    GlobalUnlock hDevNames
+    
+    'Struktur auswerten
+    With DN
+        Dim ex As String: ex = .extra
+        Dim sa() As String: sa = Split(ex, vbNullChar)
+        Dim i As Long
+        If Len(sa(i)) Then m_DriverName = sa(i)
+        i = i + 1
+        If Len(sa(i)) Then m_DeviceName = sa(i)
+        i = i + 1
+        If Len(sa(i)) Then m_OutputName = sa(i)
+        'm_DriverName =
+        'm_DriverName = Left$(.extra, .wDriverOffset)
+        'mDeviceName = Mid$(.extra, .wDriverOffset + 3, .wDeviceOffset - .wDriverOffset)
+        'm_OutputName = Mid$(.extra, .wDeviceOffset + 3, .wOutputOffset - .wDeviceOffset)
+        
+        'vvv die formel ist von VB-API-Helpline
+        'm_DeviceName = Mid$(.extra, .wDeviceOffset - .wDriverOffset + 1, .wOutputOffset - .wDeviceOffset - 2)
+        'Debug.Print "wDeviceOffset: " & .wDeviceOffset
+        'Debug.Print "wDriverOffset: " & .wDriverOffset
+        'Debug.Print "wOutputOffset: " & .wOutputOffset
+        'Debug.Print "wDefault:      " & .wDefault
+        'Debug.Print .extra
+    End With
+End Sub
+
+
 Public Property Get ShowHelp() As Boolean
-    ShowHelp = (m_Flags And PD_SHOWHELP) = PD_SHOWHELP
+    ShowHelp = (mFlags And PD_SHOWHELP) = PD_SHOWHELP
 End Property
 Public Property Let ShowHelp(ByVal Value As Boolean)
-    m_Flags = m_Flags Or PD_SHOWHELP
-    If Not Value Then m_Flags = m_Flags Xor PD_SHOWHELP
+    mFlags = mFlags Or PD_SHOWHELP
+    If Not Value Then mFlags = mFlags Xor PD_SHOWHELP
 End Property
 
 Public Property Get ShowNetwork() As Boolean
-    ShowNetwork = (m_Flags And PD_NONETWORKBUTTON) = 0
+    ShowNetwork = Not CBool((mFlags And PD_NONETWORKBUTTON))
 End Property
 Public Property Let ShowNetwork(ByVal Value As Boolean)
-    m_Flags = m_Flags Or PD_NONETWORKBUTTON
-    If Not Value Then m_Flags = m_Flags Xor PD_NONETWORKBUTTON
+    mFlags = mFlags Or PD_NONETWORKBUTTON
+    If Value Then mFlags = mFlags Xor PD_NONETWORKBUTTON
 End Property
 
 Public Property Get Site()
@@ -907,3 +959,5 @@ End Function
 '    '
 'End Property
 '
+
+

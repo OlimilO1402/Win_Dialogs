@@ -99,12 +99,12 @@ Private Type OPENFILENAMEW                 ' x86    ' x64
     nMaxFileTitle     As Long              '   4    '   4 + 4Padb
     lpstrInitialDir   As LongPtr ' String  '   4    '   8
     lpstrTitle        As LongPtr ' String  '   4    '   8
-    Flags             As Long              '   4    '   4
+    flags             As Long              '   4    '   4
     nFileOffset       As Integer           '   2    '   2
     nFileExtension    As Integer           '   2    '   2
     lpstrDefExt       As LongPtr ' String  '   4    '   8
     lCustData         As LongPtr ' Long    '   4    '   8
-    lPFNHook          As LongPtr ' Long    '   4    '   8
+    lpfnHook          As LongPtr ' Long    '   4    '   8
     lpTemplateName    As LongPtr ' String  '   4    '   8
 End Type                               ' Sum: 76    ' 136
 
@@ -214,10 +214,10 @@ Private Sub InitFlags() 'in Modul ModCommonDialogs.bas
     'mFlags = mFlags Or OFN_USEMONIKERS
 End Sub
 
-Friend Property Get Flags() As Long
-    Flags = mFlags
+Friend Property Get flags() As Long
+    flags = mFlags
 End Property
-Friend Property Let Flags(ByVal Value As Long)
+Friend Property Let flags(ByVal Value As Long)
     mFlags = Value
 End Property
 
@@ -268,7 +268,7 @@ End Property
 
 'Public Property DereferenceLinks() As Boolean
 Public Property Get DereferenceLinks() As Boolean             'OFN_NODEREFERENCELINKS
-    DereferenceLinks = mFlags And OFN_NODEREFERENCELINKS
+    DereferenceLinks = Not CBool(mFlags And OFN_NODEREFERENCELINKS)
 End Property
 Public Property Let DereferenceLinks(ByVal Value As Boolean)  'OFN_NODEREFERENCELINKS
     mFlags = mFlags Or OFN_NODEREFERENCELINKS
@@ -476,10 +476,16 @@ Catch:
     GethWnd = GetActiveWindow
 End Function
 
+Private Function App_hInstance() As LongPtr
+    'App_hInstance = GetModuleHandleW(StrPtr("WINWORD.exe"))
+    'App_hInstance = Excel.Application.hInstance
+    App_hInstance = GetModuleHandleW(0)
+End Function
+
 Private Function GethInst() As LongPtr
 Try: On Error GoTo Finally
 #If VBA6 Or VBA7 Then
-    GethInst = MApp.hInstance 'Ptr
+    GethInst = App_hInstance 'Ptr
 #Else
     GethInst = App.hInstance
 #End If
@@ -512,7 +518,7 @@ Try: On Error GoTo Catch
         'nMaxFileTitle
         .lpstrInitialDir = StrPtr(mInitialDirectory)
         .lpstrTitle = StrPtr(mTitle)
-        .Flags = mFlags
+        .flags = mFlags
         'nFileOffset
         'nFileExtension = 1
         If mAddExtension Then
@@ -532,9 +538,9 @@ Try: On Error GoTo Catch
         FileNames_Parse Buffer
         ShowDialog = vbOK
     Else
-        If mFlags And OFN_ALLOWMULTISELECT Then
-            FileNames_Parse Buffer
-        End If
+        'If mFlags And OFN_ALLOWMULTISELECT Then
+        '    FileNames_Parse Buffer
+        'End If
         ShowDialog = vbCancel
         'oder zuviele Dateien
     End If

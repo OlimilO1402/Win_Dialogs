@@ -105,7 +105,7 @@ Private Type OPENFILENAMEW                    ' x86    ' x64
     nMaxFileTitle     As Long                 '   4    '   4 + 4Padb
     lpstrInitialDir   As LongPtr ' String     '   4    '   8
     lpstrTitle        As LongPtr ' String     '   4    '   8
-    Flags             As Long                 '   4    '   4
+    flags             As Long                 '   4    '   4
     nFileOffset       As Integer              '   2    '   2
     nFileExtension    As Integer              '   2    '   2
     lpstrDefExt       As LongPtr ' String     '   4    '   8
@@ -177,7 +177,7 @@ End Sub
 Public Sub Reset()
     'Call InitFlags
     mFlags = mFlags Or OFN_EXPLORER
-    mFlags = mFlags Or OFN_FILEMUSTEXIST
+    'mFlags = mFlags Or OFN_FILEMUSTEXIST
     mFlags = mFlags Or OFN_HIDEREADONLY
     mFlags = mFlags Or OFN_PATHMUSTEXIST
     'mFlags = mFlags Or OPTION_ADDEXTENSION
@@ -203,7 +203,7 @@ Private Sub InitFlags() 'in Modul ModCommonDialogs.bas
     'mFlags = mFlags Or OFN_EX_NOPLACESBAR
     mFlags = mFlags Or OFN_EXPLORER
     'mFlags = mFlags Or OFN_EXTENSIONDIFFERENT
-    mFlags = mFlags Or OFN_FILEMUSTEXIST
+    'mFlags = mFlags Or OFN_FILEMUSTEXIST
     'mFlags = mFlags Or OFN_FORCESHOWHIDDEN
     mFlags = mFlags Or OFN_HIDEREADONLY
     'mFlags = mFlags Or OFN_LONGNAMES
@@ -226,10 +226,10 @@ Private Sub InitFlags() 'in Modul ModCommonDialogs.bas
     'mFlags = mFlags Or OPTION_ADDEXTENSION
 End Sub
 
-Friend Property Get Flags() As Long
-    Flags = mFlags
+Friend Property Get flags() As Long
+    flags = mFlags
 End Property
-Friend Property Let Flags(ByVal Value As Long)
+Friend Property Let flags(ByVal Value As Long)
     mFlags = Value
 End Property
 
@@ -280,7 +280,7 @@ End Property
 
 'Public Property DereferenceLinks() As Boolean
 Public Property Get DereferenceLinks() As Boolean              'OFN_NODEREFERENCELINKS
-    DereferenceLinks = mFlags And OFN_NODEREFERENCELINKS
+    DereferenceLinks = Not CBool(mFlags And OFN_NODEREFERENCELINKS)
 End Property
 Public Property Let DereferenceLinks(ByVal Value As Boolean)   'OFN_NODEREFERENCELINKS
     mFlags = mFlags Or OFN_NODEREFERENCELINKS
@@ -319,6 +319,7 @@ Private Sub FileNames_Parse(FNs As String)
     
     'Schauen ob evt. nur eine Datei ausgewählt wurde
     Call TrimVBNullchar(FNs)
+    If Len(FNs) = 0 Then Exit Sub
     If InStr(FNs, vbNullChar) <> 0 Then
         aa = FNs & vbNullChar
         Dim pos As Long: pos = 1
@@ -363,10 +364,10 @@ Public Function EnsureExtension(ByVal F_in As String, ByVal ext As String)
     If Left(ext, 1) = "." Then ext = Mid(ext, 2)
     If Right(F_in, 1) = "." Then F_in = Left(F_in, Len(F_in) - 1)
     Dim pos As Long: pos = InStrRev(F_in, ".")
-    Dim e As String
+    Dim E As String
     If pos > 0 Then
-        e = Right(F_in, Len(F_in) - pos)
-        If LCase(e) = LCase(ext) Then
+        E = Right(F_in, Len(F_in) - pos)
+        If LCase(E) = LCase(ext) Then
             EnsureExtension = F_in
             Exit Function
         End If
@@ -501,7 +502,7 @@ End Property
 
 'ob das Dialogfeld nur gültige Win32-Dateinamen akzeptiert
 Public Property Get ValidateNames() As Boolean            'OFN_NOVALIDATE
-    ValidateNames = mFlags And OFN_NOVALIDATE
+    ValidateNames = Not CBool(mFlags And OFN_NOVALIDATE)
 End Property
 Public Property Let ValidateNames(ByVal Value As Boolean) 'OFN_NOVALIDATE
     mFlags = mFlags Or OFN_NOVALIDATE
@@ -516,10 +517,16 @@ Catch:
     GethWnd = GetActiveWindow
 End Function
 
+Private Function App_hInstance() As LongPtr
+    'App_hInstance = GetModuleHandleW(StrPtr("WINWORD.exe"))
+    'App_hInstance = Excel.Application.hInstance
+    App_hInstance = GetModuleHandleW(0)
+End Function
+
 Private Function GethInst() As LongPtr
 Try: On Error GoTo Finally
 #If VBA6 Or VBA7 Then
-    GethInst = MApp.hInstance 'Ptr
+    GethInst = App_hInstance 'Ptr
 #Else
     GethInst = App.hInstance
 #End If
@@ -552,7 +559,7 @@ Try: On Error GoTo Catch
         '.nMaxFileTitle
         .lpstrInitialDir = StrPtr(mInitialDirectory)
         .lpstrTitle = StrPtr(Title)
-        .Flags = mFlags
+        .flags = mFlags
         'nFileOffset
         'nFileExtension = 1
         If mAddExtension Then
@@ -568,14 +575,14 @@ Try: On Error GoTo Catch
     Dim hr As Long: hr = GetSaveFileNameW(OFN) '<<<<<<------ here Get_*_SAVE_*_FileNameW
     'hr = GetSaveFileNamePreview(OFN)
     'Debug.Print OFN.nFilterIndex
-    mFilterIndex = OFN.nFilterIndex
     If hr Then
+        mFilterIndex = OFN.nFilterIndex
         'man muß am String erkennen, ob nur eine oder mehrere Dateien ausgewählt wurden
         FileNames_Parse Buffer 'OFN.lpstrFile)
         ShowDialog = vbOK
     Else
         'If mFlags And OFN_ALLOWMULTISELECT Then
-            FileNames_Parse Buffer
+        '    FileNames_Parse Buffer
         'End If
         ShowDialog = vbCancel
         'oder zuviele Dateien

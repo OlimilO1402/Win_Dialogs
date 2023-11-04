@@ -2,15 +2,32 @@ VERSION 5.00
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form FMain 
    Caption         =   "WinDialogs"
-   ClientHeight    =   6705
+   ClientHeight    =   6495
    ClientLeft      =   225
    ClientTop       =   870
    ClientWidth     =   5295
+   BeginProperty Font 
+      Name            =   "Segoe UI"
+      Size            =   8.25
+      Charset         =   0
+      Weight          =   400
+      Underline       =   0   'False
+      Italic          =   0   'False
+      Strikethrough   =   0   'False
+   EndProperty
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6705
+   ScaleHeight     =   6495
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command6 
+      Caption         =   "Command6"
+      Height          =   375
+      Left            =   4200
+      TabIndex        =   21
+      Top             =   840
+      Width           =   735
+   End
    Begin VB.CommandButton BtnTestTaskDialog 
       Caption         =   "Test TaskDialog"
       Height          =   375
@@ -186,7 +203,7 @@ Begin VB.Form FMain
       Left            =   120
       TabIndex        =   2
       Top             =   1560
-      Width           =   780
+      Width           =   735
    End
    Begin VB.Label LblSFD 
       Appearance      =   0  '2D
@@ -222,8 +239,11 @@ Begin VB.Form FMain
       Begin VB.Menu mnuFileSaveAs 
          Caption         =   "Save &As..."
       End
+      Begin VB.Menu mnuFilePageSetup 
+         Caption         =   "Page Setup..."
+      End
       Begin VB.Menu mnuFilePrinter 
-         Caption         =   "Printer"
+         Caption         =   "Print..."
       End
       Begin VB.Menu mnuFileSep1 
          Caption         =   "-"
@@ -295,6 +315,17 @@ Private Sub Command5_Click()
         LblFD.ForeColor = FD.Color
     End If
 End Sub
+
+Public Function SelectPrinter(ByVal PrinterName As String) As Printer
+    Dim i As Long
+    For i = 0 To Printers.Count - 1
+        If UCase(Printers(i).DeviceName) = UCase(PrinterName) Then 'e.g.: "Microsoft Print to PDF"
+            Set SelectPrinter = Printers(i)
+            'Set Printer = SelectPrinter 'Printers(i)
+            Exit For
+        End If
+    Next
+End Function
 
 Private Sub Form_Load()
     Me.Caption = Me.Caption & " v" & MApp.Version
@@ -389,22 +420,24 @@ Private Sub mnuFileOpen_Click()
 End Sub
 Private Function FileOpenNew() As String
     With New OpenFileDialog
-        .Filter = MApp.FileExtFilter
-        .CheckFileExists = False
-        .CheckPathExists = False
-        .DefaultExt = ".htm"
-        .ShowReadOnly = True
-        .AddExtension = False
-        .MultiSelect = True
+        '.Filter = MApp.FileExtFilter
+        '.CheckFileExists = False
+        '.CheckPathExists = False
+        '.DefaultExt = ".htm"
+        '.ShowReadOnly = True
+        '.AddExtension = False
+        '.MultiSelect = True
         If .ShowDialog = vbOK Then
             FileOpenNew = .FileName
         End If
-        Dim FNm
-        Dim s As String
-        For Each FNm In .FileNames
-            s = s & FNm & vbCrLf
-        Next
-        MsgBox s
+        If .FileNames.Count > 1 Then
+            Dim FNm
+            Dim s As String
+            For Each FNm In .FileNames
+                s = s & FNm & vbCrLf
+            Next
+            MsgBox s
+        End If
     End With
 End Function
 Private Function FileOpenOld() As String
@@ -426,6 +459,24 @@ Catch:
     End If
 End Function
 
+Private Sub mnuFilePageSetup_Click()
+    Dim psd As New PageSetupDialog
+    'psd.AllowPrinter = False
+    'psd.AllowMargins = False
+    'psd.AllowOrientation = False
+    'psd.AllowPaper = False
+    If psd.ShowDialog(Me.hwnd) = vbOK Then
+        MsgBox "Driver, Device, Output: " & vbCrLf & psd.DriverName & ", " & psd.DeviceName & ", " & psd.OutputName & vbCrLf & _
+               "w*h: " & psd.PaperSizeWidth & " " & psd.PaperSizeHeight & vbCrLf & _
+               "margin-l,r,t,b=" & psd.MarginsLeft & ", " & psd.MarginsRight & ", " & psd.MarginsTop & ", " & psd.MarginsBottom & vbCrLf & _
+               "marginMin-l,r,t,b=" & psd.MinMarginsLeft & ", " & psd.MinMarginsRight & ", " & psd.MinMarginsTop & ", " & psd.MinMarginsBottom
+               
+               'Papiergröße
+               'Papierausrichtung
+               'Quelle, Schacht
+    End If
+End Sub
+
 Private Sub mnuFileSaveAs_Click()
     Dim FNm As String
     If mnuOptionUseOldComDlg.Checked Then FNm = FileSaveOld Else FNm = FileSaveNew
@@ -433,7 +484,7 @@ Private Sub mnuFileSaveAs_Click()
 End Sub
 Private Function FileSaveNew() As String
     With New SaveFileDialog
-        .Filter = MApp.FileExtFilter
+        '.Filter = MApp.FileExtFilter
         'Debug.Print .Filter
         '.ShowHelp = True
         If .ShowDialog = vbCancel Then Exit Function
@@ -461,7 +512,15 @@ End Function
 Private Sub mnuFilePrinter_Click()
     Dim PNm As String
     If mnuOptionUseOldComDlg.Checked Then PNm = FilePrinterOld Else PNm = FilePrinterNew
-    If Len(PNm) Then MsgBox PNm
+    If Len(PNm) = 0 Then Exit Sub
+    'If Len(PNm) Then MsgBox PNm
+    Set Printer = SelectPrinter(PNm)
+    
+    MsgBox Printer.DeviceName
+    MsgBox Printer.DriverName
+    Dim pk As PaperKind: pk = Printer.PaperSize
+    MsgBox pk & " = " & MPaperSize.PaperKind_ToStr(pk)
+    
 End Sub
 
 Private Function FilePrinterNew() As String
@@ -474,7 +533,9 @@ Private Function FilePrinterNew() As String
     'PDlg.ShowNetwork = True
     If PDlg.ShowDialog(Me) = vbCancel Then Exit Function
     FilePrinterNew = PDlg.PrinterSettings_PrinterName
-    'MsgBox PDlg.PrinterSettings_Copies
+    'Printer.DeviceName = PDlg.PrinterSettings_PrinterName
+    
+    MsgBox PDlg.PrinterSettings_Copies
     'MsgBox PDlg.PrinterSettings_PrintToFile
     'MsgBox PDlg.PrintToFile
 End Function

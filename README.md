@@ -15,7 +15,8 @@ contains classes for the very often used typical windows dialogs:
 * SaveFileDialog  
 * OpenFolderDialog (replaces FolderBrowserDialog)  
 * MessageBox  
-* PrintDialog (w/o unicode)
+* PageSetupDialog  
+* PrintDialog  
 
 they work mostly the same as the correspondent classes from System.Windows.Forms.  
 The classes are running in VB6 (aka VBC) as well as in VBA6 or VBA7 x86 or Win64.  
@@ -32,5 +33,6 @@ Special thanks goes to [Frank Schüler](https://foren.activevb.de/community/mitg
 ![OpenFolderDialog Image](Resources/Pictures/OpenFolderDialog.png "OpenFolderDialog Image")
 ![OpenFileFolderDialog Image](Resources/Pictures/OpenFileFolderDialog.png "OpenFileFolderDialog Image")
 ![FolderBrowserDialog Image](Resources/Pictures/FolderBrowserDialog.png "FolderBrowserDialog Image")
+![PageSetupDialog Image](Resources/Pictures/PageSetupDialog.png "PageSetupDialog Image")
 ![PrintDialog Image](Resources/Pictures/PrintDialog.png "PrintDialog Image")
 ![PrintDialogEx Image](Resources/Pictures/PrintDialogEx.png "PrintDialogEx Image")
