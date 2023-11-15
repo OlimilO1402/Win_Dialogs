@@ -460,12 +460,30 @@ Catch:
 End Function
 
 Private Sub mnuFilePageSetup_Click()
+    If mnuOptionUseOldComDlg.Checked Then
+        ShowPageSetupdialogOld
+    Else
+        ShowPageSetupdialogNew
+    End If
+End Sub
+
+Private Sub ShowPageSetupdialogOld()
+Try: On Error GoTo Catch
+    With Me.CommonDialog
+        .flags = .flags Or PrinterConstants.cdlPDPrintSetup
+        .ShowPrinter
+        MsgBox Printer.DeviceName
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
+End Sub
+
+Private Sub ShowPageSetupdialogNew()
     Dim psd As New PageSetupDialog
-    'psd.AllowPrinter = False
-    'psd.AllowMargins = False
-    'psd.AllowOrientation = False
-    'psd.AllowPaper = False
-    If psd.ShowDialog(Me.hwnd) = vbOK Then
+    With psd
+        If .ShowDialog = vbCancel Then Exit Sub
         MsgBox "Driver, Device, Output: " & vbCrLf & psd.DriverName & ", " & psd.DeviceName & ", " & psd.OutputName & vbCrLf & _
                "w*h: " & psd.PaperSizeWidth & " " & psd.PaperSizeHeight & vbCrLf & _
                "margin-l,r,t,b=" & psd.MarginsLeft & ", " & psd.MarginsRight & ", " & psd.MarginsTop & ", " & psd.MarginsBottom & vbCrLf & _
@@ -474,7 +492,7 @@ Private Sub mnuFilePageSetup_Click()
                'Papiergröße
                'Papierausrichtung
                'Quelle, Schacht
-    End If
+    End With
 End Sub
 
 Private Sub mnuFileSaveAs_Click()
@@ -519,7 +537,7 @@ Private Sub mnuFilePrinter_Click()
     MsgBox Printer.DeviceName
     MsgBox Printer.DriverName
     Dim pk As PaperKind: pk = Printer.PaperSize
-    MsgBox pk & " = " & MPaperSize.PaperKind_ToStr(pk)
+    MsgBox pk & " = " & MPrinterPaper.PaperKind_ToStr(pk)
     
 End Sub
 

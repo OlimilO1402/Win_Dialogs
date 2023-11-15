@@ -209,7 +209,7 @@ Try: On Error GoTo Catch
     If IsMissing(Frm) Then
         ahWndOwner = GetActiveWindow
     Else
-        ahWndOwner = Frm.hwnd
+        ahWndOwner = Frm.hWnd
     End If
     Dim ChCl As ChooseColorW
     With ChCl
@@ -228,9 +228,10 @@ Try: On Error GoTo Catch
         .lpfnHook = 0&
         .lpTemplateName = StrPtr(m_TemplateName) '"" '0&
     End With
-    ShowDialog = ChooseColorW(ChCl)
-    m_Color = ChCl.rgbResult
-    If ShowDialog = 0 Then
+    ShowDialog = IIf(ChooseColorW(ChCl) <> 0, vbOK, vbCancel)
+    If ShowDialog = vbOK Then
+        m_Color = ChCl.rgbResult
+    ElseIf ShowDialog = vbCancel Then
         m_CustomColors() = CancelColors()
         CheckMessError
     End If
