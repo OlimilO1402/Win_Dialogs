@@ -450,14 +450,15 @@ Public Function PaperSize_ToStr(this As PaperSize) As String
     PaperSize_ToStr = s & "]"
 End Function
 
-Public Function PaperOrientation_ToStr(ByVal po As PrinterOrientationConstants) As String
-    Dim s As String
-    Select Case po
-    Case PrinterOrientationConstants.cdlPortrait:  s = "Hochformat" '"Portrait"
-    Case PrinterOrientationConstants.cdlLandscape: s = "Querformat" '"Landscape"
-    Case Else: s = CStr(po)
-    End Select
-    PaperOrientation_ToStr = s
+Public Function PaperOrientation_ToStr(ByVal po As Long) As String
+'Public Function PaperOrientation_ToStr(ByVal po As PrinterOrientationConstants) As String
+'    Dim s As String
+'    Select Case po
+'    Case PrinterOrientationConstants.cdlPortrait:  s = "Hochformat" '"Portrait"
+'    Case PrinterOrientationConstants.cdlLandscape: s = "Querformat" '"Landscape"
+'    Case Else: s = CStr(po)
+'    End Select
+'    PaperOrientation_ToStr = s
 End Function
 
 Public Function PaperSource_ToStr(ByVal psk As PaperSourceKind) As String
@@ -482,24 +483,25 @@ Public Function PaperSource_ToStr(ByVal psk As PaperSourceKind) As String
     PaperSource_ToStr = s
 End Function
 
-Public Function PrinterConstants_ToStr(prc As PrinterConstants) As String
-    Dim s As String
-    If prc And cdlPDAllPages Then s = s & IIf(Len(s) > 0, ", ", "") & "AllPages"
-    If prc And cdlPDSelection Then s = s & IIf(Len(s) > 0, ", ", "") & "Selection"
-    If prc And cdlPDPageNums Then s = s & IIf(Len(s) > 0, ", ", "") & "PageNums"
-    If prc And cdlPDNoSelection Then s = s & IIf(Len(s) > 0, ", ", "") & "NoSelection"
-    If prc And cdlPDNoPageNums Then s = s & IIf(Len(s) > 0, ", ", "") & "NoPageNums"
-    If prc And cdlPDCollate Then s = s & IIf(Len(s) > 0, ", ", "") & "Collate"
-    If prc And cdlPDPrintToFile Then s = s & IIf(Len(s) > 0, ", ", "") & "PrintToFile"
-    If prc And cdlPDPrintSetup Then s = s & IIf(Len(s) > 0, ", ", "") & "PrintSetup"
-    If prc And cdlPDNoWarning Then s = s & IIf(Len(s) > 0, ", ", "") & "NoWarning"
-    If prc And cdlPDReturnDC Then s = s & IIf(Len(s) > 0, ", ", "") & "ReturnDC"
-    If prc And cdlPDReturnIC Then s = s & IIf(Len(s) > 0, ", ", "") & "ReturnIC"
-    If prc And cdlPDReturnDefault Then s = s & IIf(Len(s) > 0, ", ", "") & "ReturnDefault"
-    If prc And cdlPDHelpButton Then s = s & IIf(Len(s) > 0, ", ", "") & "HelpButton"
-    If prc And cdlPDUseDevModeCopies Then s = s & IIf(Len(s) > 0, ", ", "") & "UseDevModeCopies"
-    If prc And cdlPDDisablePrintToFile Then s = s & IIf(Len(s) > 0, ", ", "") & "DisablePrintToFile"
-    If prc And cdlPDHidePrintToFile Then s = s & IIf(Len(s) > 0, ", ", "") & "HidePrintToFile"
-    PrinterConstants_ToStr = s
+Public Function PrinterConstants_ToStr(prc As Long) As String
+'Public Function PrinterConstants_ToStr(prc As PrinterConstants) As String
+'    Dim s As String
+'    If prc And cdlPDAllPages Then s = s & IIf(Len(s) > 0, ", ", "") & "AllPages"
+'    If prc And cdlPDSelection Then s = s & IIf(Len(s) > 0, ", ", "") & "Selection"
+'    If prc And cdlPDPageNums Then s = s & IIf(Len(s) > 0, ", ", "") & "PageNums"
+'    If prc And cdlPDNoSelection Then s = s & IIf(Len(s) > 0, ", ", "") & "NoSelection"
+'    If prc And cdlPDNoPageNums Then s = s & IIf(Len(s) > 0, ", ", "") & "NoPageNums"
+'    If prc And cdlPDCollate Then s = s & IIf(Len(s) > 0, ", ", "") & "Collate"
+'    If prc And cdlPDPrintToFile Then s = s & IIf(Len(s) > 0, ", ", "") & "PrintToFile"
+'    If prc And cdlPDPrintSetup Then s = s & IIf(Len(s) > 0, ", ", "") & "PrintSetup"
+'    If prc And cdlPDNoWarning Then s = s & IIf(Len(s) > 0, ", ", "") & "NoWarning"
+'    If prc And cdlPDReturnDC Then s = s & IIf(Len(s) > 0, ", ", "") & "ReturnDC"
+'    If prc And cdlPDReturnIC Then s = s & IIf(Len(s) > 0, ", ", "") & "ReturnIC"
+'    If prc And cdlPDReturnDefault Then s = s & IIf(Len(s) > 0, ", ", "") & "ReturnDefault"
+'    If prc And cdlPDHelpButton Then s = s & IIf(Len(s) > 0, ", ", "") & "HelpButton"
+'    If prc And cdlPDUseDevModeCopies Then s = s & IIf(Len(s) > 0, ", ", "") & "UseDevModeCopies"
+'    If prc And cdlPDDisablePrintToFile Then s = s & IIf(Len(s) > 0, ", ", "") & "DisablePrintToFile"
+'    If prc And cdlPDHidePrintToFile Then s = s & IIf(Len(s) > 0, ", ", "") & "HidePrintToFile"
+'    PrinterConstants_ToStr = s
 End Function
 

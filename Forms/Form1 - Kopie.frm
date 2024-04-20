@@ -1,4 +1,5 @@
 VERSION 5.00
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form FMain 
    Caption         =   "WinDialogs"
    ClientHeight    =   6495
@@ -19,15 +20,6 @@ Begin VB.Form FMain
    ScaleHeight     =   6495
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
-   Begin VB.PictureBox CommonDialog 
-      Height          =   495
-      Left            =   4800
-      ScaleHeight     =   435
-      ScaleWidth      =   435
-      TabIndex        =   22
-      Top             =   0
-      Width           =   495
-   End
    Begin VB.CommandButton Command6 
       Caption         =   "Command6"
       Height          =   375
@@ -67,6 +59,13 @@ Begin VB.Form FMain
       TabIndex        =   17
       Top             =   1920
       Width           =   2655
+   End
+   Begin MSComDlg.CommonDialog CommonDialog 
+      Left            =   4800
+      Top             =   0
+      _ExtentX        =   847
+      _ExtentY        =   847
+      _Version        =   393216
    End
    Begin VB.CommandButton Command4 
       Caption         =   "locale Folders"
@@ -270,15 +269,11 @@ Begin VB.Form FMain
       Begin VB.Menu mnuEditPathChoose 
          Caption         =   "Select Folder (old FolderBrowser)"
       End
-      Begin VB.Menu mnuEditFindReplace 
-         Caption         =   "Find Replace..."
-      End
    End
    Begin VB.Menu mnuOption 
       Caption         =   "&Option"
       Begin VB.Menu mnuOptionUseOldComDlg 
          Caption         =   "Use old CommonDialog-control"
-         Enabled         =   0   'False
       End
    End
    Begin VB.Menu mnuHelp 
@@ -295,9 +290,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 Private CD  As New ColorDialog
-Private m_FR As FindReplaceDialog
-Private m_StringToSearchIn As String
-Private m_FindWhat As String
 
 Private Sub BtnTestTaskDialog_Click()
     Dim vlg As String: vlg = ", we make it very long to see what happens if it is too long, maybe there are line breaks . . ."
@@ -342,12 +334,12 @@ Private Sub Form_Load()
 End Sub
 
 Private Sub BtnAllDialogs_Click()
-'    Me.CommonDialog.ShowColor
-'    Me.CommonDialog.ShowFont
-'    'Me.CommonDialog.ShowHelp
-'    Me.CommonDialog.ShowOpen
-'    Me.CommonDialog.ShowPrinter 'still missing here
-'    Me.CommonDialog.ShowSave
+    Me.CommonDialog.ShowColor
+    Me.CommonDialog.ShowFont
+    'Me.CommonDialog.ShowHelp
+    Me.CommonDialog.ShowOpen
+    Me.CommonDialog.ShowPrinter 'still missing here
+    Me.CommonDialog.ShowSave
 End Sub
 
 Private Sub BtnTestMessageBox_Click()
@@ -396,18 +388,6 @@ Private Sub BtnTestMessageBox_Click()
         MsgBox .Result_ToStr(hr)
     End With
     MsgBox MWin.HelpInfo_ToStr
-End Sub
-
-Private Sub mnuEditFindReplace_Click()
-    If m_FR Is Nothing Then
-        Set m_FR = New FindReplaceDialog
-    End If
-    m_StringToSearchIn = "Quick brown fos jumps over the lazy dog"
-    m_FR.FindWhat = "over"
-    m_FR.ReplaceWith = "   o v e r   "
-    m_FR.MatchCase = True
-    m_FR.ShowDialog Me
-    MsgBox m_FR.LastError
 End Sub
 
 Private Sub mnuEditFolderSelectOFD_Click()
@@ -461,22 +441,22 @@ Private Function FileOpenNew() As String
     End With
 End Function
 Private Function FileOpenOld() As String
-'Try: On Error GoTo Catch
-'    With Me.CommonDialog
-'        .Filter = MApp.FileExtFilter
-'        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
-'        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
-'        .DefaultExt = ".htm"
-'        .CancelError = True
-'        .flags = .flags Or FileOpenConstants.cdlOFNAllowMultiselect
-'        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
-'        .ShowOpen
-'        FileOpenOld = .FileName
-'    End With
-'Catch:
-'    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
-'        MComDlgCtrl.MessCommonDlgError Err.Number
-'    End If
+Try: On Error GoTo Catch
+    With Me.CommonDialog
+        .Filter = MApp.FileExtFilter
+        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
+        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
+        .DefaultExt = ".htm"
+        .CancelError = True
+        .flags = .flags Or FileOpenConstants.cdlOFNAllowMultiselect
+        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
+        .ShowOpen
+        FileOpenOld = .FileName
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
 End Function
 
 Private Sub mnuFilePageSetup_Click()
@@ -488,16 +468,16 @@ Private Sub mnuFilePageSetup_Click()
 End Sub
 
 Private Sub ShowPageSetupdialogOld()
-'Try: On Error GoTo Catch
-'    With Me.CommonDialog
-'        .flags = .flags Or PrinterConstants.cdlPDPrintSetup
-'        .ShowPrinter
-'        MsgBox Printer.DeviceName
-'    End With
-'Catch:
-'    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
-'        MComDlgCtrl.MessCommonDlgError Err.Number
-'    End If
+Try: On Error GoTo Catch
+    With Me.CommonDialog
+        .flags = .flags Or PrinterConstants.cdlPDPrintSetup
+        .ShowPrinter
+        MsgBox Printer.DeviceName
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
 End Sub
 
 Private Sub ShowPageSetupdialogNew()
@@ -530,21 +510,21 @@ Private Function FileSaveNew() As String
     End With
 End Function
 Private Function FileSaveOld() As String
-'Try: On Error GoTo Catch
-'    With Me.CommonDialog
-'        .Filter = MApp.FileExtFilter
-'        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
-'        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
-'        .DefaultExt = ".htm"
-'        .CancelError = True
-'        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
-'        .ShowOpen
-'        FileSaveOld = .FileName
-'    End With
-'Catch:
-'    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
-'        MComDlgCtrl.MessCommonDlgError Err.Number
-'    End If
+Try: On Error GoTo Catch
+    With Me.CommonDialog
+        .Filter = MApp.FileExtFilter
+        .flags = .flags Or FileOpenConstants.cdlOFNFileMustExist
+        .flags = .flags Or FileOpenConstants.cdlOFNPathMustExist
+        .DefaultExt = ".htm"
+        .CancelError = True
+        .flags = .flags Or FileOpenConstants.cdlOFNReadOnly
+        .ShowOpen
+        FileSaveOld = .FileName
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
 End Function
 
 Private Sub mnuFilePrinter_Click()
@@ -578,16 +558,16 @@ Private Function FilePrinterNew() As String
     'MsgBox PDlg.PrintToFile
 End Function
 Private Function FilePrinterOld() As String
-'Try: On Error GoTo Catch
-'    With Me.CommonDialog
-'        .CancelError = True
-'        .ShowPrinter
-'        FilePrinterOld = Printer.DeviceName
-'    End With
-'Catch:
-'    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
-'        MComDlgCtrl.MessCommonDlgError Err.Number
-'    End If
+Try: On Error GoTo Catch
+    With Me.CommonDialog
+        .CancelError = True
+        .ShowPrinter
+        FilePrinterOld = Printer.DeviceName
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
 End Function
 
 '--------------------------------------------------
@@ -612,18 +592,18 @@ Private Function ColorChooseNew() As Long
     End With
 End Function
 Private Function ColorChooseOld() As Long
-'    ColorChooseOld = -1
-'Try: On Error GoTo Catch
-'    With CommonDialog
-'        .Color = LblCD.BackColor
-'        .CancelError = True
-'        .ShowColor
-'        ColorChooseOld = .Color
-'    End With
-'Catch:
-'    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
-'        MComDlgCtrl.MessCommonDlgError Err.Number
-'    End If
+    ColorChooseOld = -1
+Try: On Error GoTo Catch
+    With CommonDialog
+        .Color = LblCD.BackColor
+        .CancelError = True
+        .ShowColor
+        ColorChooseOld = .Color
+    End With
+Catch:
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
 End Function
 
 Private Sub mnuEditFontChoose_Click()
@@ -644,24 +624,24 @@ Private Function FontDialogNew(Font_in As StdFont, ByRef Color_inout As Long) As
     End With
 End Function
 Private Function FontDialogOld(Font_in As StdFont, ByRef Color_inout As Long) As StdFont
-'Try: On Error GoTo Catch
-'    Dim Font As StdFont
-'    With CommonDialog
-'        .CancelError = True
-'        .Color = Color_inout
-'        .FontName = Font_in.Name
-'        .FontSize = Font_in.Size
-'        .FontBold = Font_in.Bold
-'        .FontItalic = Font_in.Italic
-'        .FontUnderline = Font_in.Underline
-'        .FontStrikethru = Font_in.Strikethrough
-'        .ShowFont
-'    End With
-'Catch:
-'    Set FontDialogOld = Font_in
-'    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
-'        MComDlgCtrl.MessCommonDlgError Err.Number
-'    End If
+Try: On Error GoTo Catch
+    Dim Font As StdFont
+    With CommonDialog
+        .CancelError = True
+        .Color = Color_inout
+        .FontName = Font_in.Name
+        .FontSize = Font_in.Size
+        .FontBold = Font_in.Bold
+        .FontItalic = Font_in.Italic
+        .FontUnderline = Font_in.Underline
+        .FontStrikethru = Font_in.Strikethrough
+        .ShowFont
+    End With
+Catch:
+    Set FontDialogOld = Font_in
+    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+        MComDlgCtrl.MessCommonDlgError Err.Number
+    End If
 End Function
 
 Private Sub mnuEditFolderChoose_Click()

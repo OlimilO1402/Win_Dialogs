@@ -20,3 +20,12 @@ Public Function CCallBack(ByVal obj As Object) As ICallBack
     Set CCallBack = obj
 End Function
 
+'  HWND unnamedParam1,
+'  UINT unnamedParam2,
+'  WPARAM unnamedParam3,
+'  lParam unnamedParam4
+
+Public Function FindReplaceCallBack(ByVal param1 As LongPtr, ByVal param2 As Long, ByVal param3 As Long, ByVal param4 As Long)
+    '
+    
+End Function
