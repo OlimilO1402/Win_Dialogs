@@ -13,7 +13,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 'https://learn.microsoft.com/de-de/windows/win32/dlgbox/using-common-dialog-boxes#finding-text
-
+'https://learn.microsoft.com/en-us/windows/win32/dlgbox/find-and-replace-dialog-boxes
 
 Private Const CDERR_STRUCTSIZE      As Long = &H1    '    The lStructSize member of the initialization structure for the corresponding common dialog box is invalid.
 Private Const CDERR_INITIALIZATION  As Long = &H2    '    The common dialog box function failed during initialization. This error often occurs when sufficient memory is not available.
