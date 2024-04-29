@@ -104,13 +104,13 @@ Private Type FINDREPLACEW
     hwndOwner        As LongPtr
     hInstance        As LongPtr
     flags            As Long
-    lpstrFindWhat    As String  'LongPtr LPWSTR
-    lpstrReplaceWith As String  'LongPtr LPWSTR
+    lpstrFindWhat    As LongPtr 'String  'LPWSTR
+    lpstrReplaceWith As LongPtr 'String  'LPWSTR
     wFindWhatLen     As Integer
     wReplaceWithLen  As Integer
     lCustData        As Long
     lpfnHook         As LongPtr 'LPFRHOOKPROC
-    lpTemplateName   As String  'LPCWSTR
+    lpTemplateName   As LongPtr 'String  'LPCWSTR
 End Type ' FINDREPLACEW, *LPFINDREPLACEW
 
 'LPFRHOOKPROC Lpfrhookproc;
@@ -155,6 +155,7 @@ Private mFlags           As Long
 Private m_hWnd           As LongPtr
 Private m_FindWhat       As String
 Private m_ReplaceWith    As String
+Private m_IsReplaceDlg   As Boolean
 Private m_Err            As Long
 
 Private Sub Class_Initialize()
@@ -166,27 +167,34 @@ Private Sub Class_Initialize()
     mFlags = mFlags Or FR_DOWN
 End Sub
 
-Public Function ShowDialog(Optional Frm As Object) As VbMsgBoxResult
+Friend Sub New_(ByVal FindWhat As String, Optional ByVal ReplaceWith As String, Optional ByVal bReplaceDlg As Boolean = False)
+    m_FindWhat = FindWhat: m_ReplaceWith = ReplaceWith: m_IsReplaceDlg = bReplaceDlg
+End Sub
+
+Public Sub ShowDialog(Optional Frm As Object)
     With m_FindReplaceDlg
         .flags = mFlags
         If Not IsMissing(Frm) Then
-            'Dim f As Form: Set f = Frm
-            'if typeof(frm) is Form then
             .hwndOwner = Frm.hwnd
-            'End If
         End If
-        .lpstrFindWhat = StrPtr(m_FindWhat)
-        .wFindWhatLen = Len(m_FindWhat)
-        .lpstrReplaceWith = StrPtr(m_ReplaceWith)
-        .wReplaceWithLen = Len(m_ReplaceWith)
+        .lpstrFindWhat = StrPtr(m_FindWhat & vbNullChar)
+        .wFindWhatLen = Len(m_FindWhat & vbNullChar)
+        .lpstrReplaceWith = StrPtr(m_ReplaceWith & vbNullChar)
+        .wReplaceWithLen = Len(m_ReplaceWith & vbNullChar)
     End With
     m_hWnd = FindTextW(m_FindReplaceDlg)
     
     If m_hWnd = 0 Then
         m_Err = CommDlgExtendedError
     End If
-    ShowDialog = vbOK
-End Function
+End Sub
+
+Public Property Get IsReplacDlg() As Boolean
+    IsReplacDlg = m_IsReplacDlg
+End Property
+Public Property Let IsReplacDlg(ByVal Value As Boolean)
+    m_IsReplacDlg = Value
+End Property
 
 Public Property Get FindWhat() As String
     FindWhat = m_FindWhat

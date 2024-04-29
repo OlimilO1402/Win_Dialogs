@@ -401,6 +401,7 @@ End Sub
 Private Sub mnuEditFindReplace_Click()
     If m_FR Is Nothing Then
         Set m_FR = New FindReplaceDialog
+        m_FR.IsReplacDlg = False
     End If
     m_StringToSearchIn = "Quick brown fos jumps over the lazy dog"
     m_FR.FindWhat = "over"

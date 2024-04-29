@@ -22,6 +22,7 @@ Module=MPrinterPaper; Modules\MPrinter.bas
 Class=TaskDialogSE; Classes\TaskDialogSE.cls
 Class=PageSetupDialog; Classes\PageSetupDialog.cls
 Class=FindReplaceDialog; Classes\FindReplaceDialog.cls
+Module=MFindReplaceDialog; Modules\MFindReplaceDialog.bas
 ResFile32="Resources\MyRes.RES"
 IconForm="FMain"
 Startup="Sub Main"

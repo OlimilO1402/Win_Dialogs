@@ -7,7 +7,7 @@ Option Explicit
     End Enum
 #End If
 
-Public Declare Sub RtlMoveMemory Lib "kernel32" (ByRef Dst As Any, ByRef src As Any, ByVal bytLength As Long)
+Public Declare Sub RtlMoveMemory Lib "kernel32" (ByRef pDst As Any, ByRef pSrc As Any, ByVal bytLength As Long)
 
 Public Declare Sub RtlZeroMemory Lib "kernel32" (ByRef Dst As Any, ByVal bytLength As Long)
 
