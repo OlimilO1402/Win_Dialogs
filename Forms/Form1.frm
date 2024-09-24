@@ -566,11 +566,13 @@ Private Function FilePrinterNew() As String
     Dim PDlg As New PrintDialog
     'PDlg.ShowHelp = True
     'PDlg.AllowPrintToFile = True
-    PDlg.AllowSelection = True
+    'PDlg.AllowSelection = True
     'PDlg.PrinterSettings_MinimumPage = 1
     'PDlg.PrinterSettings_MaximumPage = 20
     'PDlg.ShowNetwork = True
-    If PDlg.ShowDialog(Me) = vbCancel Then Exit Function
+    If PDlg.ShowDialog(Me) = vbOK Then
+        MsgBox "OK"
+    End If
     FilePrinterNew = PDlg.PrinterSettings_PrinterName
     'Printer.DeviceName = PDlg.PrinterSettings_PrinterName
     
