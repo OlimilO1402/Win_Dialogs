@@ -555,28 +555,33 @@ Private Sub mnuFilePrinter_Click()
     'If Len(PNm) Then MsgBox PNm
     Set Printer = SelectPrinter(PNm)
     
-    MsgBox Printer.DeviceName
-    MsgBox Printer.DriverName
-    Dim pk As PaperKind: pk = Printer.PaperSize
-    MsgBox pk & " = " & MPrinterPaper.PaperKind_ToStr(pk)
+    'MsgBox Printer.DeviceName
+    'MsgBox Printer.DriverName
+    'Dim pk As PaperKind: pk = Printer.PaperSize
+    'MsgBox pk & " = " & MPrinterPaper.PaperKind_ToStr(pk)
     
 End Sub
 
 Private Function FilePrinterNew() As String
     Dim PDlg As New PrintDialog
-    'PDlg.ShowHelp = True
-    'PDlg.AllowPrintToFile = True
-    'PDlg.AllowSelection = True
-    'PDlg.PrinterSettings_MinimumPage = 1
-    'PDlg.PrinterSettings_MaximumPage = 20
-    'PDlg.ShowNetwork = True
+    'PDlg.UseEXDialog = True
+    PDlg.PrinterSettings_FromPage = 5
+    PDlg.PrinterSettings_ToPage = 20
+    PDlg.PrinterSettings_MinimumPage = 1
+    PDlg.PrinterSettings_MaximumPage = 25
+    PDlg.PrinterSettings_Copies = 14
+    PDlg.AllowPrintToFile = True
     If PDlg.ShowDialog(Me) = vbOK Then
-        MsgBox "OK"
+        MsgBox "PrinterSettings.PrinterName       : " & PDlg.PrinterSettings_PrinterName & vbCrLf & _
+               "PrinterSettings.PrinterDriverName : " & PDlg.PrinterSettings_PrinterDriverName & vbCrLf & _
+               "PrinterSettings.PrinterOutputName : " & PDlg.PrinterSettings_PrinterOutputName & vbCrLf & _
+               "PrinterSettings.PrinterDefaultName: " & PDlg.PrinterSettings_PrinterDefaultName & vbCrLf & _
+               "PrinterSettings.IsDefaultPrinter  : " & PDlg.PrinterSettings_IsDefaultPrinter & vbCrLf & _
+               "PrinterSettings.Copies            : " & PDlg.PrinterSettings_Copies
     End If
     FilePrinterNew = PDlg.PrinterSettings_PrinterName
     'Printer.DeviceName = PDlg.PrinterSettings_PrinterName
-    
-    MsgBox PDlg.PrinterSettings_Copies
+        
     'MsgBox PDlg.PrinterSettings_PrintToFile
     'MsgBox PDlg.PrintToFile
 End Function

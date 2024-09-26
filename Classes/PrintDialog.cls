@@ -325,21 +325,21 @@ Private Const GPTR                 As Long = &H42 ' kombiniert GMEM_FIXED und GE
     Private Declare PtrSafe Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
     Private Declare PtrSafe Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
     Private Declare PtrSafe Function GlobalSize Lib "kernel32" (ByVal hMem As LongPtr) As Long
-
     Private Declare PtrSafe Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
     Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal BytLen As Long)
-    
     #If IsUnicode Then
-        Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (pPrintDlg As TPrintDialog) As Long
+        'Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (ByRef PrintDlg As TPrintDialog) As Long
+        Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (ByVal pPrintDlgW As LongPtr) As Long
         'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
-        Private Declare PtrSafe Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExW" (ByRef TLPPRINTDLGEX As TPrintDialogEx) As Long
+        'Private Declare PtrSafe Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExW" (ByRef TLPPRINTDLGEX As TPrintDialogEx) As Long
+        Private Declare PtrSafe Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExW" (ByVal LPPRINTDLGEXW As LongPtr) As Long
     #Else
-        Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (pPrintDlg As TPrintDialog) As Long
+        'Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (ByRef PrintDlgA As TPrintDialog) As Long
+        Private Declare PtrSafe Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (ByVal pPrintDlgA As LongPtr) As Long
         'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
-        Private Declare PtrSafe Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExA" (ByRef TLPPRINTDLGEX As TPrintDialogEx) As Long
+        'Private Declare PtrSafe Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExA" (ByRef TLPPRINTDLGEX As TPrintDialogEx) As Long
+        Private Declare PtrSafe Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExA" (ByVal LPPRINTDLGEXA As LongPtr) As Long
     #End If
-    'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
-    Private Declare PtrSafe Function PrintDlgExW Lib "comdlg32" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
     Private Declare PtrSafe Function PrinterMessageBoxW Lib "winspool" (ByVal hPrinter As LongPtr, ByVal error As Long, ByVal hwnd As LongPtr, ByVal pText As LongPtr, ByVal pCaption As LongPtr, ByVal dwType As Long) As Long
     Private Declare PtrSafe Function PrinterProperties Lib "winspool" (ByVal hwnd As LongPtr, ByVal hPrinter As LongPtr) As Long
     Private Declare PtrSafe Function GetDesktopWindow Lib "user32" () As LongPtr
@@ -349,21 +349,23 @@ Private Const GPTR                 As Long = &H42 ' kombiniert GMEM_FIXED und GE
     Private Declare Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
     Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As Long
     Private Declare Function GlobalSize Lib "kernel32" (ByVal hMem As LongPtr) As Long
-    
     Private Declare Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
     Private Declare Sub RtlMoveMemory Lib "kernel32" (pDst As Any, pSrc As Any, ByVal bytLen As Long)
-    
     #If IsUnicode Then
-        Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (pPrintDlg As TPrintDialog) As Long
+        'Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (ByRef PrintDlg As TPrintDialog) As Long
+        Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgW" (ByVal pPrintDlgW As LongPtr) As Long
         'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
-        Private Declare Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExW" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
+        'Private Declare Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExW" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
+        Private Declare Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExW" (ByVal LPPRINTDLGEXW As LongPtr) As Long
     #Else
-        Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (pPrintDlg As TPrintDialog) As Long
+        'Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (ByRef PrintDlg As TPrintDialog) As Long
+        Private Declare Function PrintDlg Lib "comdlg32" Alias "PrintDlgA" (ByVal pPrintDlgA As LongPtr) As Long
         'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
-        Private Declare Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExA" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
+        'Private Declare Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExA" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
+        Private Declare Function PrintDlgEx Lib "comdlg32" Alias "PrintDlgExA" (ByVal LPPRINTDLGEXA As LongPtr) As Long
     #End If
     'https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms646940(v=vs.85)
-    Private Declare Function PrintDlgExW Lib "comdlg32" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
+    'Private Declare Function PrintDlgExW Lib "comdlg32" (ByRef TLPPRINTDLGEXW As TPrintDialogEx) As Long
     Private Declare Function PrinterMessageBoxW Lib "winspool" (ByVal hPrinter As LongPtr, ByVal error As Long, ByVal hwnd As LongPtr, ByVal pText As LongPtr, ByVal pCaption As LongPtr, ByVal dwType As Long) As Long
     Private Declare Function PrinterProperties Lib "winspool" (ByVal hwnd As LongPtr, ByVal hPrinter As LongPtr) As Long
     Private Declare Function GetDesktopWindow Lib "user32" () As LongPtr
@@ -491,7 +493,7 @@ Private Type TDeviceNames
     wOutputOffset    As Integer      '   2
     wDefault         As Integer      '   2
     'extra(0 To 99)   As Byte 'String * 100
-    extra            As String * 100 ' 100
+    extra            As String * 200 ' 100
     'extra(0 To 100 - 1) As Byte '* 100
 End Type                        ' Sum: 108
 
@@ -547,10 +549,14 @@ Private m_DefaultName As String
 Private mFlags        As Long
 
 Private Sub Class_Initialize()
-    m_PrintDialog.lStructSize = LenB(m_PrintDialog) '66' 110 '120
+#If Win64 Then
+    m_PrintDialog.lStructSize = LenB(m_PrintDialog) ' 120
+#Else
+    m_PrintDialog.lStructSize = Len(m_PrintDialog)  '  66 here LenB gets 68 -> doesn't work
+#End If
     m_PrintDialogEx.lStructSize = LenB(m_PrintDialogEx) '120 '136
-    'PD_DISABLEPRINTTOFILE Or
     mFlags = PD_COLLATE Or PD_NOSELECTION 'PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
+    'mFlags = PD_DISABLEPRINTTOFILE Or PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
 End Sub
 
 'Properties of Windows.Forms.PrintDialog
@@ -615,7 +621,8 @@ Public Property Get ShowNetwork() As Boolean
     ShowNetwork = (m_PrintDialog.flags And PD_NONETWORKBUTTON) = 0
 End Property
 Public Property Let ShowNetwork(ByVal Value As Boolean)
-    ShowNetwork = (m_PrintDialog.flags And PD_NONETWORKBUTTON) = 0
+    mFlags = mFlags Or PD_NONETWORKBUTTON
+    If Value Then mFlags = mFlags Xor PD_NONETWORKBUTTON
 End Property
 
 'Public Property Get Container() As IContainer
@@ -881,16 +888,16 @@ Try: On Error GoTo Catch
         With m_PrintDialogEx
             .flags = mFlags
         End With
-        hr = PrintDlgEx(m_PrintDialogEx)
+        hr = PrintDlgEx(VarPtr(m_PrintDialogEx))
     Else
         With m_PrintDialog
-            '.hwndOwner = GethWnd(FOwner)
+            .hwndOwner = GethWnd(FOwner)
             .hInstance = App_hInstance
             
             .hDevMode = hMemMode
             .hDevNames = hMemName
-            '.flags = mFlags
-            .flags = PD_DISABLEPRINTTOFILE Or PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
+            .flags = mFlags
+            '.flags = PD_DISABLEPRINTTOFILE Or PD_RETURNDC Or PD_ALLPAGES Or PD_PAGENUMS Or PD_USEDEVMODECOPIESANDCOLLATE
             
             '.flags = PD_USEDEVMODECOPIESANDCOLLATE Or PD_RETURNDC
             '.nCopies = 1
@@ -899,37 +906,41 @@ Try: On Error GoTo Catch
             '.nMinPage = 1
             '.nMaxPage = 100 '&HFFFF
         End With
-        hr = PrintDlg(m_PrintDialog)
+        hr = PrintDlg(VarPtr(m_PrintDialog))
         mFlags = m_PrintDialog.flags
-    End If
-    ShowDialog = IIf(hr, vbOK, vbCancel)
-    If ShowDialog = vbOK Then
-        ' Dev_Mode wieder aus dem Speicherblock in die Struktur kopieren und
-        ' Speicherblock zerstören
-        pMemMode = GlobalLock(m_PrintDialog.hDevMode) ' Speicherblock sperren
-        RtlMoveMemory m_DeviceMode, ByVal pMemMode, LenB(m_DeviceMode) ' Daten aus dem
-        ' Speicherblock in die Struktur kopieren
-        GlobalUnlock m_PrintDialog.hDevMode ' Speicherblock entsperren
-        'GlobalFree PD.hDevMode ' Speicherblock zerstören
-        
-        GetNames m_PrintDialog.hDevNames
-        ' Dev_Names wieder aus dem Speicherblock in die Struktur kopieren und
-        ' Speicherblock zerstören
-        pMemName = GlobalLock(m_PrintDialog.hDevNames)  ' Speicherblock sperren
-        RtlMoveMemory m_DeviceNames, ByVal pMemName, LenB(m_DeviceNames) ' Daten aus dem
-        ' Speicherblock in die Struktur kopieren
-        GlobalUnlock m_PrintDialog.hDevNames ' Speicherblock entsperren
-        'GlobalFree PD.hDevNames ' Speicherblock zerstören
+        ShowDialog = IIf(hr, vbOK, vbCancel)
+        If ShowDialog = vbOK Then
+            ' Dev_Mode wieder aus dem Speicherblock in die Struktur kopieren und
+            ' Speicherblock zerstören
+            pMemMode = GlobalLock(m_PrintDialog.hDevMode) ' Speicherblock sperren
+            RtlMoveMemory m_DeviceMode, ByVal pMemMode, LenB(m_DeviceMode) ' Daten aus dem
+            ' Speicherblock in die Struktur kopieren
+            GlobalUnlock m_PrintDialog.hDevMode ' Speicherblock entsperren
+            'GlobalFree PD.hDevMode ' Speicherblock zerstören
+            
+            GetNames m_PrintDialog.hDevNames
+            ' Dev_Names wieder aus dem Speicherblock in die Struktur kopieren und
+            ' Speicherblock zerstören
+            pMemName = GlobalLock(m_PrintDialog.hDevNames)  ' Speicherblock sperren
+            RtlMoveMemory m_DeviceNames, ByVal pMemName, LenB(m_DeviceNames) ' Daten aus dem
+            ' Speicherblock in die Struktur kopieren
+            GlobalUnlock m_PrintDialog.hDevNames ' Speicherblock entsperren
+            'GlobalFree PD.hDevNames ' Speicherblock zerstören
+        End If
     End If
     
     GoTo Finally
 Catch:
     MsgBox "Error calling PrintDialog"
 Finally:
-    GlobalFree m_PrintDialog.hDevMode  ' Speicher freigeben
-    GlobalFree m_PrintDialog.hDevNames ' Speicher freigeben
-    ' Device-Kontext freigeben
-    DeleteObject m_PrintDialog.hDC
+    If m_UseEXDialog Then
+        '
+    Else
+        GlobalFree m_PrintDialog.hDevMode  ' Speicher freigeben
+        GlobalFree m_PrintDialog.hDevNames ' Speicher freigeben
+        ' Device-Kontext freigeben
+        DeleteObject m_PrintDialog.hDC
+    End If
 End Function
 
 
