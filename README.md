@@ -36,3 +36,4 @@ Special thanks goes to [Frank Schüler](https://foren.activevb.de/community/mitg
 ![PageSetupDialog Image](Resources/Pictures/PageSetupDialog.png "PageSetupDialog Image")
 ![PrintDialog Image](Resources/Pictures/PrintDialog.png "PrintDialog Image")
 ![PrintDialogEx Image](Resources/Pictures/PrintDialogEx.png "PrintDialogEx Image")
+![PrintDialogWinUI Image](Resources/Pictures/PrintDialogWinUI.png "PrintDialogWinUI Image")
