@@ -14,7 +14,7 @@ Begin VB.Form FMain
       Italic          =   0   'False
       Strikethrough   =   0   'False
    EndProperty
-   Icon            =   "Form1.frx":0000
+   Icon            =   "FMain.frx":0000
    LinkTopic       =   "Form1"
    ScaleHeight     =   6495
    ScaleWidth      =   5295
@@ -151,7 +151,7 @@ Begin VB.Form FMain
       Width           =   5055
    End
    Begin VB.Label Label2 
-      Caption         =   $"Form1.frx":1782
+      Caption         =   $"FMain.frx":1782
       Height          =   375
       Left            =   120
       TabIndex        =   16
@@ -244,7 +244,16 @@ Begin VB.Form FMain
          Caption         =   "Page Setup..."
       End
       Begin VB.Menu mnuFilePrinter 
-         Caption         =   "Print..."
+         Caption         =   "Print"
+         Begin VB.Menu mnuFilePrinter1 
+            Caption         =   "PrintDialog..."
+         End
+         Begin VB.Menu mnuFilePrinter2 
+            Caption         =   "PrintDialogEx..."
+         End
+         Begin VB.Menu mnuFilePrinter3 
+            Caption         =   "PrintDlgWinUI..."
+         End
       End
       Begin VB.Menu mnuFileSep1 
          Caption         =   "-"
@@ -278,7 +287,6 @@ Begin VB.Form FMain
       Caption         =   "&Option"
       Begin VB.Menu mnuOptionUseOldComDlg 
          Caption         =   "Use old CommonDialog-control"
-         Enabled         =   0   'False
       End
    End
    Begin VB.Menu mnuHelp 
@@ -401,7 +409,7 @@ End Sub
 Private Sub mnuEditFindReplace_Click()
     If m_FR Is Nothing Then
         Set m_FR = New FindReplaceDialog
-        m_FR.IsReplacDlg = False
+        m_FR.IsReplaceDlg = False
     End If
     m_StringToSearchIn = "Quick brown fos jumps over the lazy dog"
     m_FR.FindWhat = "over"
@@ -516,6 +524,7 @@ Private Sub ShowPageSetupdialogNew()
     End With
 End Sub
 
+
 Private Sub mnuFileSaveAs_Click()
     Dim FNm As String
     If mnuOptionUseOldComDlg.Checked Then FNm = FileSaveOld Else FNm = FileSaveNew
@@ -548,55 +557,102 @@ Private Function FileSaveOld() As String
 '    End If
 End Function
 
-Private Sub mnuFilePrinter_Click()
-    Dim PNm As String
-    If mnuOptionUseOldComDlg.Checked Then PNm = FilePrinterOld Else PNm = FilePrinterNew
-    If Len(PNm) = 0 Then Exit Sub
-    'If Len(PNm) Then MsgBox PNm
-    Set Printer = SelectPrinter(PNm)
-    
-    'MsgBox Printer.DeviceName
-    'MsgBox Printer.DriverName
-    'Dim pk As PaperKind: pk = Printer.PaperSize
-    'MsgBox pk & " = " & MPrinterPaper.PaperKind_ToStr(pk)
-    
+'Private Sub mnuFilePrinter1_Click()
+'    Dim PNm As String
+'    If mnuOptionUseOldComDlg.Checked Then PNm = FilePrinterOld Else PNm = FilePrinterNew
+'    If Len(PNm) = 0 Then Exit Sub
+'    'If Len(PNm) Then MsgBox PNm
+'
+'    'MsgBox Printer.DeviceName
+'    'MsgBox Printer.DriverName
+'    'Dim pk As PaperKind: pk = Printer.PaperSize
+'    'MsgBox pk & " = " & MPrinterPaper.PaperKind_ToStr(pk)
+'
+'End Sub
+
+Private Sub mnuFilePrinter1_Click()
+    Dim PDlg As New PrintDialog
+    InitPrinterSettings PDlg
+    If PDlg.ShowDialog() = vbCancel Then Exit Sub
+    MsgBox ReportPrinterSettings(PDlg)
+    Set Printer = SelectPrinter(PDlg.PrinterSettings_PrinterName)
 End Sub
 
-Private Function FilePrinterNew() As String
+Private Sub mnuFilePrinter2_Click()
+    
+    MsgBox "Nope - does not work a.t.m."
+    Exit Sub
+    
     Dim PDlg As New PrintDialog
-    'PDlg.UseEXDialog = True
-    PDlg.PrinterSettings_FromPage = 5
-    PDlg.PrinterSettings_ToPage = 20
-    PDlg.PrinterSettings_MinimumPage = 1
-    PDlg.PrinterSettings_MaximumPage = 25
-    PDlg.PrinterSettings_Copies = 14
-    PDlg.AllowPrintToFile = True
-    If PDlg.ShowDialog(Me) = vbOK Then
-        MsgBox "PrinterSettings.PrinterName       : " & PDlg.PrinterSettings_PrinterName & vbCrLf & _
-               "PrinterSettings.PrinterDriverName : " & PDlg.PrinterSettings_PrinterDriverName & vbCrLf & _
-               "PrinterSettings.PrinterOutputName : " & PDlg.PrinterSettings_PrinterOutputName & vbCrLf & _
-               "PrinterSettings.PrinterDefaultName: " & PDlg.PrinterSettings_PrinterDefaultName & vbCrLf & _
-               "PrinterSettings.IsDefaultPrinter  : " & PDlg.PrinterSettings_IsDefaultPrinter & vbCrLf & _
-               "PrinterSettings.Copies            : " & PDlg.PrinterSettings_Copies
-    End If
-    FilePrinterNew = PDlg.PrinterSettings_PrinterName
-    'Printer.DeviceName = PDlg.PrinterSettings_PrinterName
+    InitPrinterSettings PDlg
+    PDlg.UseEXDialog = True
+    If PDlg.ShowDialog(Me) = vbCancel Then Exit Sub
+    MsgBox ReportPrinterSettings(PDlg)
+    Set Printer = SelectPrinter(PDlg.PrinterSettings_PrinterName)
+End Sub
+
+Private Sub mnuFilePrinter3_Click()
+    Dim PDlg As New PrintDialog
+    InitPrinterSettings PDlg
+    If PDlg.ShowDialog(Me) = vbCancel Then Exit Sub
+    MsgBox ReportPrinterSettings(PDlg)
+    Set Printer = SelectPrinter(PDlg.PrinterSettings_PrinterName)
+End Sub
+
+Sub InitPrinterSettings(aPrintDlg As PrintDialog)
+    With aPrintDlg
+        .AllowCurrentPage = True
+        .AllowPrintToFile = True
+        .AllowSelection = True
+        .AllowSomePages = True
+        .ShowHelp = True
+        .ShowNetwork = True
+        .PrinterSettings_FromPage = 5
+        .PrinterSettings_ToPage = 20
+        .PrinterSettings_MinimumPage = 1
+        .PrinterSettings_MaximumPage = 100
+        .PrinterSettings_Copies = 14
+    End With
+End Sub
+
+Function ReportPrinterSettings(aPrintDlg As PrintDialog) As String
+    Dim s As String
+    With aPrintDlg
+        s = s & "PrinterSettings.PrinterName       : " & .PrinterSettings_PrinterName & vbCrLf
+        s = s & "PrinterSettings.PrinterDriverName : " & .PrinterSettings_PrinterDriverName & vbCrLf
+        s = s & "PrinterSettings.PrinterOutputName : " & .PrinterSettings_PrinterOutputName & vbCrLf
+        s = s & "PrinterSettings.PrinterDefaultName: " & .PrinterSettings_PrinterDefaultName & vbCrLf
+        s = s & "PrinterSettings.IsDefaultPrinter  : " & .PrinterSettings_IsDefaultPrinter & vbCrLf
+        s = s & "PrinterSettings.Copies            : " & .PrinterSettings_Copies & vbCrLf
+        s = s & "PrinterSettings.CanDuplex         : " & .PrinterSettings_CanDuplex & vbCrLf
+        s = s & "PrinterSettings.LandscapeAngle    : " & .PrinterSettings_LandscapeAngle & vbCrLf
+        s = s & "PrinterSettings.MaximumCopies     : " & .PrinterSettings_MaximumCopies & vbCrLf
+        s = s & "PrinterSettings.MinimumPage       : " & .PrinterSettings_MinimumPage & vbCrLf
+        s = s & "PrinterSettings.MaximumPage       : " & .PrinterSettings_MaximumPage & vbCrLf
+        s = s & "PrinterSettings.FromPage          : " & .PrinterSettings_FromPage
+        s = s & "PrinterSettings.ToPage            : " & .PrinterSettings_ToPage
+        s = s & "PrinterSettings.PrintToFile       : " & .PrinterSettings_PrintToFile & vbCrLf
+        s = s & "PrinterSettings.PrintFileName     : " & .PrinterSettings_PrintFileName & vbCrLf
+        s = s & "PrinterSettings.SupportsColor     : " & .PrinterSettings_SupportsColor & vbCrLf
+        's = s & "ShowHelp                          : " & .ShowHelp & vbCrLf
+        s = s & "PrintToFile                       : " & .PrintToFile & vbCrLf
         
-    'MsgBox PDlg.PrinterSettings_PrintToFile
-    'MsgBox PDlg.PrintToFile
+    End With
+    ReportPrinterSettings = s
 End Function
-Private Function FilePrinterOld() As String
-'Try: On Error GoTo Catch
-'    With Me.CommonDialog
-'        .CancelError = True
-'        .ShowPrinter
-'        FilePrinterOld = Printer.DeviceName
-'    End With
-'Catch:
-'    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
-'        MComDlgCtrl.MessCommonDlgError Err.Number
-'    End If
-End Function
+'
+'Private Function FilePrinterOld() As String
+''Try: On Error GoTo Catch
+''    With Me.CommonDialog
+''        .CancelError = True
+''        .ShowPrinter
+''        FilePrinterOld = Printer.DeviceName
+''    End With
+''Catch:
+''    If Not Err.Number = MSComDlg.ErrorConstants.cdlCancel Then
+''        MComDlgCtrl.MessCommonDlgError Err.Number
+''    End If
+'End Function
 
 '--------------------------------------------------
 Private Sub mnuFileExit_Click()
@@ -707,8 +763,9 @@ End Sub
 
 '--------------------------------------
 Private Sub mnuOptionUseOldComDlg_Click()
-    mnuOptionUseOldComDlg.Checked = Not mnuOptionUseOldComDlg.Checked
-    Dim bUseOldComDlg As Boolean: bUseOldComDlg = mnuOptionUseOldComDlg.Checked
+    MsgBox "Nope - I am sorry - does not work anymore"
+    'mnuOptionUseOldComDlg.Checked = Not mnuOptionUseOldComDlg.Checked
+    'Dim bUseOldComDlg As Boolean: bUseOldComDlg = mnuOptionUseOldComDlg.Checked
 End Sub
 '--------------------------------------
 Private Sub mnuHelpInfo_Click()
@@ -857,3 +914,102 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
     End With
 
 End Sub
+
+'PrintDialog:
+'https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/printdialog-component-windows-forms?view=netframeworkdesktop-4.8
+'https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.printdialog?view=windowsdesktop-8.0
+'
+'PrinterSettings:
+'
+'https://learn.microsoft.com/en-us/dotnet/api/system.drawing.printing.printersettings?view=windowsdesktop-8.0
+'
+'PrintDocument:
+'https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/printdocument-component-windows-forms?view=netframeworkdesktop-4.8
+'https://learn.microsoft.com/en-us/dotnet/api/system.drawing.printing.printdocument?view=windowsdesktop-8.0
+'
+'PrintPreviewControl:
+'https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/printpreviewcontrol-control-windows-forms?view=netframeworkdesktop-4.8
+'https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.printpreviewcontrol?view=windowsdesktop-8.0
+'
+'PrintPreviewDialog:
+'https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/printpreviewdialog-control-windows-forms?view=netframeworkdesktop-4.8
+'https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.printpreviewdialog?view=windowsdesktop-8.0
+'
+'Private Sub ButtonPrint_Click(sender As Object, e as EventArgs) Handles ButtonPrint.Click
+'
+'    Printdialog1.Document = PrintDocument1
+'
+'    Printdialog1.PrinterSettings = PrintDocument1.PrinterSettings
+'
+'    Printdialog1.AllowSomePages = True
+'
+'    If Printdialog1.ShowDialog = DialogResult.OK Then
+'
+'        PrintDocument1.PrinterSettings = Printdialog1.PrinterSettings
+'        PrintDocument1.Print()
+'
+'    End If
+'
+'    'what about
+'    '* PrintPreviewDialog
+'    '* PrintPreviewControl
+'
+'PrintDialog.PrintSettings.ToString
+'[PrinterSettings
+'    HP LaserJet CP 1025nw
+'    Copies = 1
+'    Collate = False
+'    Duplex = Simplex
+'    FromPage = 0
+'    LandscapeAngle = 270
+'    MaximumCopies = 999
+'    OutputPort =
+'    ToPage = 0
+']
+'
+'End Sub
+'   Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+'       Dim s1 As String, s2 As String, s3 As String
+'       MessageBox.Show (PrintDialog1.ToString) 'System.Windows.Forms.PrintDialog
+'       s1 = PrintDialog1.PrinterSettings.ToString
+'       MessageBox.Show (s1)
+'       '[PrinterSettings
+'       '    HP LaserJet CP 1025nw
+'       '    Copies = 1
+'       '    Collate = False
+'       '    Duplex = Simplex
+'       '    FromPage = 0
+'       '    LandscapeAngle = 270
+'       '    MaximumCopies = 999
+'       '    OutputPort =
+'       '    ToPage = 0
+'       ']
+'       'MessageBox.Show(PrintDialog1.Document.ToString()) 'NullReferenceException
+'       MessageBox.Show (PrintDocument1.ToString) '[PrintDocument document]
+'       s2 = PrintDocument1.PrinterSettings.ToString
+'       MessageBox.Show (s2)
+'       If s1 = s2 Then MessageBox.Show ("OK s1 = s2")
+'       PrintDialog1.Document = PrintDocument1
+'       MessageBox.Show (PrintDialog1.Document.ToString) '[PrintDocument document]
+'
+'
+'
+'       'PrintDocument1.PrinterSettings.Copies = 14
+'       PrintDialog1.AllowCurrentPage = True
+'       PrintDialog1.AllowPrintToFile = True
+'       PrintDialog1.AllowSelection = True
+'       PrintDialog1.AllowSomePages = True
+'
+'       'PrintDialog1.PrinterSettings = PrintDocument1.PrinterSettings
+'       'PrintDialog1.UseEXDialog = True
+'
+'       If PrintDialog1.ShowDialog() = DialogResult.Cancel Then Return
+'
+'       PrintDocument1.PrinterSettings = PrintDialog1.PrinterSettings
+'
+'       MessageBox.Show (PrintDocument1.PrinterSettings.Copies.ToString)
+'       'PrintDocument1.Print()
+'       'PrintPreviewDialog1.ShowDialog()
+'   End Sub
+
+

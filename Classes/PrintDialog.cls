@@ -840,11 +840,19 @@ Private Function GethWnd(FOwner) As LongPtr
 #If VBA7 Or VBA6 Then
     GethWnd = GetDesktopWindow
 #Else
-    GethWnd = FOwner.hwnd
+Try: On Error GoTo Catch
+    If FOwner Is Nothing Then
+        GethWnd = GetDesktopWindow
+    Else
+        If IsObject(FOwner) Then
+            GethWnd = FOwner.hwnd
+        End If
+    End If
+Catch:
 #End If
 End Function
 
-Public Function ShowDialog(Optional FOwner As Variant) As VbMsgBoxResult
+Public Function ShowDialog(Optional FOwner) As VbMsgBoxResult
 'Public Function ShowDialog() As VbMsgBoxResult
 
 'https://microsoft.public.de.vb.narkive.com/wz5CVka1/druckereinstellung-mit-printdialog-oder-commondialog-showprinter
@@ -852,7 +860,7 @@ Try: On Error GoTo Catch
 
     ' Drucker festlegen, der standardmässig ausgewählt sein soll
     With m_DeviceMode
-        .dmSize = LenB(m_DeviceMode) '154
+        .dmSize = LenB(m_DeviceMode) '220 154
         '.dmDeviceName = Printer.DeviceName
         .dmFields = DM_PRINTQUALITY
     End With

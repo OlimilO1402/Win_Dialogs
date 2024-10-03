@@ -189,11 +189,11 @@ Public Sub ShowDialog(Optional Frm As Object)
     End If
 End Sub
 
-Public Property Get IsReplacDlg() As Boolean
-    IsReplacDlg = m_IsReplacDlg
+Public Property Get IsReplaceDlg() As Boolean
+    IsReplaceDlg = m_IsReplaceDlg
 End Property
-Public Property Let IsReplacDlg(ByVal Value As Boolean)
-    m_IsReplacDlg = Value
+Public Property Let IsReplaceDlg(ByVal Value As Boolean)
+    m_IsReplaceDlg = Value
 End Property
 
 Public Property Get FindWhat() As String
@@ -259,11 +259,11 @@ Public Property Let ReplaceAll(ByVal Value As Boolean)
 End Property
 
 Public Property Get IsTerminating() As Boolean
-    IsTerminating = mFlags And DIALOGTERM
+    IsTerminating = mFlags And FR_DIALOGTERM
 End Property
 Public Property Let IsTerminating(ByVal Value As Boolean)
-    mFlags = mFlags Or DIALOGTERM
-    If Not Value Then mFlags = mFlags Xor DIALOGTERM
+    mFlags = mFlags Or FR_DIALOGTERM
+    If Not Value Then mFlags = mFlags Xor FR_DIALOGTERM
 End Property
 
 Public Property Get ShowHelp() As Boolean
