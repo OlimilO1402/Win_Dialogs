@@ -13,6 +13,6 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public Sub CallBack(ByVal hhwnd As LongPtr, ByVal msg As Long, ByVal lParam As LongPtr)
+Public Sub CallBack(ByVal hhwnd As LongPtr, ByVal msg As LongPtr, ByVal lParam As LongPtr)
 
 End Sub

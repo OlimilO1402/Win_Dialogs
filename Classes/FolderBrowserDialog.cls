@@ -18,9 +18,10 @@ Attribute VB_Exposed = False
 'Zusammenfassung:
 ' Stellt ein Standarddialogfeld dar, in dem Benutzer einen Ordner auswählen können.
 Option Explicit
-Implements ICallBack
+'Implements ICallBack
 
-Private Const WM_USER              As Long = &H400
+Private Const WM_USER              As Long = &H400&
+
 Public Enum BrowseInfoFlags 'ulFlags:
     BIF_RETURNONLYFSDIRS = &H1        ': Gestattet nur Dateisystemordner als Auswahl.
     BIF_DONTGOBELOWDOMAIN = &H2       ': Der Dialog zeigt keine Netzwerkordner unterhalb der aktuellen Domain.
@@ -186,7 +187,8 @@ Private mTag          As Variant
     Private Declare PtrSafe Function SendMessageW Lib "user32" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr) As Long
     Private Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
     Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal lpString As LongPtr) As Long
-    Private Declare PtrSafe Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+    'Private Declare PtrSafe Sub CoTaskMemFree Lib "Ole32" (ByRef pv As Any)
+    Private Declare PtrSafe Sub CoTaskMemFree Lib "Ole32" (ByVal pv As LongPtr) 'Any)
 #Else
     Private Declare Function SHBrowseForFolderW Lib "Shell32" (pBrowseInfo As BrowseInfoW) As LongPtr
     Private Declare Function SHGetSpecialFolderLocation Lib "Shell32" (ByVal hwndOwner As LongPtr, ByVal csidl As Long, ByRef pidl_out As LongPtr) As Long      'HRESULT
@@ -317,7 +319,7 @@ Try: On Error GoTo Catch
         .lpszTitle = StrPtr(descr)
         .ulFlags = mFlags
         .lpfn = FncPtr(AddressOf MCallBack.FolderBrowserDialogCallBack)
-        .lParam = ObjPtr(Me)
+        .lParam = StrPtr(mSelectedPath) 'ObjPtr(Me)
         .iImage = 0&
     End With
     
@@ -343,27 +345,27 @@ Private Function FncPtr(ByVal p As LongPtr) As LongPtr
     FncPtr = p
 End Function
 
-' Callbackfunction ->>>
-Private Sub ICallBack_CallBack(ByVal hhwnd As LongPtr, ByVal msg As Long, ByVal lParam As LongPtr)
-    Dim rv     As Long
-    Dim lflag  As Long
-    Select Case msg
-    Case BFFM_INITIALIZED
-        If (Len(mSelectedPath) > 0) Then
-            rv = SendMessageW(hhwnd, BFFM_SETSELECTIONW, 1&, ByVal StrPtr(mSelectedPath))
-        End If
-    Case BFFM_SELCHANGED
-        If (lParam <> 0&) Then
-            Dim Buffer As String: Buffer = String$(1024, vbNullChar)
-            lflag = SHGetPathFromIDListW(lParam, ByVal StrPtr(Buffer))
-            If lflag = 1 Then
-                SendMessageW hhwnd, BFFM_ENABLEOK, 0, ByVal 1
-            ElseIf lflag = 0 Then
-                SendMessageW hhwnd, BFFM_ENABLEOK, 0, ByVal 0
-            End If
-            CoTaskMemFree VarPtr(lParam)
-        End If
-    End Select
-End Sub
+'' Callbackfunction ->>>
+'Private Sub ICallBack_CallBack(ByVal hhwnd As LongPtr, ByVal Msg As LongPtr, ByVal lParam As LongPtr)
+'    Dim rv     As LongPtr
+'    Dim lflag  As Long
+'    Select Case Msg
+'    Case BFFM_INITIALIZED
+'        If (Len(mSelectedPath) > 0) Then
+'            rv = SendMessageW(hhwnd, BFFM_SETSELECTIONW, 1&, ByVal StrPtr(mSelectedPath))
+'        End If
+'    Case BFFM_SELCHANGED
+'        If (lParam <> 0&) Then
+'            Dim Buffer As String: Buffer = String$(1024, vbNullChar)
+'            lflag = SHGetPathFromIDListW(lParam, ByVal StrPtr(Buffer))
+'            If lflag = 1 Then
+'                rv = SendMessageW(hhwnd, BFFM_ENABLEOK, 0, ByVal 1)
+'            ElseIf lflag = 0 Then
+'                rv = SendMessageW(hhwnd, BFFM_ENABLEOK, 0, ByVal 0)
+'            End If
+'            CoTaskMemFree VarPtr(lParam)
+'        End If
+'    End Select
+'End Sub
 
 
