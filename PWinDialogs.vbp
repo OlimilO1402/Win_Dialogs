@@ -23,6 +23,7 @@ Class=PrintDialog; Classes\PrintDialog.cls
 Class=TaskDialogSE; Classes\TaskDialogSE.cls
 Class=PageSetupDialog; Classes\PageSetupDialog.cls
 Class=FindReplaceDialog; Classes\FindReplaceDialog.cls
+Module=MFileDlg; Modules\MFileDlg.bas
 ResFile32="Resources\MyRes.RES"
 IconForm="FMain"
 Startup="Sub Main"

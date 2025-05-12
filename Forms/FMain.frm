@@ -19,6 +19,14 @@ Begin VB.Form FMain
    ScaleHeight     =   6495
    ScaleWidth      =   5295
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton BtnSave 
+      Caption         =   "Save"
+      Height          =   375
+      Left            =   3960
+      TabIndex        =   23
+      Top             =   840
+      Width           =   1215
+   End
    Begin VB.PictureBox CommonDialog 
       Height          =   495
       Left            =   4800
@@ -28,13 +36,13 @@ Begin VB.Form FMain
       Top             =   0
       Width           =   495
    End
-   Begin VB.CommandButton Command6 
-      Caption         =   "Command6"
+   Begin VB.CommandButton BtnOpen 
+      Caption         =   "Open"
       Height          =   375
-      Left            =   4200
+      Left            =   2760
       TabIndex        =   21
       Top             =   840
-      Width           =   735
+      Width           =   1215
    End
    Begin VB.CommandButton BtnTestTaskDialog 
       Caption         =   "Test TaskDialog"
@@ -285,6 +293,9 @@ Begin VB.Form FMain
    End
    Begin VB.Menu mnuOption 
       Caption         =   "&Option"
+      Begin VB.Menu mnuOptionUseUndocumShell32 
+         Caption         =   "Use undocumented Shell32.dll functions"
+      End
       Begin VB.Menu mnuOptionUseOldComDlg 
          Caption         =   "Use old CommonDialog-control"
       End
@@ -306,6 +317,7 @@ Private CD  As New ColorDialog
 Private m_FR As FindReplaceDialog
 Private m_StringToSearchIn As String
 Private m_FindWhat As String
+
 
 Private Sub BtnTestTaskDialog_Click()
     Dim vlg As String: vlg = ", we make it very long to see what happens if it is too long, maybe there are line breaks . . ."
@@ -342,6 +354,18 @@ Public Function SelectPrinter(ByVal PrinterName As String) As Printer
         End If
     Next
 End Function
+
+Private Sub BtnOpen_Click()
+    Dim PFN As String
+    If MFileDlg.OpenFile_ShowDialog(Me.hwnd, App.Path, ".txt", "Textdateien [*.txt]|*.txt|Alle Dateien [*.*]|*.*", "File Open", PFN) = vbCancel Then Exit Sub
+    Debug.Print PFN
+End Sub
+
+Private Sub BtnSave_Click()
+    Dim PFN As String
+    If MFileDlg.SaveFile_ShowDialog(Me.hwnd, App.Path, ".txt", "Textdateien [*.txt]|*.txt|Alle Dateien [*.*]|*.*", "File Save", PFN) = vbCancel Then Exit Sub
+    Debug.Print PFN
+End Sub
 
 Private Sub Form_Load()
     Me.Caption = Me.Caption & " v" & MApp.Version
@@ -441,7 +465,19 @@ End Sub
 
 Private Sub mnuFileOpen_Click()
     Dim FNm As String
-    If mnuOptionUseOldComDlg.Checked Then FNm = FileOpenOld Else FNm = FileOpenNew
+    If mnuOptionUseUndocumShell32.Checked Then
+        Dim Filter  As String: Filter = "Textfiles [*.txt]|*.txt|All Files [*.*]|*.*"
+        Dim InitDir As String: InitDir = App.Path
+        Dim DefExt  As String: DefExt = ".txt"
+        Dim Title   As String: Title = "Open"
+        Dim PathFileName As String
+        'If MShell32U.OpenFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
+        If MShell32U.SaveFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
+            FNm = PathFileName
+        End If
+    Else
+        If mnuOptionUseOldComDlg.Checked Then FNm = FileOpenOld Else FNm = FileOpenNew
+    End If
     If Len(FNm) Then
         MsgBox FNm
         LblOFD.Caption = FNm
@@ -527,7 +563,19 @@ End Sub
 
 Private Sub mnuFileSaveAs_Click()
     Dim FNm As String
-    If mnuOptionUseOldComDlg.Checked Then FNm = FileSaveOld Else FNm = FileSaveNew
+    If mnuOptionUseUndocumShell32.Checked Then
+        Dim Filter  As String: Filter = "Textfiles [*.txt]|*.txt|All Files [*.*]|*.*"
+        Dim InitDir As String: InitDir = App.Path
+        Dim DefExt  As String: DefExt = ".txt"
+        Dim Title   As String: Title = "Save As..."
+        Dim PathFileName As String
+        'If MShell32U.OpenFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
+        If MShell32U.SaveFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
+            FNm = PathFileName
+        End If
+    Else
+        If mnuOptionUseOldComDlg.Checked Then FNm = FileSaveOld Else FNm = FileSaveNew
+    End If
     If Len(FNm) Then LblSFD.Caption = FNm
 End Sub
 Private Function FileSaveNew() As String
@@ -1013,3 +1061,6 @@ End Sub
 '   End Sub
 
 
+Private Sub mnuOptionUseUndocumShell32_Click()
+    mnuOptionUseUndocumShell32.Checked = Not mnuOptionUseUndocumShell32.Checked
+End Sub
