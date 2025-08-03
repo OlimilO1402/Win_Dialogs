@@ -47,9 +47,9 @@ Private m_OSFD(0 To m_uOSFD) As LongPtr 'in VBA it will be translated to LongLon
 #End If
 
 'just a little macro for VBA
-Sub Start()
-    UserForm1.Show
-End Sub
+'Sub Start()
+'    UserForm1.Show
+'End Sub
 Public Function OpenFile_ShowDialog(ByVal ahWndOwner As LongPtr, ByVal InitialDir As String, ByVal DefaultExt As String, ByVal Filter As String, ByVal Title As String, PathFileName_out As String) As VbMsgBoxResult
     Dim Buffer As String
     Prepare ahWndOwner, InitialDir, DefaultExt, Filter, Title, Buffer
