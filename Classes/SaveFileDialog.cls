@@ -364,10 +364,10 @@ Public Function EnsureExtension(ByVal F_in As String, ByVal ext As String)
     If Left(ext, 1) = "." Then ext = Mid(ext, 2)
     If Right(F_in, 1) = "." Then F_in = Left(F_in, Len(F_in) - 1)
     Dim pos As Long: pos = InStrRev(F_in, ".")
-    Dim E As String
+    Dim e As String
     If pos > 0 Then
-        E = Right(F_in, Len(F_in) - pos)
-        If LCase(E) = LCase(ext) Then
+        e = Right(F_in, Len(F_in) - pos)
+        If LCase(e) = LCase(ext) Then
             EnsureExtension = F_in
             Exit Function
         End If
@@ -399,15 +399,18 @@ End Property
 Public Property Let Filter(ByVal Value As String)
     'Debug.Print Value
     mFilter = Replace(Value, "|", vbNullChar)
-    Dim sa() As String: sa = Split(mFilter, vbNullChar)
-    Dim s As String, i As Long, u As Long: u = UBound(sa) / 2
-    ReDim mExts(0 To u)
-    For i = 0 To u
-        s = sa(i * 2 + 1)
-        s = Replace(s, "*", "")
-        s = Replace(s, ".", "")
-        mExts(i) = s
-    Next
+'    Dim sa() As String: sa = Split(mFilter, vbNullChar)
+'    Dim s As String, i As Long, u As Long: u = UBound(sa) '/ 2
+'    u = u / 2
+'    ' oder
+'    'u = u \ 2
+'    ReDim mExts(0 To u)
+'    For i = 0 To u
+'        s = sa(i * 2 + 1)
+'        s = Replace(s, "*", "")
+'        s = Replace(s, ".", "")
+'        mExts(i) = s
+'    Next
     'Debug.Print mFilter
 'Dim i As Integer
 'Dim StrFlt As String
@@ -589,11 +592,11 @@ Try: On Error GoTo Catch
     End If
     Exit Function
 Catch:
-    If Err.Number = 32755 Then
+    If Err.number = 32755 Then
         ShowDialog = vbCancel
     Else
         ShowDialog = vbAbort
-        MsgBox CStr(Err.Number) + " " + Err.Description
+        MsgBox CStr(Err.number) + " " + Err.Description
     End If
 End Function
 
