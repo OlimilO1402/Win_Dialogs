@@ -338,7 +338,7 @@ Private Sub Command5_Click()
     FD.ShowColor = True
     'FD.ShowHelp = True
     FD.Color = LblFD.ForeColor
-    If FD.ShowDialog(Me.hwnd) = vbOK Then
+    If FD.ShowDialog(Me.hwnd) = VbMsgBoxResult.vbOK Then
         Set LblFD.Font = FD.Font
         LblFD.ForeColor = FD.Color
     End If
@@ -357,13 +357,13 @@ End Function
 
 Private Sub BtnOpen_Click()
     Dim PFN As String
-    If MFileDlg.OpenFile_ShowDialog(Me.hwnd, App.Path, ".txt", "Textdateien [*.txt]|*.txt|Alle Dateien [*.*]|*.*", "File Open", PFN) = vbCancel Then Exit Sub
+    If MFileDlg.OpenFile_ShowDialog(Me.hwnd, App.Path, ".txt", "Textdateien [*.txt]|*.txt|Alle Dateien [*.*]|*.*", "File Open", PFN) = VbMsgBoxResult.vbCancel Then Exit Sub
     Debug.Print PFN
 End Sub
 
 Private Sub BtnSave_Click()
     Dim PFN As String
-    If MFileDlg.SaveFile_ShowDialog(Me.hwnd, App.Path, ".txt", "Textdateien [*.txt]|*.txt|Alle Dateien [*.*]|*.*", "File Save", PFN) = vbCancel Then Exit Sub
+    If MFileDlg.SaveFile_ShowDialog(Me.hwnd, App.Path, ".txt", "Textdateien [*.txt]|*.txt|Alle Dateien [*.*]|*.*", "File Save", PFN) = VbMsgBoxResult.vbCancel Then Exit Sub
     Debug.Print PFN
 End Sub
 
@@ -452,7 +452,7 @@ Private Sub mnuEditFolderSelectOFD_Click()
         .ValidateNames = False
         .CheckFileExists = False
         .CheckPathExists = True
-        If .ShowDialog(Me) = vbOK Then
+        If .ShowDialog(Me) = VbMsgBoxResult.vbOK Then
             Dim FNm As String: FNm = .FileName
             Dim pos As Long: pos = InStrRev(FNm, "\")
             If pos > 3 Then
@@ -471,15 +471,16 @@ Private Sub mnuFileOpen_Click()
         Dim DefExt  As String: DefExt = ".txt"
         Dim Title   As String: Title = "Open"
         Dim PathFileName As String
-        'If MShell32U.OpenFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
-        If MShell32U.SaveFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
+        'If MShell32U.OpenFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = VbMsgBoxResult.vbOK Then
+        'If MShell32U.SaveFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = VbMsgBoxResult.vbOK Then
+        If MFileDlg.SaveFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = VbMsgBoxResult.vbOK Then
             FNm = PathFileName
         End If
     Else
         If mnuOptionUseOldComDlg.Checked Then FNm = FileOpenOld Else FNm = FileOpenNew
     End If
     If Len(FNm) Then
-        MsgBox FNm
+        'MsgBox FNm
         LblOFD.Caption = FNm
     End If
 End Sub
@@ -492,7 +493,7 @@ Private Function FileOpenNew() As String
         '.ShowReadOnly = True
         '.AddExtension = False
         '.MultiSelect = True
-        If .ShowDialog = vbOK Then
+        If .ShowDialog = VbMsgBoxResult.vbOK Then
             FileOpenNew = .FileName
         End If
         If .FileNames.Count > 1 Then
@@ -548,7 +549,7 @@ End Sub
 Private Sub ShowPageSetupdialogNew()
     Dim psd As New PageSetupDialog
     With psd
-        If .ShowDialog = vbCancel Then Exit Sub
+        If .ShowDialog = VbMsgBoxResult.vbCancel Then Exit Sub
         MsgBox "Driver, Device, Output: " & vbCrLf & psd.DriverName & ", " & psd.DeviceName & ", " & psd.OutputName & vbCrLf & _
                "w*h: " & psd.PaperSizeWidth & " " & psd.PaperSizeHeight & vbCrLf & _
                "margin-l,r,t,b=" & psd.MarginsLeft & ", " & psd.MarginsRight & ", " & psd.MarginsTop & ", " & psd.MarginsBottom & vbCrLf & _
@@ -569,8 +570,8 @@ Private Sub mnuFileSaveAs_Click()
         Dim DefExt  As String: DefExt = ".txt"
         Dim Title   As String: Title = "Save As..."
         Dim PathFileName As String
-        'If MShell32U.OpenFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
-        If MShell32U.SaveFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = vbOK Then
+        'If MShell32U.OpenFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = VbMsgBoxResult.vbOK Then
+        If MFileDlg.SaveFile_ShowDialog(Me.hwnd, InitDir, DefExt, Filter, Title, PathFileName) = VbMsgBoxResult.vbOK Then
             FNm = PathFileName
         End If
     Else
@@ -583,7 +584,7 @@ Private Function FileSaveNew() As String
         '.Filter = MApp.FileExtFilter
         'Debug.Print .Filter
         '.ShowHelp = True
-        If .ShowDialog = vbCancel Then Exit Function
+        If .ShowDialog = VbMsgBoxResult.vbCancel Then Exit Function
         FileSaveNew = .FileName
     End With
 End Function
@@ -621,7 +622,7 @@ End Function
 Private Sub mnuFilePrinter1_Click()
     Dim PDlg As New PrintDialog
     InitPrinterSettings PDlg
-    If PDlg.ShowDialog() = vbCancel Then Exit Sub
+    If PDlg.ShowDialog() = VbMsgBoxResult.vbCancel Then Exit Sub
     MsgBox ReportPrinterSettings(PDlg)
     Set Printer = SelectPrinter(PDlg.PrinterSettings_PrinterName)
 End Sub
@@ -634,7 +635,7 @@ Private Sub mnuFilePrinter2_Click()
     Dim PDlg As New PrintDialog
     InitPrinterSettings PDlg
     PDlg.UseEXDialog = True
-    If PDlg.ShowDialog(Me) = vbCancel Then Exit Sub
+    If PDlg.ShowDialog(Me) = VbMsgBoxResult.vbCancel Then Exit Sub
     MsgBox ReportPrinterSettings(PDlg)
     Set Printer = SelectPrinter(PDlg.PrinterSettings_PrinterName)
 End Sub
@@ -642,7 +643,7 @@ End Sub
 Private Sub mnuFilePrinter3_Click()
     Dim PDlg As New PrintDialog
     InitPrinterSettings PDlg
-    If PDlg.ShowDialog(Me) = vbCancel Then Exit Sub
+    If PDlg.ShowDialog(Me) = VbMsgBoxResult.vbCancel Then Exit Sub
     MsgBox ReportPrinterSettings(PDlg)
     Set Printer = SelectPrinter(PDlg.PrinterSettings_PrinterName)
 End Sub
@@ -719,7 +720,7 @@ Private Function ColorChooseNew() As Long
     With CD
         .Color = LblCD.BackColor
         .SolidColorOnly = True
-        If .ShowDialog = vbCancel Then Exit Function
+        If .ShowDialog = VbMsgBoxResult.vbCancel Then Exit Function
         ColorChooseNew = .Color
     End With
 End Function
@@ -750,7 +751,7 @@ Private Function FontDialogNew(Font_in As StdFont, ByRef Color_inout As Long) As
     With New FontDialog
         Set .Font = Font_in
         .Color = Color_inout
-        If .ShowDialog = vbCancel Then Exit Function
+        If .ShowDialog = VbMsgBoxResult.vbCancel Then Exit Function
         Set FontDialogNew = .Font
         Color_inout = .Color
     End With
@@ -791,7 +792,7 @@ Private Sub mnuEditFolderChoose_Click()
         ' "::{031E4825-7B94-4DC3-B131-E946B44C8DD5}" = Libraries Bibliotheken
         '.Folder =
         
-        If .ShowDialog(Me.hwnd) = vbOK Then
+        If .ShowDialog(Me.hwnd) = VbMsgBoxResult.vbOK Then
             LblFBD.Caption = .Folder
         Else
             
@@ -803,7 +804,7 @@ Private Sub mnuEditPathChoose_Click()
     With New FolderBrowserDialog
         .Description = "Please select a folder:"
         .ShowNewFolderButton = True
-        If .ShowDialog(Me) = vbOK Then
+        If .ShowDialog(Me) = VbMsgBoxResult.vbOK Then
             LblFBD.Caption = .SelectedPath
         End If
     End With
@@ -950,7 +951,7 @@ Private Sub ShowFBD(spf As Environment_SpecialFolder)
         If (ChkSelectedPath.Value = vbChecked) And (Len(TxtSelectedPath.Text) > 0) Then
             .SelectedPath = TxtSelectedPath.Text
         End If
-        If .ShowDialog(Me) = vbOK Then
+        If .ShowDialog(Me) = VbMsgBoxResult.vbOK Then
             Dim s As String: s = .SelectedPath
             TxtSelectedPath.Text = s
             Dim t As String: t = TxtSelectedPath.Text
